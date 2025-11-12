@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   get "home/index"
   
   resources :galleries do
-    resources :images, only: [:create, :destroy]
+    resources :images, only: [:show, :destroy]
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

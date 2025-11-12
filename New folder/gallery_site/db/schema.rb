@@ -20,7 +20,10 @@ ActiveRecord::Schema[7.1].define(version: 2) do
 
   create_table "images", force: :cascade do |t|
     t.integer "gallery_id", null: false
-    t.string "caption", null: false
+    t.string "name", null: false
+    t.string "quote", null: false
+    t.text "biography", null: false
+    t.string "image_url", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["gallery_id"], name: "index_images_on_gallery_id"

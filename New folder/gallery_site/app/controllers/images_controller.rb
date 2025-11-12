@@ -1,20 +1,15 @@
 class ImagesController < ApplicationController
   before_action :set_gallery
-  before_action :set_image, only: [:destroy]
+  before_action :set_image, only: [:show, :destroy]
 
-  def create
-    @image = @gallery.images.build(image_params)
-    
-    if @image.save
-      redirect_to @gallery, notice: 'Image was successfully added.'
-    else
-      redirect_to @gallery, alert: 'Error adding image.'
-    end
+  def show
+    @image = Image.find(params[:id])
+    @gallery = Gallery.find(params[:gallery_id])
   end
 
   def destroy
     @image.destroy
-    redirect_to @gallery, notice: 'Image was successfully deleted.'
+    redirect_to @gallery, notice: 'Character was successfully deleted.'
   end
 
   private
@@ -25,9 +20,5 @@ class ImagesController < ApplicationController
 
   def set_image
     @image = Image.find(params[:id])
-  end
-
-  def image_params
-    params.require(:image).permit(:caption, :image_file)
   end
 end

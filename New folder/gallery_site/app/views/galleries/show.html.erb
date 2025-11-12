@@ -11,56 +11,29 @@
   </div>
 
   <div class="gallery-content">
-    <h2>Gallery Images</h2>
+    <h2>Characters</h2>
     
-    <!-- Add Image Form -->
-    <div class="add-image-form">
-      <h3>Add New Image</h3>
-      <%= form_with(model: [@gallery, Image.new], local: true) do |form| %>
-        <% if @gallery.errors.any? %>
-          <div id="error_explanation">
-            <h2><%= pluralize(@gallery.errors.count, "error") %> prohibited this gallery from being saved:</h2>
-            <ul>
-              <% @gallery.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
-
-        <div class="form-group">
-          <%= form.label :image_file, 'Image' %>
-          <%= form.file_field :image_file, accept: 'image/*', required: true %>
-        </div>
-
-        <div class="form-group">
-          <%= form.label :caption, 'Caption' %>
-          <%= form.text_field :caption, placeholder: 'Enter image caption', required: true %>
-        </div>
-
-        <%= form.submit 'Add Image', class: 'btn btn-primary' %>
-      <% end %>
-    </div>
-
-    <!-- Images Grid -->
+    <!-- Characters Grid -->
     <% if @images.any? %>
       <div class="images-grid">
         <% @images.each do |image| %>
-          <div class="image-card">
-            <% if image.image_file.attached? %>
-              <div class="image-container">
-                <%= image_tag image.image_file, alt: image.caption, class: 'gallery-image' %>
-              </div>
-            <% end %>
+          <div class="image-card character-card">
+            <div class="image-container">
+              <img src="<%= image.image_url %>" alt="<%= image.name %>" class="gallery-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22250%22%3E%3Crect fill=%22%23e9ecef%22 width=%22250%22 height=%22250%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2220%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3E[Image Placeholder]%3C/text%3E%3C/svg%3E'">
+            </div>
             <div class="image-info">
-              <p class="caption"><%= image.caption %></p>
-              <%= button_to 'Delete', gallery_image_path(@gallery, image), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-small btn-danger' %>
+              <h3 class="character-name"><%= image.name %></h3>
+              <p class="character-quote"><em>"<%= truncate(image.quote, length: 50) %>"</em></p>
+              <%= link_to 'View Profile', gallery_image_path(@gallery, image), class: 'btn btn-primary btn-small' %>
+              <% if current_user_admin? %>
+                <%= button_to 'Delete', gallery_image_path(@gallery, image), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-small btn-danger' %>
+              <% end %>
             </div>
           </div>
         <% end %>
       </div>
     <% else %>
-      <p class="no-images">No images in this gallery yet. Add one above!</p>
+      <p class="no-images">No characters in this gallery yet.</p>
     <% end %>
   </div>
 </div>

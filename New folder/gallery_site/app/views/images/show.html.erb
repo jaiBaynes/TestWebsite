@@ -1,0 +1,153 @@
+<div class="container">
+  <div class="character-detail">
+    <div class="detail-header">
+      <%= link_to '← Back to Gallery', gallery_path(@gallery), class: 'btn btn-secondary' %>
+      <h1><%= @image.name %></h1>
+    </div>
+
+    <div class="detail-content">
+      <div class="character-image-section">
+        <div class="character-large-image">
+          <img src="<%= @image.image_url %>" alt="<%= @image.name %>" class="large-character-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22500%22 height=%22600%22%3E%3Crect fill=%22%23e9ecef%22 width=%22500%22 height=%22600%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2230%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3E[Character Image]%3C/text%3E%3C/svg%3E'">
+        </div>
+      </div>
+
+      <div class="character-info-section">
+        <div class="character-quote-section">
+          <p class="quote-title">Quote</p>
+          <p class="quote-text"><em>"<%= @image.quote %>"</em></p>
+        </div>
+
+        <div class="character-bio-section">
+          <h2>About</h2>
+          <p class="biography"><%= simple_format(@image.biography) %></p>
+        </div>
+
+        <div class="character-meta">
+          <p><strong>Character:</strong> <%= @image.name %></p>
+          <p><strong>Gallery:</strong> <%= link_to @gallery.title, gallery_path(@gallery) %></p>
+        </div>
+
+        <% if current_user_admin? %>
+          <div class="admin-actions">
+            <%= link_to 'Edit', edit_gallery_image_path(@gallery, @image), class: 'btn btn-warning' if false %>
+            <%= button_to 'Delete Character', gallery_image_path(@gallery, @image), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' if false %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.character-detail {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+}
+
+.detail-header {
+  margin-bottom: 30px;
+}
+
+.detail-header h1 {
+  font-size: 2.5em;
+  margin: 15px 0;
+  color: #333;
+}
+
+.detail-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.character-large-image {
+  width: 100%;
+  text-align: center;
+}
+
+.large-character-image {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.character-quote-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.quote-title {
+  font-size: 0.9em;
+  font-weight: bold;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+.quote-text {
+  font-size: 1.3em;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.character-bio-section {
+  margin-bottom: 20px;
+}
+
+.character-bio-section h2 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.biography {
+  line-height: 1.8;
+  color: #555;
+  font-size: 1.05em;
+}
+
+.character-meta {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.character-meta p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .detail-content {
+    grid-template-columns: 1fr;
+  }
+
+  .character-detail {
+    padding: 15px;
+  }
+
+  .detail-header h1 {
+    font-size: 1.8em;
+  }
+
+  .quote-text {
+    font-size: 1.1em;
+  }
+}
+</style>
