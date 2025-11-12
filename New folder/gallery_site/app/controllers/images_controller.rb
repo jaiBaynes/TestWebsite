@@ -3,8 +3,7 @@ class ImagesController < ApplicationController
   before_action :set_image, only: [:show, :destroy]
 
   def show
-    @image = Image.find(params[:id])
-    @gallery = Gallery.find(params[:gallery_id])
+    # Gallery and image already set by before_action
   end
 
   def destroy

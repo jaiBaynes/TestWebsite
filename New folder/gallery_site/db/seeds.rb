@@ -18,7 +18,7 @@ Image.create!(
   name: "Kat",
   quote: "Curiosity is my greatest strength",
   biography: "Kat is a mysterious and intelligent character known for their keen observation skills and strategic thinking. With a background in problem-solving, Kat often finds unconventional solutions to complex challenges. Their calm demeanor and analytical mind make them an invaluable member of any team.",
-  image_url: "https://drive.google.com/uc?export=view&id=KAT_IMAGE_ID"
+  image_url: "https://drive.google.com/uc?export=view&id=1W5rTjSmYDU60z0dOKkHmuzH0dNxv706_"
 )
 
 # Character 2: Python
@@ -27,7 +27,7 @@ Image.create!(
   name: "Python",
   quote: "Every loop leads somewhere new",
   biography: "Python is an innovative and forward-thinking character who thrives on continuous learning and adaptation. With a natural gift for seeing patterns and connections, Python excels at breaking down complex problems into manageable parts. Their flexibility and quick thinking make them an asset in any situation.",
-  image_url: "https://drive.google.com/uc?export=view&id=PYTHON_IMAGE_ID"
+  image_url: "https://drive.google.com/uc?export=view&id=16daUJl9TayRhRN6n8rphm3EpqzMIYbjn"
 )
 
 # Character 3: Cerberus
@@ -36,7 +36,7 @@ Image.create!(
   name: "Cerberus",
   quote: "Loyalty is everything",
   biography: "Cerberus is a formidable and protective character known for unwavering loyalty and fierce determination. With a commanding presence and strong moral compass, Cerberus serves as both guardian and mentor. Their courage and dedication inspire those around them to be their best selves.",
-  image_url: "https://drive.google.com/uc?export=view&id=CERBERUS_IMAGE_ID"
+  image_url: "https://drive.google.com/uc?export=view&id=1T4Q6A5n7tx51E9dGHwF25D6LPpDdR0J1"
 )
 
 puts "Character gallery created with Kat, Python, and Cerberus!"
