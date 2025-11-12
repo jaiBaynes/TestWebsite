@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="header">
+    <h1>Image Galleries</h1>
+    <%= link_to 'Create New Gallery', new_gallery_path, class: 'btn btn-primary' %>
+  </div>
+
+  <% if @galleries.any? %>
+    <div class="galleries-grid">
+      <% @galleries.each do |gallery| %>
+        <div class="gallery-card">
+          <h2><%= link_to gallery.title, gallery_path(gallery) %></h2>
+          <p><%= truncate(gallery.description, length: 100) %></p>
+          <p class="gallery-stats"><%= gallery.images.count %> images</p>
+          <div class="gallery-actions">
+            <%= link_to 'View', gallery_path(gallery), class: 'btn btn-secondary' %>
+            <%= link_to 'Edit', edit_gallery_path(gallery), class: 'btn btn-warning' %>
+            <%= link_to 'Delete', gallery_path(gallery), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="no-galleries">No galleries yet. <%= link_to 'Create one!', new_gallery_path %></p>
+  <% end %>
+</div>

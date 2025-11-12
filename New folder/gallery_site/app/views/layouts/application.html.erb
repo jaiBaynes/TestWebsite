@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gallery Site - Image Gallery Application</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application" %>
+  </head>
+
+  <body>
+    <header>
+      <div class="navbar">
+        <h1><%= link_to "Gallery Site", root_path %></h1>
+        <nav>
+          <%= link_to "Home", root_path %> |
+          <%= link_to "Galleries", galleries_path %> |
+          <%= link_to "Create Gallery", new_gallery_path %>
+        </nav>
+      </div>
+    </header>
+
+    <% if notice %>
+      <div class="alert notice">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% if alert %>
+      <div class="alert">
+        <%= alert %>
+      </div>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>

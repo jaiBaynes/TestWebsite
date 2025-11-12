@@ -1,0 +1,66 @@
+<div class="container">
+  <div class="gallery-header">
+    <div class="header-content">
+      <h1><%= @gallery.title %></h1>
+      <p class="description"><%= @gallery.description %></p>
+    </div>
+    <div class="header-actions">
+      <%= link_to 'Edit Gallery', edit_gallery_path(@gallery), class: 'btn btn-warning' %>
+      <%= link_to 'Back to Galleries', galleries_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+
+  <div class="gallery-content">
+    <h2>Gallery Images</h2>
+    
+    <!-- Add Image Form -->
+    <div class="add-image-form">
+      <h3>Add New Image</h3>
+      <%= form_with(model: [@gallery, Image.new], local: true) do |form| %>
+        <% if @gallery.errors.any? %>
+          <div id="error_explanation">
+            <h2><%= pluralize(@gallery.errors.count, "error") %> prohibited this gallery from being saved:</h2>
+            <ul>
+              <% @gallery.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="form-group">
+          <%= form.label :image_file, 'Image' %>
+          <%= form.file_field :image_file, accept: 'image/*', required: true %>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :caption, 'Caption' %>
+          <%= form.text_field :caption, placeholder: 'Enter image caption', required: true %>
+        </div>
+
+        <%= form.submit 'Add Image', class: 'btn btn-primary' %>
+      <% end %>
+    </div>
+
+    <!-- Images Grid -->
+    <% if @images.any? %>
+      <div class="images-grid">
+        <% @images.each do |image| %>
+          <div class="image-card">
+            <% if image.image_file.attached? %>
+              <div class="image-container">
+                <%= image_tag image.image_file, alt: image.caption, class: 'gallery-image' %>
+              </div>
+            <% end %>
+            <div class="image-info">
+              <p class="caption"><%= image.caption %></p>
+              <%= button_to 'Delete', gallery_image_path(@gallery, image), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-small btn-danger' %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="no-images">No images in this gallery yet. Add one above!</p>
+    <% end %>
+  </div>
+</div>
