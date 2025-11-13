@@ -148,6 +148,8 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     nio4r (2.7.5)
+    nokogiri (1.18.10-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.18.10-x64-mingw-ucrt)
       racc (~> 1.4)
     pp (0.6.3)
@@ -226,6 +228,7 @@ GEM
       sprockets (>= 3.0.0)
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
+    sqlite3 (1.7.3-arm64-darwin)
     stringio (3.1.8)
     thor (1.4.0)
     timeout (0.4.4)
@@ -249,6 +252,7 @@ GEM
     zeitwerk (2.7.3)
 
 PLATFORMS
+  arm64-darwin-24
   x64-mingw-ucrt
 
 DEPENDENCIES
@@ -265,7 +269,7 @@ DEPENDENCIES
   web-console
 
 RUBY VERSION
-   ruby 3.4.7p58
+   ruby 3.3.8p144
 
 BUNDLED WITH
    2.7.2
