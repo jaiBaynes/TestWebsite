@@ -30,8 +30,10 @@ class Image < ApplicationRecord
   def all_image_urls
     if character_images.any?
       # Exclude preview/thumbnail images from carousel
-      character_images.reject { |ci| ci.image_path.match?(/_preview|_thumb/) }
-                      .pluck(:image_path)
+      carousel_images = character_images.reject { |ci| ci.image_path.match?(/_preview|_thumb/) }
+                                        .pluck(:image_path)
+      # If no carousel images exist (only preview/thumb), fall back to main image_url
+      carousel_images.any? ? carousel_images : [image_url]
     else
       [image_url]
     end

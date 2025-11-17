@@ -1,7 +1,17 @@
 <div class="container">
   <div class="character-detail">
     <div class="detail-header">
-      <%= link_to '← Back to Gallery', gallery_path(@gallery), class: 'btn btn-secondary' %>
+      <div class="character-navigation">
+        <% if @previous_image %>
+          <%= link_to "← #{@previous_image.name}", gallery_image_path(@gallery, @previous_image), class: 'btn btn-nav btn-prev' %>
+        <% end %>
+        
+        <%= link_to 'Back to Gallery', gallery_path(@gallery), class: 'btn btn-secondary btn-back-gallery' %>
+        
+        <% if @next_image %>
+          <%= link_to "#{@next_image.name} →", gallery_image_path(@gallery, @next_image), class: 'btn btn-nav btn-next' %>
+        <% end %>
+      </div>
       <h1><%= @image.name %></h1>
     </div>
 
@@ -93,6 +103,51 @@
 
 .detail-header {
   margin-bottom: 30px;
+}
+
+.character-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.btn-nav {
+  flex: 1;
+  max-width: 200px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.btn-back-gallery {
+  background: #6c757d;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-back-gallery:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  color: white;
 }
 
 .detail-header h1 {
@@ -301,6 +356,21 @@
 }
 
 @media (max-width: 768px) {
+  .character-navigation {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .btn-nav,
+  .btn-back-gallery {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .detail-content {
+    grid-template-columns: 1fr;
+  }
+  
   .carousel-prev {
     left: 10px;
   }
@@ -313,6 +383,22 @@
 
 <script>
 let currentSlide = 0;
+let autoAdvanceTimer = null;
+
+function resetTimer() {
+  // Clear existing timer
+  if (autoAdvanceTimer) {
+    clearInterval(autoAdvanceTimer);
+  }
+  
+  // Start new timer for 10 seconds
+  autoAdvanceTimer = setInterval(() => {
+    const slides = document.querySelectorAll('.carousel-slide');
+    if (slides.length > 1) {
+      changeSlide(1);
+    }
+  }, 10000);
+}
 
 function changeSlide(direction) {
   const slides = document.querySelectorAll('.carousel-slide');
@@ -328,6 +414,9 @@ function changeSlide(direction) {
   // Add active class to new slide and dot
   slides[currentSlide].classList.add('active');
   dots[currentSlide].classList.add('active');
+  
+  // Reset the auto-advance timer
+  resetTimer();
 }
 
 function goToSlide(slideIndex) {
@@ -344,15 +433,13 @@ function goToSlide(slideIndex) {
   // Add active class to new slide and dot
   slides[currentSlide].classList.add('active');
   dots[currentSlide].classList.add('active');
+  
+  // Reset the auto-advance timer
+  resetTimer();
 }
 
-// Auto-advance carousel every 5 seconds (optional)
-setInterval(() => {
-  const slides = document.querySelectorAll('.carousel-slide');
-  if (slides.length > 1) {
-    changeSlide(1);
-  }
-}, 5000);
+// Initialize auto-advance timer on page load
+resetTimer();
 
 // Keyboard navigation
 document.addEventListener('keydown', (e) => {

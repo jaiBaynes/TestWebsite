@@ -2,6 +2,27 @@
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 
+# Clear existing data to prevent ID bloat during development
+puts "🧹 Clearing existing data..."
+CharacterImage.destroy_all
+Image.destroy_all
+Gallery.destroy_all
+
+# Reset ID counters for SQLite
+puts "🔄 Resetting ID counters..."
+if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+  ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence WHERE name='character_images'")
+  ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence WHERE name='images'")
+  ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence WHERE name='galleries'")
+else
+  # For PostgreSQL/MySQL
+  ActiveRecord::Base.connection.reset_pk_sequence!('character_images')
+  ActiveRecord::Base.connection.reset_pk_sequence!('images')
+  ActiveRecord::Base.connection.reset_pk_sequence!('galleries')
+end
+
+puts "✨ Starting fresh seed...\n"
+
 # Helper method to load carousel images for a character
 def load_character_images(character)
   base_name = character.name.downcase
@@ -46,12 +67,42 @@ Image.destroy_all
 
 # Create Characters Gallery
 characters_gallery = Gallery.create!(
-  title: "Main Characters",
-  description: "Meet the main characters from our world. Click on each character to learn more about them.",
+  title: "Underworld",
+  description: "Meet the many residents of the Underworld. Click on each character to learn more about them.",
   category: "characters"
 )
 
-# Character 1: Kat
+# Character 1: Hades
+hades = Image.create!(
+  gallery: characters_gallery,
+  name: "Hades",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/hades.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO"
+)
+load_character_images(hades)
+
+# Character 2: Cerberus
+cerberus = Image.create!(
+  gallery: characters_gallery,
+  name: "Cerberus",
+  quote: "Loyalty is everything",
+  family: "Kat (younger sister), Python (younger brother), Hades (adoptive father), Typhon (biological father), Echidna (biological mother)",
+  biography: "Cerberus is a formidable and protective character known for unwavering loyalty and fierce determination. With a commanding presence and strong moral compass, Cerberus serves as both guardian and mentor. Their courage and dedication inspire those around them to be their best selves.",
+  image_url: "/images/characters/cerberus.png",
+  artist: "bentejam (BENTE), the.creature.keeper (Patricio Perez)",
+  myth_inspiration: "In mythology, Cerberus is the three headed dog that guards the entrance to the underworld. Most know that Cerberus is the son of Typhon and Echidna and but few know that he has a 2 headed dog brother named Orthrus. This Cerberus adaptation is a 'What-If' Hades adopted yet another multi-headed dog sibling, this time female instead of two headed. As the adopted daughter of Hades, this Cerberus is also heavily influenced by Athena, the daughter of Zeus.",
+  powers: "Shapeshifting, Shadow Manipulation, Familiar Creation,Teleportation, Hellfire, Microcosm: Doghouse, Extra Lives",
+  home: "Underworld"
+)
+load_character_images(cerberus)
+
+# Character 3: Kat
 kat = Image.create!(
   gallery: characters_gallery,
   name: "Kat",
@@ -66,7 +117,7 @@ kat = Image.create!(
 )
 load_character_images(kat)
 
-# Character 2: Python
+# Character 4: Python
 python = Image.create!(
   gallery: characters_gallery,
   name: "Python",
@@ -81,20 +132,23 @@ python = Image.create!(
 )
 load_character_images(python)
 
-# Character 3: Cerberus
-cerberus = Image.create!(
+
+
+
+# Character 5: Megaera
+megaera = Image.create!(
   gallery: characters_gallery,
-  name: "Cerberus",
-  quote: "Loyalty is everything",
-  family: "Kat (younger sister), Python (younger brother), Hades (adoptive father), Typhon (biological father), Echidna (biological mother)",
-  biography: "Cerberus is a formidable and protective character known for unwavering loyalty and fierce determination. With a commanding presence and strong moral compass, Cerberus serves as both guardian and mentor. Their courage and dedication inspire those around them to be their best selves.",
-  image_url: "/images/characters/cerberus.png",
-  artist: "bentejam (BENTE), the.creature.keeper (Patricio Perez)",
-  myth_inspiration: "In mythology, Cerberus is the three headed dog that guards the entrance to the underworld. Most know that Cerberus is the son of Typhon and Echidna and but few know that he has a 2 headed dog brother named Orthrus. This Cerberus adaptation is a 'What-If' Hades adopted yet another multi-headed dog sibling, this time female instead of two headed. As the adopted daughter of Hades, this Cerberus is also heavily influenced by Athena, the daughter of Zeus.",
-  powers: "Shapeshifting, Shadow Manipulation, Familiar Creation,Teleportation, Hellfire, Microcosm: Doghouse, Extra Lives",
-  home: "Underworld"
+  name: "Megaera",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/megaera.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO"
 )
-load_character_images(cerberus)
+load_character_images(megaera)
 
 # Create Locations Gallery (placeholder)
 locations_gallery = Gallery.create!(
@@ -110,7 +164,7 @@ items_gallery = Gallery.create!(
   category: "items"
 )
 
-puts "\n✅ Created Characters gallery with Kat, Python, and Cerberus!"
+puts "\n✅ Created Characters gallery with Kat, Python, Cerberus, Hades, and Megaera!"
 puts "✅ Created Locations gallery (ready for content)"
 puts "✅ Created Items gallery (ready for content)"
 puts "\n🎉 All character carousel images loaded automatically!"
