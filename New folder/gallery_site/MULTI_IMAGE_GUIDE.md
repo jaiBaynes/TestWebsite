@@ -42,10 +42,12 @@ Run this command for each character:
 
 ```bash
 cd "/Users/jaidenbaynes/Documents/GitHub/TestWebsite/New folder/gallery_site"
-rails images:add_to_character[Kat]
-rails images:add_to_character[Python]
-rails images:add_to_character[Cerberus]
+rails "images:add_to_character[Kat]"
+rails "images:add_to_character[Python]"
+rails "images:add_to_character[Cerberus]"
 ```
+
+**Note:** Use quotes around the task name for zsh shell!
 
 ### Step 4: View Your Carousel
 
@@ -60,22 +62,22 @@ http://localhost:3002/galleries/2/images/6  (Cerberus)
 
 ### List all character images
 ```bash
-rails images:list
+rails "images:list"
 ```
 
 ### Add images to a specific character
 ```bash
-rails images:add_to_character[CharacterName]
+rails "images:add_to_character[CharacterName]"
 ```
 
 ### Clear images from a character
 ```bash
-rails images:clear[CharacterName]
+rails "images:clear[CharacterName]"
 ```
 
 ### Clear all character images
 ```bash
-rails images:clear
+rails "images:clear"
 ```
 
 ## 📝 Image Naming Examples
@@ -120,17 +122,17 @@ public/images/characters/
 ### Images not showing?
 1. Check file names match exactly (case-sensitive)
 2. Ensure files are in `public/images/characters/`
-3. Run `rails images:list` to verify database entries
+3. Run `rails "images:list"` to verify database entries
 4. Refresh your browser (Cmd+Shift+R)
 
 ### Carousel not working?
 1. Verify you have multiple images (carousel requires 2+)
 2. Check browser console for JavaScript errors
-3. Ensure images are registered: `rails images:add_to_character[Name]`
+3. Ensure images are registered: `rails "images:add_to_character[Name]"`
 
 ### Need to update images?
 1. Replace the image files in the folder
-2. Re-run: `rails images:add_to_character[CharacterName]`
+2. Re-run: `rails "images:add_to_character[CharacterName]"`
 3. Refresh your browser
 
 ## 🎉 Example Workflow
@@ -141,7 +143,7 @@ public/images/characters/
 
 # 2. Register them
 cd "/Users/jaidenbaynes/Documents/GitHub/TestWebsite/New folder/gallery_site"
-rails images:add_to_character[Kat]
+rails "images:add_to_character[Kat]"
 
 # Output:
 # Found 3 images for Kat:

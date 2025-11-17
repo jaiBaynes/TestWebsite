@@ -22,35 +22,55 @@ namespace :images do
     images_dir = Rails.root.join('public', 'images', 'characters')
     
     # Find all matching image files
-    image_files = Dir.glob(images_dir.join("#{base_name}_*.{png,jpg,jpeg,gif,webp}"))
-                    .sort
-                    .map { |f| File.basename(f) }
+    all_files = Dir.glob(images_dir.join("#{base_name}_*.{png,jpg,jpeg,gif,webp}"))
+                   .sort
+                   .map { |f| File.basename(f) }
     
-    if image_files.empty?
+    # Separate preview/thumbnail from carousel images
+    preview_file = all_files.find { |f| f.match?(/_preview|_thumb/) }
+    image_files = all_files.reject { |f| f.match?(/_preview|_thumb/) }
+    
+    if all_files.empty?
       puts "⚠️  No additional images found for #{character_name}"
-      puts "Looking for files matching: #{base_name}_1.png, #{base_name}_2.png, etc."
+      puts "Looking for files matching: #{base_name}_1.png, #{base_name}_preview.png, etc."
       puts "In directory: #{images_dir}"
       exit
     end
     
-    puts "Found #{image_files.length} images for #{character_name}:"
+    puts "Found images for #{character_name}:"
+    if preview_file
+      puts "  📸 Preview: #{preview_file}"
+    end
     image_files.each { |f| puts "  - #{f}" }
     puts ""
     
     # Clear existing character images
     character.character_images.destroy_all
     
-    # Add new images
-    image_files.each_with_index do |filename, index|
+    position = 0
+    
+    # Add preview/thumbnail first (position -1 for priority)
+    if preview_file
+      character.character_images.create!(
+        image_path: "/images/characters/#{preview_file}",
+        position: -1
+      )
+      puts "✅ Added preview: #{preview_file} (position -1, used for gallery card)"
+    end
+    
+    # Add carousel images
+    image_files.each do |filename|
       character.character_images.create!(
         image_path: "/images/characters/#{filename}",
-        position: index
+        position: position
       )
-      puts "✅ Added: #{filename} (position #{index})"
+      puts "✅ Added: #{filename} (position #{position})"
+      position += 1
     end
     
     puts ""
-    puts "🎉 Successfully added #{image_files.length} images to #{character_name}!"
+    total = preview_file ? image_files.length + 1 : image_files.length
+    puts "🎉 Successfully added #{total} images to #{character_name}!"
     puts "Visit: http://localhost:3002/galleries/#{character.gallery_id}/images/#{character.id}"
   end
   
