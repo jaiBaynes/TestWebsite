@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_12_030842) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_17_162657) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_12_030842) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "character_images", force: :cascade do |t|
+    t.integer "image_id", null: false
+    t.string "image_path", null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["image_id", "position"], name: "index_character_images_on_image_id_and_position"
+    t.index ["image_id"], name: "index_character_images_on_image_id"
   end
 
   create_table "galleries", force: :cascade do |t|
