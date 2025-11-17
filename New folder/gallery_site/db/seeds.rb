@@ -19,7 +19,11 @@ Image.create!(
   name: "Kat",
   quote: "Curiosity is my greatest strength",
   biography: "Kat is a mysterious and intelligent character known for their keen observation skills and strategic thinking. With a background in problem-solving, Kat often finds unconventional solutions to complex challenges. Their calm demeanor and analytical mind make them an invaluable member of any team.",
-  image_url: "/images/characters/kat.png"
+  image_url: "/images/characters/kat.png",
+  artist: "Todo",
+  myth_inspiration: "Todo",
+  powers: "Todo",
+  home: "Todo"
 )
 
 # Character 2: Python
@@ -27,6 +31,10 @@ Image.create!(
   gallery: characters_gallery,
   name: "Python",
   quote: "Every loop leads somewhere new",
+  artist: "Meiko (meikkochi_)",
+  myth_inspiration: "Python the original god of delphi that took the form of a giant snake. Over time the character of Python went from being a female goddess with future sight to being reimagined as the evil monster brother of Typhon.",
+  powers: "Python has the ability to glimpse the near future using his AI called Oracle. Python as a genius inventor has many powerful automatons, suits of armor and weapons at his disposal. Python has the ability to create and control 'hellfire' a supernatural flame that can burn even intagible targets and negate healing.",
+  home: "Underworld",
   biography: "Python is an innovative and forward-thinking character who thrives on continuous learning and adaptation. With a natural gift for seeing patterns and connections, Python excels at breaking down complex problems into manageable parts. Their flexibility and quick thinking make them an asset in any situation.",
   image_url: "/images/characters/python.png"
 )
@@ -37,7 +45,11 @@ Image.create!(
   name: "Cerberus",
   quote: "Loyalty is everything",
   biography: "Cerberus is a formidable and protective character known for unwavering loyalty and fierce determination. With a commanding presence and strong moral compass, Cerberus serves as both guardian and mentor. Their courage and dedication inspire those around them to be their best selves.",
-  image_url: "/images/characters/cerberus.png"
+  image_url: "/images/characters/cerberus.png",
+  artist: "Todo",
+  myth_inspiration: "Todo",
+  powers: "Todo",
+  home: "Todo"
 )
 
 # Create Locations Gallery (placeholder)

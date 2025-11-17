@@ -44,6 +44,30 @@
           <p class="biography"><%= simple_format(@image.biography) %></p>
         </div>
 
+        <div class="character-details-section">
+          <h2>Details</h2>
+          
+          <div class="detail-item">
+            <strong>Artist:</strong>
+            <p><%= @image.artist %></p>
+          </div>
+          
+          <div class="detail-item">
+            <strong>Mythological Inspiration:</strong>
+            <p><%= simple_format(@image.myth_inspiration) %></p>
+          </div>
+          
+          <div class="detail-item">
+            <strong>Powers:</strong>
+            <p><%= simple_format(@image.powers) %></p>
+          </div>
+          
+          <div class="detail-item">
+            <strong>Home:</strong>
+            <p><%= @image.home %></p>
+          </div>
+        </div>
+
         <div class="character-meta">
           <p><strong>Character:</strong> <%= @image.name %></p>
           <p><strong>Gallery:</strong> <%= link_to @gallery.title, gallery_path(@gallery) %></p>
@@ -127,6 +151,33 @@
   line-height: 1.8;
   color: #555;
   font-size: 1.05em;
+}
+
+.character-details-section {
+  margin-bottom: 20px;
+}
+
+.character-details-section h2 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.detail-item {
+  margin-bottom: 15px;
+}
+
+.detail-item strong {
+  display: block;
+  color: #667eea;
+  font-size: 0.95em;
+  margin-bottom: 5px;
+}
+
+.detail-item p {
+  margin: 0;
+  line-height: 1.6;
+  color: #555;
 }
 
 .character-meta {
