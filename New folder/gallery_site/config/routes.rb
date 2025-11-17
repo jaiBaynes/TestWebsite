@@ -3,8 +3,14 @@ Rails.application.routes.draw do
   
   get "home/index"
   
-  resources :galleries do
-    resources :images, only: [:show, :destroy]
+  # Category pages
+  get "characters", to: "galleries#characters", as: :characters
+  get "locations", to: "galleries#locations", as: :locations
+  get "items", to: "galleries#items", as: :items
+  
+  # Keep galleries for show action and nested images
+  resources :galleries, only: [:show] do
+    resources :images, only: [:show]
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

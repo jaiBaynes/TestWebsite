@@ -1,22 +1,29 @@
 <div class="home-container">
   <div class="hero">
     <h1>Welcome to Gallery Site</h1>
-    <p>A simple and beautiful image gallery application built with Ruby on Rails</p>
-    <%= link_to 'Explore Galleries', galleries_path, class: 'btn btn-primary btn-large' %>
+    <p>Explore our collection of characters, locations, and items from our world</p>
   </div>
 
-  <div class="features">
-    <div class="feature">
-      <h3>📸 Create Galleries</h3>
-      <p>Organize your images into themed galleries</p>
+  <div class="category-cards">
+    <div class="category-card">
+      <div class="category-icon">👥</div>
+      <h2>Characters</h2>
+      <p>Meet the characters from our world. Learn about their stories, personalities, and adventures.</p>
+      <%= link_to 'View Characters', characters_path, class: 'btn btn-primary' %>
     </div>
-    <div class="feature">
-      <h3>🖼️ Upload Images</h3>
-      <p>Add images with custom captions to your galleries</p>
+    
+    <div class="category-card">
+      <div class="category-icon">🗺️</div>
+      <h2>Locations</h2>
+      <p>Discover the places and worlds where our stories unfold. Explore maps and environments.</p>
+      <%= link_to 'View Locations', locations_path, class: 'btn btn-primary' %>
     </div>
-    <div class="feature">
-      <h3>✨ Manage Content</h3>
-      <p>Edit or delete galleries and images easily</p>
+    
+    <div class="category-card">
+      <div class="category-icon">⚔️</div>
+      <h2>Items</h2>
+      <p>Browse through legendary weapons, artifacts, and treasures from our universe.</p>
+      <%= link_to 'View Items', items_path, class: 'btn btn-primary' %>
     </div>
   </div>
 </div>

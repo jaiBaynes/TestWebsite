@@ -5,7 +5,7 @@
       <p class="description"><%= @gallery.description %></p>
     </div>
     <div class="header-actions">
-      <%= link_to 'Back to Galleries', galleries_path, class: 'btn btn-secondary' %>
+      <%= link_to "Back to #{@gallery.category.titleize}", send("#{@gallery.category}_path"), class: 'btn btn-secondary' %>
     </div>
   </div>
 
