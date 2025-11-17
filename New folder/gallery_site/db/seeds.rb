@@ -56,10 +56,11 @@ kat = Image.create!(
   gallery: characters_gallery,
   name: "Kat",
   quote: "Curiosity is my greatest strength",
+  family: "Python (twin brother),Cerberus (older sister), Hades (adoptive father), Typhon (biological father), Echidna (biological mother)",
   biography: "Kat is a mysterious and intelligent character known for their keen observation skills and strategic thinking. With a background in problem-solving, Kat often finds unconventional solutions to complex challenges. Their calm demeanor and analytical mind make them an invaluable member of any team.",
   image_url: "/images/characters/kat.png",
   artist: "bentejam (BENTE), samiraim_ (San), kat_kay_tee (Kaytee)",
-  myth_inspiration: "Original Character",
+  myth_inspiration: "No direct mythological basis; original character. Instead Kat is based on the concept of Schroddingers Cat: a cat that is both alive and dead until it is observed. Since her twin brother Python is a parallel to Apollo, Kat has some parallels to Artemis (Apollo's twin sister).",
   powers: "Probability Offseting, Life and Death, Superposition, Teleportation, Hellfire",
   home: "Elysium"
 )
@@ -70,6 +71,7 @@ python = Image.create!(
   gallery: characters_gallery,
   name: "Python",
   quote: "Every loop leads somewhere new",
+  family: "Kat (twin sister), Cerberus (older sister), Hades (adoptive father), Typhon (biological father), Echidna (biological mother)",
   artist: "Meiko (meikkochi_)",
   myth_inspiration: "Python the original god of delphi that took the form of a giant snake. Over time the character of Python went from being a female goddess with future sight to being reimagined as the evil monster brother of Typhon.",
   powers: "Python has the ability to glimpse the near future using his AI called Oracle. Python as a genius inventor has many powerful automatons, suits of armor and weapons at his disposal. Python has the ability to create and control 'hellfire' a supernatural flame that can burn even intagible targets and negate healing.",
@@ -84,6 +86,7 @@ cerberus = Image.create!(
   gallery: characters_gallery,
   name: "Cerberus",
   quote: "Loyalty is everything",
+  family: "Kat (younger sister), Python (younger brother), Hades (adoptive father), Typhon (biological father), Echidna (biological mother)",
   biography: "Cerberus is a formidable and protective character known for unwavering loyalty and fierce determination. With a commanding presence and strong moral compass, Cerberus serves as both guardian and mentor. Their courage and dedication inspire those around them to be their best selves.",
   image_url: "/images/characters/cerberus.png",
   artist: "bentejam (BENTE), the.creature.keeper (Patricio Perez)",

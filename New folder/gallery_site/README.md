@@ -1,19 +1,20 @@
-# Gallery Site - Ruby on Rails Image Gallery Application
+# Gallery Site - Character & World Showcase
 
-A beginner-friendly Ruby on Rails web application for managing image galleries with captions. Perfect for learning Rails fundamentals including models, controllers, views, and Active Storage.
+A Ruby on Rails web application for showcasing characters, locations, and items with detailed profiles and image carousels. Features a read-only showcase design perfect for presenting fictional worlds, game characters, or story universes.
 
 ## 🎯 Features
 
-- **Create Galleries**: Organize images into themed galleries with title and description
-- **Upload Images**: Add images to galleries with custom captions
-- **Manage Content**: Edit gallery information and delete galleries or images
+- **Three Category Pages**: Characters, Locations, and Items
+- **Character Profiles**: Detailed character information with multiple fields
+- **Image Carousels**: Multiple images per character with auto-rotating galleries
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Clean Interface**: Simple and intuitive user interface
+- **Local Image Hosting**: Full control over image assets
+- **Clean Interface**: Read-only showcase optimized for viewing
 
 ## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
-- Ruby 3.0 or higher
+- Ruby 3.3.8
 - Rails 7.1 or higher
 - SQLite3
 - Git
@@ -23,7 +24,7 @@ Before you begin, ensure you have the following installed:
 ### 1. Navigate to the Project
 
 ```bash
-cd gallery_site
+cd "New folder/gallery_site"
 ```
 
 ### 2. Install Dependencies
@@ -37,15 +38,22 @@ bundle install
 ```bash
 rails db:create
 rails db:migrate
+rails db:seed  # Loads characters and automatically loads their carousel images
 ```
 
 ### 4. Start the Rails Server
 
 ```bash
-rails server
+rails server -p 3002
 ```
 
-The application will be available at `http://localhost:3000`
+The application will be available at `http://localhost:3002`
+
+## 📚 Documentation
+
+- **[ADD_CHARACTER_FIELDS.md](ADD_CHARACTER_FIELDS.md)** - Complete guide for adding new fields to characters
+- **[MULTI_IMAGE_GUIDE.md](MULTI_IMAGE_GUIDE.md)** - How to set up multi-image carousels
+- **[public/images/characters/README.md](public/images/characters/README.md)** - Image naming conventions and setup
 
 ## 📁 Project Structure
 
@@ -212,6 +220,35 @@ rails db:reset  # Reset the database (be careful in production!)
 ```bash
 rails server -p 3001  # Use a different port
 ```
+
+## 🎭 Character Fields
+
+Current character profile fields:
+- **Name** - Character name
+- **Quote** - Signature quote
+- **Biography** - Background story
+- **Artist** - Creator attribution
+- **Family** - Family relationships
+- **Mythological Inspiration** - Mythological basis
+- **Powers** - Abilities and skills
+- **Home** - Character's residence
+
+**Want to add more fields?** See [ADD_CHARACTER_FIELDS.md](ADD_CHARACTER_FIELDS.md) for a complete step-by-step guide.
+
+## 🖼️ Image Management
+
+### Main Images
+Place in `public/images/characters/`:
+- `kat.png`, `python.png`, `cerberus.png`
+
+### Carousel Images
+For multiple images per character:
+- `python_1.png`, `python_2.png`, `python_3.png`, etc.
+- `python_preview.png` - Optional preview image for gallery card
+
+Run `rails db:seed` and images load automatically!
+
+See [MULTI_IMAGE_GUIDE.md](MULTI_IMAGE_GUIDE.md) for details.
 
 ## 📚 Additional Resources
 
