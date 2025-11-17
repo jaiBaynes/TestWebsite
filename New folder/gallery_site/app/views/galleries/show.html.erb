@@ -5,7 +5,6 @@
       <p class="description"><%= @gallery.description %></p>
     </div>
     <div class="header-actions">
-      <%= link_to 'Edit Gallery', edit_gallery_path(@gallery), class: 'btn btn-warning' %>
       <%= link_to 'Back to Galleries', galleries_path, class: 'btn btn-secondary' %>
     </div>
   </div>
@@ -19,15 +18,16 @@
         <% @images.each do |image| %>
           <div class="image-card character-card">
             <div class="image-container">
-              <img src="<%= image.image_url %>" alt="<%= image.name %>" class="gallery-image" referrerpolicy="no-referrer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22250%22%3E%3Crect fill=%22%23e9ecef%22 width=%22250%22 height=%22250%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2220%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3E[Image Placeholder]%3C/text%3E%3C/svg%3E'">
+              <% if image.has_image? %>
+                <img src="<%= image.display_image_url %>" alt="<%= image.name %>" class="gallery-image" referrerpolicy="no-referrer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22250%22%3E%3Crect fill=%22%23e9ecef%22 width=%22250%22 height=%22250%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2220%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3E[Image Placeholder]%3C/text%3E%3C/svg%3E'">
+              <% else %>
+                <div class="image-placeholder">[Image Placeholder]</div>
+              <% end %>
             </div>
             <div class="image-info">
               <h3 class="character-name"><%= image.name %></h3>
               <p class="character-quote"><em>"<%= truncate(image.quote, length: 50) %>"</em></p>
               <%= link_to 'View Profile', gallery_image_path(@gallery, image), class: 'btn btn-primary btn-small' %>
-              <% if current_user_admin? %>
-                <%= button_to 'Delete', gallery_image_path(@gallery, image), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-small btn-danger' %>
-              <% end %>
             </div>
           </div>
         <% end %>

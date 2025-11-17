@@ -1,14 +1,9 @@
 class ImagesController < ApplicationController
   before_action :set_gallery
-  before_action :set_image, only: [:show, :destroy]
+  before_action :set_image, only: [:show]
 
   def show
     # Gallery and image already set by before_action
-  end
-
-  def destroy
-    @image.destroy
-    redirect_to @gallery, notice: 'Character was successfully deleted.'
   end
 
   private
