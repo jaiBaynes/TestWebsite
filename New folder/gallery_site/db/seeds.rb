@@ -68,17 +68,21 @@ Image.destroy_all
 # Create the Character Galleries
 
 # Olympia Gallery
-underworld_gallery = Gallery.create!(
+olympia_gallery = Gallery.create!(
   title: "Olympia",
-  description: "Meet the many residents of the mortal city ofOlympia and the divine city of Olympus that floats above it. Click on each character to learn more about them.",
-  category: "characters"
+  description: "Meet the many residents of the mortal city of Olympia and the divine city of Olympus that floats above it. Click on each character to learn more about them.",
+  category: "characters",
+  background_image: "/images/characters/zeus_4.png",
+  music_file: "/music/Solo Menu - Kid Icarus_ Uprising (OST).mp3"
 )
 
 # Underworld Gallery
 underworld_gallery = Gallery.create!(
   title: "Underworld",
   description: "Meet the many residents of the 'Underworld'. You might be surprised to find that they are different from what Zeus' myths would have you believe. Click on each character to learn more about them.",
-  category: "characters"
+  category: "characters",
+  background_image: "/images/characters/hades_2.png",
+  music_file: "/music/Keves Colony (Day) Xenoblade Chronicles 3 Original Soundtrack OST.mp3"
 )
 
 # Character 1: Hades
