@@ -5,7 +5,7 @@ class Image < ApplicationRecord
   validates :name, presence: true
   validates :quote, presence: true
   validates :biography, presence: true
-  validates :image_url, presence: true
+  # image_url is optional - used as fallback if character_images aren't loaded
   
   def display_image_url
     # Priority: 1) Check for _preview image, 2) Use first carousel image, 3) Use main image_url
