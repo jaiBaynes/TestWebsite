@@ -1,0 +1,541 @@
+<div class="chapter-reader-background">
+  <div class="chapter-reader-overlay"></div>
+  
+  <div class="chapter-reader-container">
+    <div class="chapter-header">
+      <div class="chapter-navigation-top">
+        <%= link_to '← Back to Stories', stories_path, class: 'btn btn-secondary' %>
+      </div>
+      
+      <h1 class="chapter-main-title"><%= @chapter.title %></h1>
+      
+      <% if @chapter.chapter_number.present? %>
+        <p class="chapter-subtitle">Chapter <%= @chapter.chapter_number %></p>
+      <% end %>
+      
+      <div class="chapter-controls">
+        <button class="tts-control-button" onclick="toggleChapterTTS()" title="Listen to this chapter">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+          <span id="ttsButtonText">Listen to Chapter</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="chapter-content-wrapper">
+      <div class="chapter-ornament">◆</div>
+      
+      <div class="chapter-content">
+        <%= parse_chapter_content(@chapter.content) %>
+      </div>
+      
+      <div class="chapter-ornament">◆</div>
+    </div>
+    
+    <div class="chapter-navigation-bottom">
+      <% locked_characters = @chapter.unlockable_characters.select(&:locked?) %>
+      <% if locked_characters.any? %>
+        <div class="chapter-unlock-info">
+          <p>💎 Complete this chapter to unlock: <strong><%= locked_characters.map(&:name).join(', ') %></strong></p>
+        </div>
+      <% end %>
+      
+      <div class="chapter-bottom-buttons">
+        <%= link_to '← Back to Stories', stories_path, class: 'btn btn-secondary' %>
+        <% if locked_characters.any? %>
+          <%= button_to '✨ Complete Chapter', complete_chapter_path(@chapter), method: :post, class: 'btn btn-complete' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div id="chapterImageZoomModal" class="chapter-image-zoom-modal" onclick="closeChapterImageZoom()">
+  <button class="zoom-close" onclick="closeChapterImageZoom()">&times;</button>
+  <img id="chapterZoomedImage" class="zoomed-image" src="" alt="">
+</div>
+
+<script>
+// Store chapter text for TTS
+const chapterText = <%= raw extract_plain_text_for_tts(@chapter.content).to_json %>;
+let chapterSpeech = null;
+let isSpeaking = false;
+
+function toggleChapterTTS() {
+  const button = document.querySelector('.tts-control-button');
+  const buttonText = document.getElementById('ttsButtonText');
+  
+  if (isSpeaking) {
+    // Stop speaking
+    window.speechSynthesis.cancel();
+    chapterSpeech = null;
+    isSpeaking = false;
+    button.classList.remove('tts-active');
+    buttonText.textContent = 'Listen to Chapter';
+  } else {
+    // Start speaking
+    if (!('speechSynthesis' in window)) {
+      alert('Sorry, your browser does not support text-to-speech.');
+      return;
+    }
+    
+    chapterSpeech = new SpeechSynthesisUtterance(chapterText);
+    
+    // Configure speech
+    chapterSpeech.rate = 1.0;
+    chapterSpeech.pitch = 1.0;
+    chapterSpeech.volume = 1.0;
+    
+    // Update UI when speech ends
+    chapterSpeech.onend = function() {
+      chapterSpeech = null;
+      isSpeaking = false;
+      button.classList.remove('tts-active');
+      buttonText.textContent = 'Listen to Chapter';
+    };
+    
+    // Handle errors
+    chapterSpeech.onerror = function() {
+      chapterSpeech = null;
+      isSpeaking = false;
+      button.classList.remove('tts-active');
+      buttonText.textContent = 'Listen to Chapter';
+    };
+    
+    // Start speaking
+    window.speechSynthesis.speak(chapterSpeech);
+    isSpeaking = true;
+    button.classList.add('tts-active');
+    buttonText.textContent = 'Stop Reading';
+  }
+}
+
+// Stop TTS when leaving page
+window.addEventListener('beforeunload', function() {
+  if (chapterSpeech) {
+    window.speechSynthesis.cancel();
+  }
+});
+
+// Image Zoom Modal Functions
+function openChapterImageZoom(imageSrc) {
+  const modal = document.getElementById('chapterImageZoomModal');
+  const zoomedImg = document.getElementById('chapterZoomedImage');
+  
+  zoomedImg.src = imageSrc;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeChapterImageZoom() {
+  const modal = document.getElementById('chapterImageZoomModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+// Make all chapter images clickable for zoom
+document.addEventListener('DOMContentLoaded', function() {
+  const chapterImages = document.querySelectorAll('.chapter-artwork img, .chapter-content img:not(.chapter-artwork img)');
+  
+  chapterImages.forEach(function(img) {
+    img.style.cursor = 'pointer';
+    img.setAttribute('title', 'Click to view full size');
+    
+    img.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openChapterImageZoom(this.src);
+    });
+  });
+  
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeChapterImageZoom();
+    }
+  });
+});
+</script>
+
+<style>
+.chapter-reader-background {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
+  position: relative;
+  padding: 40px 0;
+}
+
+.chapter-reader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(102, 126, 234, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.chapter-reader-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.chapter-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 40px 30px;
+  background: rgba(40, 40, 50, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(200, 200, 200, 0.2);
+}
+
+.chapter-navigation-top {
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.chapter-main-title {
+  font-size: 2.5rem;
+  color: #d4af37;
+  margin-bottom: 15px;
+  font-family: Georgia, serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.3;
+}
+
+.chapter-subtitle {
+  font-size: 1.2rem;
+  color: #a8b9ff;
+  font-style: italic;
+  margin-bottom: 25px;
+}
+
+.chapter-controls {
+  margin-top: 25px;
+}
+
+.tts-control-button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.tts-control-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+}
+
+.tts-control-button.tts-active {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.chapter-content-wrapper {
+  background: rgba(40, 40, 50, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 50px 40px;
+  border: 1px solid rgba(200, 200, 200, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.chapter-ornament {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #d4af37;
+  margin: 30px 0;
+  opacity: 0.6;
+}
+
+.chapter-content {
+  color: #e8e8e8;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.chapter-content p {
+  margin-bottom: 1.5em;
+  text-align: justify;
+}
+
+.chapter-content h1,
+.chapter-content h2,
+.chapter-content h3 {
+  color: #d4af37;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  font-weight: 600;
+}
+
+.chapter-content h1 {
+  font-size: 2rem;
+  text-align: center;
+}
+
+.chapter-content h2 {
+  font-size: 1.6rem;
+}
+
+.chapter-content h3 {
+  font-size: 1.3rem;
+}
+
+.chapter-content em {
+  font-style: italic;
+  color: #c4c4c4;
+}
+
+.chapter-content strong {
+  font-weight: bold;
+  color: #f0f0f0;
+}
+
+.chapter-content .character-link {
+  color: #a8b9ff;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px dotted #a8b9ff;
+  transition: all 0.3s ease;
+}
+
+.chapter-content .character-link:hover {
+  color: #d4af37;
+  border-bottom-color: #d4af37;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+.chapter-artwork {
+  text-align: center;
+  margin: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chapter-artwork img {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  border: 3px solid rgba(212, 175, 55, 0.4);
+  transition: all 0.3s ease;
+}
+
+.chapter-artwork img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 32px rgba(212, 175, 55, 0.5);
+}
+
+.artwork-caption {
+  margin-top: 15px;
+  font-style: italic;
+  color: #d4af37;
+  font-size: 1rem;
+  text-align: center;
+  padding: 0;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.chapter-content img:not(.chapter-artwork img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 30px auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+}
+
+.chapter-navigation-bottom {
+  text-align: center;
+  margin-top: 50px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(200, 200, 200, 0.2);
+}
+
+.chapter-unlock-info {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(102, 126, 234, 0.15));
+  border-radius: 12px;
+  border: 2px solid rgba(212, 175, 55, 0.4);
+}
+
+.chapter-unlock-info p {
+  color: #d4af37;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.chapter-unlock-info strong {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.chapter-bottom-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-complete {
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  color: #1a1a2e;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.5);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-complete:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.7);
+  background: linear-gradient(135deg, #f4d03f, #d4af37);
+}
+
+@media (max-width: 768px) {
+  .chapter-main-title {
+    font-size: 1.8rem;
+  }
+  
+  .chapter-content-wrapper {
+    padding: 30px 20px;
+  }
+  
+  .chapter-content {
+    font-size: 1.05rem;
+  }
+  
+  .chapter-bottom-buttons {
+    flex-direction: column;
+  }
+  
+  .chapter-artwork {
+    margin: 30px 0;
+  }
+  
+  .chapter-artwork img {
+    max-width: 100%;
+    border-width: 2px;
+  }
+  
+  .artwork-caption {
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+}
+
+/* Image Zoom Modal */
+.chapter-image-zoom-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.chapter-image-zoom-modal .zoomed-image {
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+  animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+  from { 
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.chapter-image-zoom-modal .zoom-close {
+  position: fixed;
+  top: 30px;
+  right: 40px;
+  font-size: 50px;
+  color: #d4af37;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 10001;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(40, 40, 50, 0.8);
+  transition: all 0.3s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+.chapter-image-zoom-modal .zoom-close:hover {
+  background: rgba(212, 175, 55, 0.9);
+  color: #1a1a2e;
+  transform: rotate(90deg);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+}
+
+@media (max-width: 768px) {
+  .chapter-image-zoom-modal .zoom-close {
+    top: 15px;
+    right: 15px;
+    font-size: 40px;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .chapter-image-zoom-modal .zoomed-image {
+    max-width: 98%;
+    max-height: 98%;
+  }
+}
+</style>

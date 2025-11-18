@@ -4,6 +4,8 @@
 
 # Clear existing data to prevent ID bloat during development
 puts "🧹 Clearing existing data..."
+ChapterUnlock.destroy_all
+Chapter.destroy_all
 CharacterImage.destroy_all
 Image.destroy_all
 Gallery.destroy_all
@@ -11,11 +13,15 @@ Gallery.destroy_all
 # Reset ID counters for SQLite
 puts "🔄 Resetting ID counters..."
 if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+  ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence WHERE name='chapter_unlocks'")
+  ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence WHERE name='chapters'")
   ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence WHERE name='character_images'")
   ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence WHERE name='images'")
   ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence WHERE name='galleries'")
 else
   # For PostgreSQL/MySQL
+  ActiveRecord::Base.connection.reset_pk_sequence!('chapter_unlocks')
+  ActiveRecord::Base.connection.reset_pk_sequence!('chapters')
   ActiveRecord::Base.connection.reset_pk_sequence!('character_images')
   ActiveRecord::Base.connection.reset_pk_sequence!('images')
   ActiveRecord::Base.connection.reset_pk_sequence!('galleries')
@@ -524,3 +530,31 @@ puts "\n✅ Created Characters gallery with all characters!"
 puts "✅ Created Locations gallery (ready for content)"
 puts "✅ Created Items gallery (ready for content)"
 puts "\n🎉 All character carousel images loaded automatically!"
+
+# Create chapters
+puts "\n📖 Creating chapters..."
+
+hercules_vs_apollo = Chapter.create!(
+  title: "Myth 1.5: Hercules at Delphi",
+  slug: "hercules-at-delphi",
+  category: "bonus_chapters",
+  chapter_number: nil,
+  file_path: "chapters/bonus chapters/Hercules vs Apollo.md",
+  published: true
+)
+
+puts "  ✅ Created chapter: #{hercules_vs_apollo.title}"
+
+# Link chapters to unlockable characters
+puts "\n🔗 Linking chapters to unlockable characters..."
+
+# Find Apollo (should be in Olympia gallery)
+apollo_char = Image.find_by(name: "Apollo")
+if apollo_char
+  hercules_vs_apollo.unlockable_characters << apollo_char unless hercules_vs_apollo.unlockable_characters.include?(apollo_char)
+  puts "  🔓 Hercules at Delphi will unlock: Apollo"
+else
+  puts "  ⚠️  Apollo character not found - skipping unlock link"
+end
+
+puts "\n📖 All chapters created!"

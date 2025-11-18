@@ -1,0 +1,158 @@
+<div class="container stories-container">
+  <div class="stories-header">
+    <h1>📖 Stories & Chapters</h1>
+    <p class="stories-description">
+      Dive into the tales of heroes, gods, and monsters. Read about their adventures, battles, and destinies.
+    </p>
+  </div>
+
+  <% if @chapters_by_category.any? %>
+    <% @chapters_by_category.each do |category, chapters| %>
+      <div class="chapter-category-section">
+        <h2 class="category-title"><%= category.titleize.gsub('_', ' ') %></h2>
+        
+        <div class="chapters-grid">
+          <% chapters.each do |chapter| %>
+            <div class="chapter-card">
+              <%= link_to chapter_path(chapter), class: 'chapter-card-link' do %>
+                <div class="chapter-card-content">
+                  <h3 class="chapter-title"><%= chapter.title %></h3>
+                  <% if chapter.chapter_number.present? %>
+                    <span class="chapter-number">Chapter <%= chapter.chapter_number %></span>
+                  <% end %>
+                  <div class="chapter-meta">
+                    <span class="chapter-category-badge"><%= chapter.category.titleize.gsub('_', ' ') %></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="no-chapters">
+      <p>No stories available yet. Check back soon!</p>
+    </div>
+  <% end %>
+
+  <div class="back-navigation">
+    <%= link_to '← Back to Home', root_path, class: 'btn btn-secondary' %>
+  </div>
+</div>
+
+<style>
+.stories-container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stories-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border-radius: 12px;
+}
+
+.stories-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  color: #667eea;
+}
+
+.stories-description {
+  font-size: 1.1rem;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.chapter-category-section {
+  margin-bottom: 50px;
+}
+
+.category-title {
+  font-size: 1.8rem;
+  color: #667eea;
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.chapters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.chapter-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.chapter-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+  border-color: #667eea;
+}
+
+.chapter-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.chapter-card-content {
+  padding: 25px;
+}
+
+.chapter-title {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.chapter-number {
+  display: inline-block;
+  font-size: 0.9rem;
+  color: #667eea;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.chapter-meta {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chapter-category-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.no-chapters {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.back-navigation {
+  text-align: center;
+  margin-top: 40px;
+}
+</style>

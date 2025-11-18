@@ -8,6 +8,14 @@ Rails.application.routes.draw do
   get "locations", to: "galleries#locations", as: :locations
   get "items", to: "galleries#items", as: :items
   
+  # Chapters/Stories
+  get "stories", to: "chapters#index", as: :stories
+  resources :chapters, only: [:show] do
+    member do
+      post :complete
+    end
+  end
+  
   # Keep galleries for show action and nested images
   resources :galleries, only: [:show] do
     resources :images, only: [:show]

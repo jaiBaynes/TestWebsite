@@ -1,6 +1,8 @@
 class Image < ApplicationRecord
   belongs_to :gallery
   has_many :character_images, dependent: :destroy
+  has_many :chapter_unlocks, dependent: :destroy
+  has_many :unlocking_chapters, through: :chapter_unlocks, source: :chapter
   
   validates :name, presence: true
   validates :quote, presence: true
