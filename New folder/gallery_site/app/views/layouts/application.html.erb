@@ -7,6 +7,29 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application" %>
+    
+    <script>
+      // Global script to manage gallery audio state across all pages
+      (function() {
+        const currentGalleryKey = 'current_gallery_id';
+        const currentPageGalleryId = '<%= @gallery.id if defined?(@gallery) && @gallery %>';
+        const lastGalleryId = sessionStorage.getItem(currentGalleryKey);
+        
+        // If we had a previous gallery and now we're on a different gallery (or no gallery)
+        if (lastGalleryId && lastGalleryId !== currentPageGalleryId) {
+          // Clear the previous gallery's audio state
+          const oldStorageKey = 'gallery_audio_' + lastGalleryId;
+          sessionStorage.removeItem(oldStorageKey);
+        }
+        
+        // Update current gallery (or clear if no gallery on this page)
+        if (currentPageGalleryId) {
+          sessionStorage.setItem(currentGalleryKey, currentPageGalleryId);
+        } else {
+          sessionStorage.removeItem(currentGalleryKey);
+        }
+      })();
+    </script>
   </head>
 
   <body>

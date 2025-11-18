@@ -76,6 +76,266 @@ olympia_gallery = Gallery.create!(
   music_file: "/music/Solo Menu - Kid Icarus_ Uprising (OST).mp3"
 )
 
+# Olympia Characters
+
+# Character: Zeus
+zeus = Image.create!(
+  gallery: olympia_gallery,
+  name: "Zeus",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/zeus_preview.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(zeus)
+
+# Character: Hercules
+hercules = Image.create!(
+  gallery: olympia_gallery,
+  name: "Hercules",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/hercules.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(hercules)
+
+# Character: Hebe
+hebe = Image.create!(
+  gallery: olympia_gallery,
+  name: "Hebe",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/hebe.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(hebe)
+
+# Character: Neptune
+neptune = Image.create!(
+  gallery: olympia_gallery,
+  name: "Neptune",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/neptune_preview.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(neptune)
+
+# Character: Metis
+metis = Image.create!(
+  gallery: olympia_gallery,
+  name: "Metis",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/metis.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(metis)
+
+# Character: Mercury
+mercury = Image.create!(
+  gallery: olympia_gallery,
+  name: "Mercury",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/mercury.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(mercury)
+
+# Character: Apollo
+apollo = Image.create!(
+  gallery: olympia_gallery,
+  name: "Apollo",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/apollo.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(apollo)
+
+# Character: Venus
+venus = Image.create!(
+  gallery: olympia_gallery,
+  name: "Venus",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/venus.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(venus)
+
+# Character: Megara
+megara = Image.create!(
+  gallery: olympia_gallery,
+  name: "Megara",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/megara.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(megara)
+
+# Sinisters Gallery
+sinisters_gallery = Gallery.create!(
+  title: "Sinisters",
+  description: "Meet the many people outside Olympia or Elysium who have banded together under the banner of the Sinisters. Click on each character to learn more about them.",
+  category: "characters",
+  background_image: "/images/characters/Sinisters Symbol.png",
+  music_file: "/music/Code Geass Lelouch of the Rebellion OST 2 - 05. Feel Ambivalents.mp3"
+)
+
+# Sinisters Characters
+
+# Character: Hydra
+hydra = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Hydra",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/hydra.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(hydra)
+
+# Character: Draco
+draco = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Draco",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/draco.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(draco)
+
+# Character: Melissa
+melissa = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Melissa",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/melissa_preview.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(melissa)
+
+# Character: Scythia
+scythia = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Scythia",
+  quote: "TODO",
+  family: "TODO",
+  biography: "TODO",
+  image_url: "/images/characters/scythia.png",
+  artist: "TODO",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "TODO",
+  race: "TODO",
+  goal: "TODO"
+)
+load_character_images(scythia)
+
 # Underworld Gallery
 underworld_gallery = Gallery.create!(
   title: "Underworld",

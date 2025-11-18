@@ -627,7 +627,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Persist audio playback across page navigations
+// Persist audio playback across page navigations within same gallery
 document.addEventListener('DOMContentLoaded', function() {
   const audio = document.getElementById('galleryAudio');
   if (!audio) return;
@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const galleryId = '<%= @gallery.id %>';
   const storageKey = 'gallery_audio_' + galleryId;
   
-  // Restore previous state
+  // Restore previous state (global script already handled clearing if needed)
   const savedState = sessionStorage.getItem(storageKey);
   if (savedState) {
     const state = JSON.parse(savedState);
