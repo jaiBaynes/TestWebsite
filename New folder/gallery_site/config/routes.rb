@@ -12,6 +12,13 @@ Rails.application.routes.draw do
   resources :galleries, only: [:show] do
     resources :images, only: [:show]
   end
+  
+  # Unlock system for testing
+  get "unlocks", to: "unlocks#index", as: :unlocks
+  post "unlocks/:id/unlock", to: "unlocks#unlock_character", as: :unlock_character
+  post "unlocks/unlock_all", to: "unlocks#unlock_all", as: :unlock_all
+  post "unlocks/lock_all", to: "unlocks#lock_all", as: :lock_all
+  post "unlocks/clear_session", to: "unlocks#clear_unlocked_session", as: :clear_unlocked_session
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

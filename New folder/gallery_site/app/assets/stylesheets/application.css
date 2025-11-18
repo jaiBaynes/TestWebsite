@@ -147,11 +147,14 @@ header a:hover {
 }
 
 .btn-primary {
-  background-color: #0066cc;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
 }
 
 .btn-primary:hover {
-  background-color: #0052a3;
+  background: linear-gradient(135deg, #5568d3 0%, #65398b 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -277,43 +280,87 @@ header a:hover {
 /* Galleries Grid */
 .galleries-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+  padding: 20px 0;
 }
 
 .gallery-card {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
+  position: relative;
+  border-radius: 12px;
+  padding: 0;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  min-height: 350px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .gallery-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-5px);
+}
+
+.gallery-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 1;
+}
+
+.gallery-card:hover .gallery-card-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.gallery-card-content {
+  position: relative;
+  z-index: 2;
+  padding: 30px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(40, 40, 50, 0.5) 0%, rgba(40, 40, 50, 0.75) 100%);
 }
 
 .gallery-card h2 {
-  margin-bottom: 10px;
-  font-size: 1.5em;
+  margin-bottom: 15px;
+  font-size: 2em;
+  font-weight: bold;
 }
 
 .gallery-card h2 a {
-  color: #0066cc;
+  color: #ffffff;
+  text-decoration: none;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  transition: color 0.3s ease;
+}
+
+.gallery-card h2 a:hover {
+  color: #a8b9ff;
 }
 
 .gallery-card p {
   margin-bottom: 15px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  font-size: 1.05em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .gallery-stats {
   font-weight: bold;
-  color: #667eea;
-  margin-bottom: 15px;
+  color: #a8b9ff;
+  margin-bottom: 20px;
+  font-size: 1.1em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .gallery-actions {

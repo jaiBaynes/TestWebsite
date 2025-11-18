@@ -169,7 +169,8 @@ metis = Image.create!(
   personality: "TODO",
   first_appearance: "Bonus Chapters",
   race: "Goddess (Immortal)",
-  goal: "To rule as queen of the gods with a less embarassing husband."
+  goal: "To rule as queen of the gods with a less embarassing husband.",
+  locked: true
 )
 load_character_images(metis)
 
@@ -207,7 +208,8 @@ apollo = Image.create!(
   personality: "TODO",
   first_appearance: "Act 2",
   race: "half-Lycian God (Immortal)",
-  goal: "To regain his status as Zeus' number one son."
+  goal: "To regain his status as Zeus' number one son.",
+  locked: true
 )
 load_character_images(apollo)
 
@@ -226,7 +228,8 @@ venus = Image.create!(
   personality: "Flirty, nosy, energetic, attention-seeking, petty, eccentric",
   first_appearance: "Act 2",
   race: "Solaris",
-  goal: "To forever enjoy the beauty of the world."
+  goal: "To forever enjoy the beauty of the world.",
+  locked: true
 )
 load_character_images(venus)
 
@@ -275,7 +278,8 @@ hydra = Image.create!(
   personality: "TODO",
   first_appearance: "Act 1",
   race: "demi-human monster (Immortal)",
-  goal: "To liberate the peoples of the world from the tyranny of Olympus."
+  goal: "To liberate the peoples of the world from the tyranny of Olympus.",
+  locked: true
 )
 load_character_images(hydra)
 
@@ -313,7 +317,8 @@ melissa = Image.create!(
   personality: "TODO",
   first_appearance: "Bonus Chapters",
   race: "half-Cretan, half-African Nymph (Immortal)",
-  goal: "To liberate the peoples of the world from the tyranny of Olympus."
+  goal: "To liberate the peoples of the world from the tyranny of Olympus.",
+  locked: true
 )
 load_character_images(melissa)
 
@@ -436,7 +441,8 @@ terra = Image.create!(
   personality: "Kind, Modest and Understated, Motherly, Wise, Doting, Repentant",
   first_appearance: "Act 3",
   race: "Solaris",
-  goal: "For the world to be a just and peaceful place... and for people to believe her husband when he says the same."
+  goal: "For the world to be a just and peaceful place... and for people to believe her husband when he says the same.",
+  locked: true
 )
 load_character_images(terra)
 
@@ -455,7 +461,8 @@ megaera = Image.create!(
   personality: "Aggressive, boistrous, friendly, passionate, extreme love or hate, humorous, eccentric/ insane, sadistic",
   first_appearance: "Bonus Chapters",
   race: "Goddess/ Child of Nyx (Immortal)",
-  goal: "To protect her home the Underworld and punish all evildoers who threaten people everywhere."
+  goal: "To protect her home the Underworld and punish all evildoers who threaten people everywhere.",
+  locked: true
 )
 load_character_images(megaera)
 
@@ -474,7 +481,8 @@ hecate = Image.create!(
   personality: "Silly, Cheerful, Mischievous, Eccentric, Clever, Tricky, Manipulative, Vengeful",
   first_appearance: "Act 1",
   race: "Anatolian Chthonic Goddess (Immortal)",
-  goal: "To avenge the originally destroyed Elysium and protect the new city from meeting the same fate."
+  goal: "To avenge the originally destroyed Elysium and protect the new city from meeting the same fate.",
+  locked: true
 )
 load_character_images(hecate)
 
@@ -493,7 +501,8 @@ echidna = Image.create!(
   personality: "Sadistic, compulsive, selfish, perverted, cruel, unpredictable",
   first_appearance: "Bonus Chapters",
   race: "Protogenoi Monster (Immortal)",
-  goal: "To escape prison so she can kill and eat strong prey to her heart's content."
+  goal: "To escape prison so she can kill and eat strong prey to her heart's content.",
+  locked: true
 )
 load_character_images(echidna)
 

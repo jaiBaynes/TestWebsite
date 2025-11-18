@@ -20,7 +20,7 @@ class GalleriesController < ApplicationController
   end
 
   def show
-    @images = @gallery.images
+    @images = @gallery.images.unlocked
   end
 
   private

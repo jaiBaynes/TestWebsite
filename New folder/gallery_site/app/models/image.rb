@@ -7,6 +7,10 @@ class Image < ApplicationRecord
   validates :biography, presence: true
   # image_url is optional - used as fallback if character_images aren't loaded
   
+  # Scopes
+  scope :unlocked, -> { where(locked: false) }
+  scope :locked_chars, -> { where(locked: true) }
+  
   def display_image_url
     # Priority: 1) Check for _preview image, 2) Use first carousel image, 3) Use main image_url
     if character_images.any?

@@ -3,8 +3,11 @@ class ImagesController < ApplicationController
   before_action :set_image, only: [:show]
 
   def show
-    # Find previous and next images in the same gallery
-    all_images = @gallery.images.order(:id)
+    # Redirect if character is locked
+    redirect_to gallery_path(@gallery), alert: "This character is locked." if @image.locked
+    
+    # Find previous and next images in the same gallery (only unlocked ones)
+    all_images = @gallery.images.unlocked.order(:id)
     current_index = all_images.index(@image)
     
     if current_index

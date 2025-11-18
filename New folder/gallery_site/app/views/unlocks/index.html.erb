@@ -1,0 +1,97 @@
+<div class="container">
+  <div class="header">
+    <h1>Character Unlock System (Testing)</h1>
+    <p>Manage locked and unlocked characters for testing purposes.</p>
+  </div>
+
+  <div style="margin-bottom: 30px;">
+    <%= button_to 'Unlock All Characters', unlock_all_path, method: :post, class: 'btn btn-primary', style: 'display: inline-block; margin-right: 10px;', data: { confirm: 'Are you sure you want to unlock all characters?' } %>
+    <%= button_to 'Lock All Characters', lock_all_path, method: :post, class: 'btn btn-secondary', style: 'display: inline-block;', data: { confirm: 'Are you sure you want to lock all characters?' } %>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+    <div>
+      <h2>🔒 Locked Characters (<%= @locked_characters.count %>)</h2>
+      <% if @locked_characters.any? %>
+        <div class="character-list">
+          <% @locked_characters.each do |character| %>
+            <div class="character-unlock-item">
+              <div class="character-unlock-info">
+                <img src="<%= character.thumbnail_url %>" alt="<%= character.name %>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;" referrerpolicy="no-referrer">
+                <div>
+                  <strong><%= character.name %></strong>
+                  <br>
+                  <small><%= character.gallery.title %></small>
+                </div>
+              </div>
+              <%= button_to 'Unlock', unlock_character_path(character), method: :post, class: 'btn btn-primary btn-sm' %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p>No locked characters.</p>
+      <% end %>
+    </div>
+
+    <div>
+      <h2>✅ Unlocked Characters (<%= @unlocked_characters.count %>)</h2>
+      <% if @unlocked_characters.any? %>
+        <div class="character-list">
+          <% @unlocked_characters.each do |character| %>
+            <div class="character-unlock-item">
+              <div class="character-unlock-info">
+                <img src="<%= character.thumbnail_url %>" alt="<%= character.name %>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;" referrerpolicy="no-referrer">
+                <div>
+                  <strong><%= character.name %></strong>
+                  <br>
+                  <small><%= character.gallery.title %></small>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p>No unlocked characters.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px;">
+    <%= link_to 'Back to Home', root_path, class: 'btn btn-secondary' %>
+  </div>
+</div>
+
+<style>
+.character-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.character-unlock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.character-unlock-item:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.character-unlock-info {
+  display: flex;
+  align-items: center;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.9em;
+}
+</style>
+
