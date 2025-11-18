@@ -87,6 +87,11 @@
         function closeUnlockModal() {
           document.getElementById('unlockModal').style.display = 'none';
           // Clear the session data
+          clearUnlockSession();
+        }
+        
+        function clearUnlockSession() {
+          // Clear the session data
           fetch('<%= clear_unlocked_session_path %>', {
             method: 'POST',
             headers: {

@@ -57,12 +57,26 @@
 
       <div class="character-info-section">
         <div class="character-quote-section">
-          <p class="quote-title">Quote</p>
+          <p class="quote-title">
+            Quote
+            <button class="tts-button" onclick="speakText('<%= j @image.quote %>', this)" title="Listen to quote">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+            </button>
+          </p>
           <p class="quote-text"><em>"<%= @image.quote %>"</em></p>
         </div>
 
         <div class="character-bio-section">
-          <h2>About</h2>
+          <h2>
+            About
+            <button class="tts-button" onclick="speakText('<%= j strip_tags(@image.biography) %>', this)" title="Listen to biography">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+            </button>
+          </h2>
           <p class="biography"><%= simple_format(@image.biography) %></p>
         </div>
 
@@ -90,7 +104,14 @@
           </div>
 
           <div class="detail-item">
-            <strong>Mythological Inspiration:</strong>
+            <strong>
+              Mythological Inspiration:
+              <button class="tts-button tts-button-small" onclick="speakText('<%= j strip_tags(@image.myth_inspiration) %>', this)" title="Listen to mythological inspiration">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+              </button>
+            </strong>
             <p><%= simple_format(@image.myth_inspiration) %></p>
           </div>
 
@@ -351,6 +372,66 @@
   .quote-text {
     font-size: 1.1em;
   }
+}
+
+/* Text-to-Speech Buttons */
+.tts-button {
+  background: none;
+  border: none;
+  color: #a8b9ff;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-left: 10px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.tts-button:hover {
+  background-color: rgba(168, 185, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.tts-button:active {
+  transform: scale(0.95);
+}
+
+.tts-button.tts-active {
+  background-color: rgba(168, 185, 255, 0.3);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.tts-button-small svg {
+  width: 16px;
+  height: 16px;
+}
+
+.quote-title {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.character-bio-section h2,
+.character-details-section h2 {
+  display: inline-flex;
+  align-items: center;
+}
+
+.detail-item strong {
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Carousel Styles */
@@ -661,5 +742,78 @@ document.addEventListener('DOMContentLoaded', function() {
       playing: !audio.paused
     }));
   }, 1000);
+});
+
+// Text-to-Speech functionality with audio ducking
+let currentSpeech = null;
+let originalMusicVolume = 1.0;
+
+function speakText(text, button) {
+  // If already speaking, stop
+  if (currentSpeech) {
+    window.speechSynthesis.cancel();
+    currentSpeech = null;
+    restoreMusicVolume();
+    button.classList.remove('tts-active');
+    return;
+  }
+  
+  // Check if browser supports speech synthesis
+  if (!('speechSynthesis' in window)) {
+    alert('Sorry, your browser does not support text-to-speech.');
+    return;
+  }
+  
+  // Create speech utterance
+  currentSpeech = new SpeechSynthesisUtterance(text);
+  
+  // Lower background music volume (audio ducking)
+  const galleryAudio = document.getElementById('galleryAudio');
+  if (galleryAudio) {
+    originalMusicVolume = galleryAudio.volume;
+    galleryAudio.volume = 0.2; // Lower to 20% volume
+  }
+  
+  // Add active state to button
+  button.classList.add('tts-active');
+  
+  // When speech ends
+  currentSpeech.onend = function() {
+    currentSpeech = null;
+    restoreMusicVolume();
+    button.classList.remove('tts-active');
+  };
+  
+  // Handle errors
+  currentSpeech.onerror = function() {
+    currentSpeech = null;
+    restoreMusicVolume();
+    button.classList.remove('tts-active');
+  };
+  
+  // Speak!
+  window.speechSynthesis.speak(currentSpeech);
+}
+
+function restoreMusicVolume() {
+  const galleryAudio = document.getElementById('galleryAudio');
+  if (galleryAudio) {
+    // Smoothly restore volume
+    const fadeIn = setInterval(() => {
+      if (galleryAudio.volume < originalMusicVolume - 0.05) {
+        galleryAudio.volume = Math.min(galleryAudio.volume + 0.05, originalMusicVolume);
+      } else {
+        galleryAudio.volume = originalMusicVolume;
+        clearInterval(fadeIn);
+      }
+    }, 50);
+  }
+}
+
+// Stop speech if user navigates away
+window.addEventListener('beforeunload', function() {
+  if (currentSpeech) {
+    window.speechSynthesis.cancel();
+  }
 });
 </script>

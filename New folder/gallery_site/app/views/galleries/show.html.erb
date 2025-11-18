@@ -66,9 +66,25 @@
           <p><strong>Artist:</strong> <span id="modalCharacterArtist"></span></p>
         </div>
         <div class="modal-quote-section">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <strong>Quote</strong>
+            <button class="tts-button" onclick="event.stopPropagation(); speakModalText('quote', this)" title="Listen to quote">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+            </button>
+          </div>
           <p id="modalCharacterQuote" class="modal-quote"></p>
         </div>
         <div class="modal-about-section">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <strong>About</strong>
+            <button class="tts-button" onclick="event.stopPropagation(); speakModalText('bio', this)" title="Listen to biography">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+            </button>
+          </div>
           <p id="modalCharacterBio" class="modal-bio"></p>
         </div>
         <button id="modalReadMore" class="btn btn-primary modal-read-more">Read More</button>
@@ -84,7 +100,9 @@ const characterData = {
     <%= image.id %>: {
       name: "<%= j image.name %>",
       quote: "<%= j image.quote %>",
+      quoteRaw: "<%= j strip_tags(image.quote) %>",
       bio: "<%= j image.biography %>",
+      bioRaw: "<%= j strip_tags(image.biography) %>",
       artist: "<%= j image.artist %>",
       imageUrl: "<%= image.display_image_url %>",
       profileUrl: "<%= gallery_image_path(@gallery, image) %>"
@@ -95,6 +113,11 @@ const characterData = {
 // Array of character IDs in order
 const characterIds = [<%= @images.map(&:id).join(', ') %>];
 let currentCharacterIndex = 0;
+
+// Text-to-Speech variables for Modal
+let modalCurrentSpeech = null;
+let modalOriginalMusicVolume = 1.0;
+let modalCurrentText = { quote: '', bio: '' };
 
 function updateModalContent(imageId) {
   const character = characterData[imageId];
@@ -112,6 +135,9 @@ function updateModalContent(imageId) {
     document.getElementById('modalCharacterBio').innerHTML = character.bio.replace(/\n/g, '<br>');
     document.getElementById('modalImage').src = character.imageUrl;
     document.getElementById('modalImage').alt = character.name;
+    
+    // Update TTS text references
+    updateModalCurrentText(character);
     
     // Set up read more button
     const readMoreBtn = document.getElementById('modalReadMore');
@@ -150,6 +176,15 @@ function openCharacterModal(imageId) {
 }
 
 function navigateModal(direction) {
+  // Stop any active TTS when navigating to different character
+  if (modalCurrentSpeech) {
+    window.speechSynthesis.cancel();
+    modalCurrentSpeech = null;
+    restoreModalMusicVolume();
+    // Remove active class from all TTS buttons
+    document.querySelectorAll('.tts-button').forEach(btn => btn.classList.remove('tts-active'));
+  }
+  
   // Calculate new index with wrapping
   currentCharacterIndex = (currentCharacterIndex + direction + characterIds.length) % characterIds.length;
   const newCharacterId = characterIds[currentCharacterIndex];
@@ -159,6 +194,15 @@ function navigateModal(direction) {
 }
 
 function closeCharacterModal() {
+  // Stop any active TTS when closing modal
+  if (modalCurrentSpeech) {
+    window.speechSynthesis.cancel();
+    modalCurrentSpeech = null;
+    restoreModalMusicVolume();
+    // Remove active class from all TTS buttons
+    document.querySelectorAll('.tts-button').forEach(btn => btn.classList.remove('tts-active'));
+  }
+  
   const modal = document.getElementById('characterModal');
   modal.style.display = 'none';
   document.body.style.overflow = 'auto'; // Restore scrolling
@@ -488,4 +532,77 @@ document.addEventListener('DOMContentLoaded', function() {
     }));
   }, 1000);
 });
+
+// Text-to-Speech for Modal - Update text references when modal content changes
+function updateModalCurrentText(character) {
+  modalCurrentText.quote = character.quoteRaw;
+  modalCurrentText.bio = character.bioRaw;
+}
+
+function speakModalText(fieldType, button) {
+  // If already speaking this field, stop
+  if (modalCurrentSpeech) {
+    window.speechSynthesis.cancel();
+    modalCurrentSpeech = null;
+    restoreModalMusicVolume();
+    // Remove active class from all TTS buttons
+    document.querySelectorAll('.tts-button').forEach(btn => btn.classList.remove('tts-active'));
+    return;
+  }
+  
+  // Check if browser supports speech synthesis
+  if (!('speechSynthesis' in window)) {
+    alert('Sorry, your browser does not support text-to-speech.');
+    return;
+  }
+  
+  // Get the text to speak
+  const text = modalCurrentText[fieldType];
+  if (!text) return;
+  
+  // Create speech utterance
+  modalCurrentSpeech = new SpeechSynthesisUtterance(text);
+  
+  // Lower background music volume (audio ducking)
+  const galleryAudio = document.getElementById('galleryAudio');
+  if (galleryAudio) {
+    modalOriginalMusicVolume = galleryAudio.volume;
+    galleryAudio.volume = 0.2; // Lower to 20% volume
+  }
+  
+  // Add active state to button
+  button.classList.add('tts-active');
+  
+  // When speech ends
+  modalCurrentSpeech.onend = function() {
+    modalCurrentSpeech = null;
+    restoreModalMusicVolume();
+    button.classList.remove('tts-active');
+  };
+  
+  // Handle errors
+  modalCurrentSpeech.onerror = function() {
+    modalCurrentSpeech = null;
+    restoreModalMusicVolume();
+    button.classList.remove('tts-active');
+  };
+  
+  // Speak!
+  window.speechSynthesis.speak(modalCurrentSpeech);
+}
+
+function restoreModalMusicVolume() {
+  const galleryAudio = document.getElementById('galleryAudio');
+  if (galleryAudio) {
+    // Smoothly restore volume
+    const fadeIn = setInterval(() => {
+      if (galleryAudio.volume < modalOriginalMusicVolume - 0.05) {
+        galleryAudio.volume = Math.min(galleryAudio.volume + 0.05, modalOriginalMusicVolume);
+      } else {
+        galleryAudio.volume = modalOriginalMusicVolume;
+        clearInterval(fadeIn);
+      }
+    }, 50);
+  }
+}
 </script>

@@ -6,6 +6,9 @@ class ImagesController < ApplicationController
     # Redirect if character is locked
     redirect_to gallery_path(@gallery), alert: "This character is locked." if @image.locked
     
+    # Clear unlock notifications when viewing character profiles
+    session[:newly_unlocked] = [] if session[:newly_unlocked].present?
+    
     # Find previous and next images in the same gallery (only unlocked ones)
     all_images = @gallery.images.unlocked.order(:id)
     current_index = all_images.index(@image)
