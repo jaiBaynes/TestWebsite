@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_17_184602) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_18_000343) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -71,6 +71,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_17_184602) do
     t.text "powers"
     t.string "home"
     t.text "family"
+    t.text "personality"
+    t.string "first_appearance"
+    t.string "race"
     t.index ["gallery_id"], name: "index_images_on_gallery_id"
   end
 
