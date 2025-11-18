@@ -534,9 +534,18 @@ puts "\n🎉 All character carousel images loaded automatically!"
 # Create chapters
 puts "\n📖 Creating chapters..."
 
-hercules_vs_apollo = Chapter.create!(
+hercules_at_delphi = Chapter.create!(
   title: "Myth 1.5: Hercules at Delphi",
   slug: "hercules-at-delphi",
+  category: "bonus_chapters",
+  chapter_number: nil,
+  file_path: "chapters/bonus chapters/Hercules vs Apollo.md",
+  published: true
+)
+
+hercules_vs_apollo = Chapter.create!(
+  title: "Myth 1.51: Hercules vs Apollo",
+  slug: "hercules-vs-apollo",
   category: "bonus_chapters",
   chapter_number: nil,
   file_path: "chapters/bonus chapters/Hercules vs Apollo.md",
@@ -551,7 +560,7 @@ puts "\n🔗 Linking chapters to unlockable characters..."
 # Find Apollo (should be in Olympia gallery)
 apollo_char = Image.find_by(name: "Apollo")
 if apollo_char
-  hercules_vs_apollo.unlockable_characters << apollo_char unless hercules_vs_apollo.unlockable_characters.include?(apollo_char)
+  hercules_at_delphi.unlockable_characters << apollo_char unless hercules_at_delphi.unlockable_characters.include?(apollo_char)
   puts "  🔓 Hercules at Delphi will unlock: Apollo"
 else
   puts "  ⚠️  Apollo character not found - skipping unlock link"

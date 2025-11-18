@@ -5,6 +5,15 @@ class ChaptersController < ApplicationController
 
   def show
     @chapter = Chapter.find_by!(slug: params[:id])
+    
+    # Find next and previous chapters in the same category
+    all_chapters = Chapter.published.where(category: @chapter.category).order(:chapter_number, :created_at)
+    current_index = all_chapters.index(@chapter)
+    
+    if current_index
+      @previous_chapter = current_index > 0 ? all_chapters[current_index - 1] : all_chapters.last
+      @next_chapter = current_index < all_chapters.length - 1 ? all_chapters[current_index + 1] : all_chapters.first
+    end
   end
   
   def complete
@@ -25,12 +34,8 @@ class ChaptersController < ApplicationController
       end
     end
     
-    # Add to session for unlock modal
-    if newly_unlocked.any?
-      session[:newly_unlocked] ||= []
-      session[:newly_unlocked].concat(newly_unlocked)
+    respond_to do |format|
+      format.json { render json: { success: true, unlocked: newly_unlocked } }
     end
-    
-    redirect_to stories_path, notice: "Chapter completed! #{newly_unlocked.count} character(s) unlocked!"
   end
 end

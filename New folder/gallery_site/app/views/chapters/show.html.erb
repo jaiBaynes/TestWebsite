@@ -4,7 +4,15 @@
   <div class="chapter-reader-container">
     <div class="chapter-header">
       <div class="chapter-navigation-top">
-        <%= link_to '← Back to Stories', stories_path, class: 'btn btn-secondary' %>
+        <% if @previous_chapter %>
+          <%= link_to "← #{@previous_chapter.title}", chapter_path(@previous_chapter), class: 'btn btn-nav btn-prev' %>
+        <% end %>
+        
+        <%= link_to 'Back to Stories', stories_path, class: 'btn btn-secondary btn-back-stories' %>
+        
+        <% if @next_chapter %>
+          <%= link_to "#{@next_chapter.title} →", chapter_path(@next_chapter), class: 'btn btn-nav btn-next' %>
+        <% end %>
       </div>
       
       <h1 class="chapter-main-title"><%= @chapter.title %></h1>
@@ -42,9 +50,20 @@
       <% end %>
       
       <div class="chapter-bottom-buttons">
-        <%= link_to '← Back to Stories', stories_path, class: 'btn btn-secondary' %>
+        <% if @previous_chapter %>
+          <%= link_to "← #{@previous_chapter.title}", chapter_path(@previous_chapter), class: 'btn btn-nav btn-prev' %>
+        <% end %>
+        
+        <%= link_to 'Back to Stories', stories_path, class: 'btn btn-secondary btn-back-stories' %>
+        
+        <% if @next_chapter %>
+          <%= link_to "#{@next_chapter.title} →", chapter_path(@next_chapter), class: 'btn btn-nav btn-next' %>
+        <% end %>
+        
         <% if locked_characters.any? %>
-          <%= button_to '✨ Complete Chapter', complete_chapter_path(@chapter), method: :post, class: 'btn btn-complete' %>
+          <button id="completeChapterBtn" class="btn btn-complete" data-chapter-slug="<%= @chapter.slug %>">
+            ✨ Complete Chapter
+          </button>
         <% end %>
       </div>
     </div>
@@ -155,7 +174,87 @@ document.addEventListener('DOMContentLoaded', function() {
       closeChapterImageZoom();
     }
   });
+  
+  // Handle Complete Chapter button
+  const completeBtn = document.getElementById('completeChapterBtn');
+  if (completeBtn) {
+    completeBtn.addEventListener('click', function() {
+      const chapterSlug = this.getAttribute('data-chapter-slug');
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+      
+      // Disable button to prevent double-clicks
+      this.disabled = true;
+      this.textContent = '⏳ Unlocking...';
+      
+      fetch(`/chapters/${chapterSlug}/complete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.unlocked.length > 0) {
+          // Show unlock modal
+          showChapterUnlockModal(data.unlocked);
+          
+          // Hide the unlock section
+          const unlockInfo = document.querySelector('.chapter-unlock-info');
+          if (unlockInfo) unlockInfo.remove();
+          completeBtn.remove();
+        } else {
+          // No characters to unlock (shouldn't happen, but handle it)
+          alert('No new characters to unlock!');
+          this.disabled = false;
+          this.textContent = '✨ Complete Chapter';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to unlock characters. Please try again.');
+        this.disabled = false;
+        this.textContent = '✨ Complete Chapter';
+      });
+    });
+  }
 });
+
+// Show unlock modal for chapters - matches unlock system modal exactly
+function showChapterUnlockModal(unlockedCharacters) {
+  const modalHTML = `
+    <div id="chapterUnlockModal" class="unlock-modal" style="display: flex;">
+      <div class="unlock-modal-content">
+        <button class="unlock-modal-close" onclick="closeChapterUnlockModal()">&times;</button>
+        <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">🎉 Characters Unlocked!</h2>
+        
+        <div class="unlocked-characters-grid">
+          ${unlockedCharacters.map(char => `
+            <div class="unlocked-character-card">
+              <a href="/galleries/${char.gallery_id}/images/${char.id}" style="text-decoration: none;">
+                <img src="${char.image}" alt="${char.name}" class="unlocked-character-img" referrerpolicy="no-referrer">
+                <h3>${char.name}</h3>
+              </a>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <button onclick="closeChapterUnlockModal()" class="btn btn-primary">Continue</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeChapterUnlockModal() {
+  const modal = document.getElementById('chapterUnlockModal');
+  if (modal) {
+    modal.remove();
+  }
+}
 </script>
 
 <style>
@@ -195,8 +294,41 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .chapter-navigation-top {
-  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
   margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.btn-nav {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+.btn-back-stories {
+  flex-shrink: 0;
 }
 
 .chapter-main-title {
