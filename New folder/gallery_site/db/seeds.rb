@@ -82,18 +82,18 @@ olympia_gallery = Gallery.create!(
 zeus = Image.create!(
   gallery: olympia_gallery,
   name: "Zeus",
-  quote: "TODO",
-  family: "TODO",
+  quote: "I am Zeus Almighty, my will be done.",
+  family: "Hercules (son), Metis (wife), Hebe (daughter), Apollo (son), Jupiter (self?), Mercury (brother), Venus (sister), Terra (sister), Mars (brother), Neptune (brother), Uranus (sister)",
   biography: "TODO",
   image_url: "/images/characters/zeus_preview.png",
-  artist: "TODO",
+  artist: "filipe_sca (Luis Felipe)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "electricity manipulation, teleportation, shape shifting, weather control, Illusions, Microcosm",
+  home: "Olympus",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "Solaris",
+  goal: "To rule the world and ensure Fate is followed."
 )
 load_character_images(zeus)
 
@@ -101,18 +101,18 @@ load_character_images(zeus)
 hercules = Image.create!(
   gallery: olympia_gallery,
   name: "Hercules",
-  quote: "TODO",
-  family: "TODO",
+  quote: "I am Hercules, the son of Zeus and the greatest hero of all time!",
+  family: "Zeus (father), Alcmene (mother), Amphitryon (adoptive father), Hebe (half-sister), Apollo (half-brother), Megara (wife), Deianira (wife), Iole (wife)",
   biography: "TODO",
   image_url: "/images/characters/hercules.png",
-  artist: "TODO",
+  artist: "bentejam (BENTE)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Super strength, shape-shifting ring, supercharge by Zeus, deus ex machina (off the cuff power creation), lightning manipulation",
+  home: "Thebes",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "Theban Demi-god (mortal)",
+  goal: "To prove himself to his father Zeus and to become the greatest hero of all time."
 )
 load_character_images(hercules)
 
@@ -120,18 +120,18 @@ load_character_images(hercules)
 hebe = Image.create!(
   gallery: olympia_gallery,
   name: "Hebe",
-  quote: "TODO",
-  family: "TODO",
+  quote: "Anyone who harms children is my enemy; I don't care what power or authority they claim to do it under.",
+  family: "Zeus (father), Metis (mother), Hercules (half-brother), Apollo (half-brother)",
   biography: "TODO",
   image_url: "/images/characters/hebe.png",
-  artist: "TODO",
+  artist: "bentejam (BENTE)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Lightning manipulation, Teleportation, Shape shifting, Illusions, Ambrosia manipulation",
+  home: "Olympus",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "Goddess (Immortal)",
+  goal: "To be free... and for her father to love her."
 )
 load_character_images(hebe)
 
@@ -139,18 +139,18 @@ load_character_images(hebe)
 neptune = Image.create!(
   gallery: olympia_gallery,
   name: "Neptune",
-  quote: "TODO",
-  family: "TODO",
+  quote: "I go with the flow... and wash away anything that gets in my way.",
+  family: "Zeus (brother), Mercury (brother), Venus (sister), Terra (sister), Uranus (sister)",
   biography: "TODO",
   image_url: "/images/characters/neptune_preview.png",
-  artist: "TODO",
+  artist: "bentejam (BENTE), tsuki.chiin (*pochll*)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Fault line, storm manipulation, shape shifting, Illusions, Monster creation and control, Microcosm",
+  home: "Olympus",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "Solaris",
+  goal: "To protect himself and those he cares about."
 )
 load_character_images(neptune)
 
@@ -158,18 +158,18 @@ load_character_images(neptune)
 metis = Image.create!(
   gallery: olympia_gallery,
   name: "Metis",
-  quote: "TODO",
-  family: "TODO",
+  quote: "Mind over muscle.",
+  family: "Zeus (husband), Hebe (daughter)",
   biography: "TODO",
   image_url: "/images/characters/metis.png",
-  artist: "TODO",
+  artist: "anne.cherry",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Mind control, Illusions",
+  home: "Olympus",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Bonus Chapters",
+  race: "Goddess (Immortal)",
+  goal: "To rule as queen of the gods with a less embarassing husband."
 )
 load_character_images(metis)
 
@@ -177,18 +177,18 @@ load_character_images(metis)
 mercury = Image.create!(
   gallery: olympia_gallery,
   name: "Mercury",
-  quote: "TODO",
-  family: "TODO",
+  quote: "We're in the money!",
+  family: "Venus (sister), Terra (sister), Mars (brother), Jupiter (brother), Neptune (brother), Uranus (sister)",
   biography: "TODO",
   image_url: "/images/characters/mercury.png",
-  artist: "TODO",
+  artist: "tsuki.chiin (*pochll*)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Super speed, Relativity, Shape shifting, Illusions, Teleportation, Microcosm",
+  home: "Olympus",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "Solaris",
+  goal: "To amuse himself; currently his amusement takes the form of amassing wealth."
 )
 load_character_images(mercury)
 
@@ -196,18 +196,18 @@ load_character_images(mercury)
 apollo = Image.create!(
   gallery: olympia_gallery,
   name: "Apollo",
-  quote: "TODO",
-  family: "TODO",
+  quote: "In Delphi there is but one son of Zeus, and it is me.",
+  family: "Zeus (father), Artemis (twin sister), Leto (mother), Hercules (half-brother), Hebe (half-sister)",
   biography: "TODO",
   image_url: "/images/characters/apollo.png",
-  artist: "TODO",
+  artist: "bentejam (BENTE)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Solar power, Disease manipulation, Healing,Shape shifting, Illusions, Microcosm",
+  home: "Olympus",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 2",
+  race: "half-Lycian God (Immortal)",
+  goal: "To regain his status as Zeus' number one son."
 )
 load_character_images(apollo)
 
@@ -215,18 +215,18 @@ load_character_images(apollo)
 venus = Image.create!(
   gallery: olympia_gallery,
   name: "Venus",
-  quote: "TODO",
-  family: "TODO",
+  quote: "Beauties and graces, both are mine.",
+  family: "Hephaestus (husband), Mercury (brother), Mars (brother), Terra (sister), Jupiter (brother), Neptune (brother), Uranus (sister)",
   biography: "TODO",
   image_url: "/images/characters/venus.png",
-  artist: "TODO",
-  myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
-  personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  artist: "dilan_grizart (Dilan)",
+  myth_inspiration: "Aphrodite, Greek Goddess of Love, Beauty and Desire",
+  powers: "Illusions, Perception Manipulation, Mind Control, Beautification (matter/ appearance manipulation)",
+  home: "Olympus",
+  personality: "Flirty, nosy, energetic, attention-seeking, petty, eccentric",
+  first_appearance: "Act 2",
+  race: "Solaris",
+  goal: "To forever enjoy the beauty of the world."
 )
 load_character_images(venus)
 
@@ -234,18 +234,18 @@ load_character_images(venus)
 megara = Image.create!(
   gallery: olympia_gallery,
   name: "Megara",
-  quote: "TODO",
-  family: "TODO",
+  quote: "I am the faithful servant of my Lord-Husband, Hercules.",
+  family: "Hercules (husband)",
   biography: "TODO",
   image_url: "/images/characters/megara.png",
-  artist: "TODO",
+  artist: "bentejam (BENTE)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "None",
+  home: "Thebes",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "Theban (mortal)",
+  goal: "To be the best wife to Hercules that she can be. ...and nothing else."
 )
 load_character_images(megara)
 
@@ -264,18 +264,18 @@ sinisters_gallery = Gallery.create!(
 hydra = Image.create!(
   gallery: sinisters_gallery,
   name: "Hydra",
-  quote: "TODO",
-  family: "TODO",
+  quote: "I have returned from the Gates of Tartarus in tact, and sent that bastard Pelops to fill my spot among the dead!",
+  family: "Typhon (biological father), Echidna (biological mother), Melissa (wife), Draco (son), Neptune (adoptive father)",
   biography: "TODO",
   image_url: "/images/characters/hydra.png",
-  artist: "TODO",
+  artist: "Me (Placeholder), LDAWB, meikkochi_ (Meiko), the.creature.keeper (Patricio Perez)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
+  home: "Crete",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "demi-human monster (Immortal)",
+  goal: "To liberate the peoples of the world from the tyranny of Olympus."
 )
 load_character_images(hydra)
 
@@ -283,18 +283,18 @@ load_character_images(hydra)
 draco = Image.create!(
   gallery: sinisters_gallery,
   name: "Draco",
-  quote: "TODO",
-  family: "TODO",
+  quote: "I'm a celebrity, princess. I have a sense for when people are ogling me. My eyes are up here.",
+  family: "Hydra (father), Melissa (mother)",
   biography: "TODO",
   image_url: "/images/characters/draco.png",
-  artist: "TODO",
+  artist: "tsuki.chiin (*pochll*)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
+  home: "Crete",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "half-Cretan half-demi-human monster (Immortal)",
+  goal: "To liberate the peoples of the world from the tyranny of Olympus."
 )
 load_character_images(draco)
 
@@ -302,18 +302,18 @@ load_character_images(draco)
 melissa = Image.create!(
   gallery: sinisters_gallery,
   name: "Melissa",
-  quote: "TODO",
-  family: "TODO",
+  quote: "Zeus shall reap what he has sown; Olympus shall be smashed to pebbles!",
+  family: "Melisseus (father), Hydra (husband), Draco (son)",
   biography: "TODO",
   image_url: "/images/characters/melissa_preview.png",
-  artist: "TODO",
+  artist: "LDAWB, Me (Placeholder)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Super strength, lightning manipulation, Monster creation and control, Microcosm",
+  home: "Crete",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Bonus Chapters",
+  race: "half-Cretan, half-African Nymph (Immortal)",
+  goal: "To liberate the peoples of the world from the tyranny of Olympus."
 )
 load_character_images(melissa)
 
@@ -321,18 +321,18 @@ load_character_images(melissa)
 scythia = Image.create!(
   gallery: sinisters_gallery,
   name: "Scythia",
-  quote: "TODO",
-  family: "TODO",
+  quote: "Don't mess with me.",
+  family: "Kolaxias (father), Hora (mother), Agathyrsos (brother), Gelonos (brother)",
   biography: "TODO",
   image_url: "/images/characters/scythia.png",
-  artist: "TODO",
+  artist: "Kat_Kay_tee (Kaytee)",
   myth_inspiration: "TODO",
-  powers: "TODO",
-  home: "TODO",
+  powers: "Super Strength, Divine Possession",
+  home: "Scythia",
   personality: "TODO",
-  first_appearance: "TODO",
-  race: "TODO",
-  goal: "TODO"
+  first_appearance: "Act 1",
+  race: "Scythian (mortal)",
+  goal: "To liberate the peoples of the world from the tyranny of Olympus."
 )
 load_character_images(scythia)
 
