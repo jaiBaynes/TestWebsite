@@ -16,7 +16,7 @@
     <% if @images.any? %>
       <div class="images-grid">
         <% @images.each do |image| %>
-          <div class="image-card character-card">
+          <div class="image-card character-card" onclick="openCharacterModal(<%= image.id %>)" style="cursor: pointer;">
             <div class="image-container">
               <% if image.has_image? %>
                 <img src="<%= image.thumbnail_url %>" alt="<%= image.name %>" class="gallery-image" referrerpolicy="no-referrer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22250%22%3E%3Crect fill=%22%23e9ecef%22 width=%22250%22 height=%22250%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2220%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3E[Image Placeholder]%3C/text%3E%3C/svg%3E'">
@@ -27,7 +27,6 @@
             <div class="image-info">
               <h3 class="character-name"><%= image.name %></h3>
               <p class="character-quote"><em>"<%= truncate(image.quote, length: 50) %>"</em></p>
-              <%= link_to 'View Profile', gallery_image_path(@gallery, image), class: 'btn btn-primary btn-small' %>
             </div>
           </div>
         <% end %>
@@ -37,3 +36,405 @@
     <% end %>
   </div>
 </div>
+
+<!-- Character Modal -->
+<div id="characterModal" class="character-modal" onclick="closeModalOnOutside(event)">
+  <button class="modal-nav-btn modal-nav-prev" onclick="event.stopPropagation(); navigateModal(-1);" title="Previous Character">&#10094;</button>
+  <button class="modal-nav-btn modal-nav-next" onclick="event.stopPropagation(); navigateModal(1);" title="Next Character">&#10095;</button>
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="event.stopPropagation(); closeCharacterModal();">&times;</button>
+    <div class="modal-body">
+      <div class="modal-image-section" id="modalImageSection">
+        <img id="modalImage" src="" alt="" class="modal-character-image">
+      </div>
+      <div class="modal-info-section">
+        <h2 id="modalCharacterName" class="modal-character-name"></h2>
+        <div class="modal-artist">
+          <p><strong>Artist:</strong> <span id="modalCharacterArtist"></span></p>
+        </div>
+        <div class="modal-quote-section">
+          <p id="modalCharacterQuote" class="modal-quote"></p>
+        </div>
+        <div class="modal-about-section">
+          <p id="modalCharacterBio" class="modal-bio"></p>
+        </div>
+        <button id="modalReadMore" class="btn btn-primary modal-read-more">Read More</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Store character data for modal
+const characterData = {
+  <% @images.each_with_index do |image, index| %>
+    <%= image.id %>: {
+      name: "<%= j image.name %>",
+      quote: "<%= j image.quote %>",
+      bio: "<%= j image.biography %>",
+      artist: "<%= j image.artist %>",
+      imageUrl: "<%= image.display_image_url %>",
+      profileUrl: "<%= gallery_image_path(@gallery, image) %>"
+    }<%= index < @images.length - 1 ? ',' : '' %>
+  <% end %>
+};
+
+// Array of character IDs in order
+const characterIds = [<%= @images.map(&:id).join(', ') %>];
+let currentCharacterIndex = 0;
+
+function updateModalContent(imageId) {
+  const character = characterData[imageId];
+  
+  // Populate modal content with fade effect
+  const modal = document.getElementById('characterModal');
+  const modalBody = modal.querySelector('.modal-body');
+  
+  modalBody.style.opacity = '0.5';
+  
+  setTimeout(() => {
+    document.getElementById('modalCharacterName').textContent = character.name;
+    document.getElementById('modalCharacterArtist').textContent = character.artist;
+    document.getElementById('modalCharacterQuote').textContent = '"' + character.quote + '"';
+    document.getElementById('modalCharacterBio').textContent = character.bio;
+    document.getElementById('modalImage').src = character.imageUrl;
+    document.getElementById('modalImage').alt = character.name;
+    
+    // Set up read more button
+    const readMoreBtn = document.getElementById('modalReadMore');
+    readMoreBtn.onclick = function(e) {
+      e.stopPropagation();
+      window.location.href = character.profileUrl;
+    };
+    
+    // Make image and name clickable
+    document.getElementById('modalImageSection').onclick = function(e) {
+      e.stopPropagation();
+      window.location.href = character.profileUrl;
+    };
+    
+    document.getElementById('modalCharacterName').onclick = function(e) {
+      e.stopPropagation();
+      window.location.href = character.profileUrl;
+    };
+    
+    modalBody.style.opacity = '1';
+  }, 150);
+}
+
+function openCharacterModal(imageId) {
+  const modal = document.getElementById('characterModal');
+  
+  // Set current character index
+  currentCharacterIndex = characterIds.indexOf(imageId);
+  
+  // Update content
+  updateModalContent(imageId);
+  
+  // Show modal
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function navigateModal(direction) {
+  // Calculate new index with wrapping
+  currentCharacterIndex = (currentCharacterIndex + direction + characterIds.length) % characterIds.length;
+  const newCharacterId = characterIds[currentCharacterIndex];
+  
+  // Update modal content
+  updateModalContent(newCharacterId);
+}
+
+function closeCharacterModal() {
+  const modal = document.getElementById('characterModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = 'auto'; // Restore scrolling
+}
+
+function closeModalOnOutside(event) {
+  if (event.target.id === 'characterModal') {
+    closeCharacterModal();
+  }
+}
+
+// Handle keyboard navigation
+document.addEventListener('keydown', function(e) {
+  const modal = document.getElementById('characterModal');
+  const isModalOpen = modal.style.display === 'flex';
+  
+  if (isModalOpen) {
+    if (e.key === 'Escape') {
+      closeCharacterModal();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      navigateModal(-1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      navigateModal(1);
+    }
+  }
+});
+</script>
+
+<style>
+.character-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+  border-radius: 20px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 36px;
+  cursor: pointer;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+  line-height: 1;
+  padding: 0;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.modal-nav-btn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(212, 175, 55, 0.8);
+  border: 2px solid #d4af37;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  line-height: 1;
+  padding: 0;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.modal-nav-btn:hover {
+  background: #d4af37;
+  border-color: #f0d47a;
+  color: white;
+  transform: translateY(-50%) scale(1.15);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+}
+
+.modal-nav-prev {
+  left: 2%;
+}
+
+.modal-nav-next {
+  right: 2%;
+}
+
+.modal-body {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 40px;
+  padding: 40px;
+  transition: opacity 0.2s ease;
+}
+
+.modal-image-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.modal-image-section:hover {
+  transform: scale(1.05);
+}
+
+.modal-character-image {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  object-fit: cover;
+}
+
+.modal-info-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+}
+
+.modal-character-name {
+  font-family: 'Georgia', serif;
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  color: #d4af37;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.modal-character-name:hover {
+  color: #f0d47a;
+}
+
+.modal-artist {
+  text-align: center;
+  font-size: 0.95em;
+  color: #c0c0c0;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.modal-artist strong {
+  color: #d4af37;
+  margin-right: 5px;
+}
+
+.modal-quote-section {
+  background: rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #d4af37;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.modal-quote {
+  font-style: italic;
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.modal-about-section {
+  margin-bottom: 25px;
+}
+
+.modal-bio {
+  font-size: 1em;
+  line-height: 1.8;
+  color: #c0c0c0;
+  text-align: justify;
+  margin: 0;
+}
+
+.modal-read-more {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.1em;
+  font-weight: 600;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  align-self: center;
+  width: 100%;
+  max-width: 250px;
+}
+
+.modal-read-more:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+@media (max-width: 768px) {
+  .modal-body {
+    grid-template-columns: 1fr;
+    padding: 30px 20px;
+    gap: 30px;
+  }
+  
+  .modal-character-name {
+    font-size: 2em;
+  }
+  
+  .modal-close {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 30px;
+  }
+  
+  .modal-nav-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 26px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .modal-nav-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+  }
+  
+  .modal-nav-prev {
+    left: 1%;
+  }
+  
+  .modal-nav-next {
+    right: 1%;
+  }
+}
+</style>

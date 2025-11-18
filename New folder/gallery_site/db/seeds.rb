@@ -86,7 +86,8 @@ hades = Image.create!(
   home: "Elysium",
   personality: "TODO",
   first_appearance: "Act 1",
-  race: "TODO"
+  race: "Molossian Cthonic God (Immortal)",
+  goal: "For the world to be a just and peaceful place... and for people to believe him when he says that."
 )
 load_character_images(hades)
 
@@ -98,13 +99,14 @@ cerberus = Image.create!(
   family: "Kat (younger sister), Python (younger brother), Hades (adoptive father), Typhon (biological father), Echidna (biological mother)",
   biography: "Cerberus is a formidable and protective character known for unwavering loyalty and fierce determination. With a commanding presence and strong moral compass, Cerberus serves as both guardian and mentor. Their courage and dedication inspire those around them to be their best selves.",
   image_url: "/images/characters/cerberus.png",
-  artist: "bentejam (BENTE), the.creature.keeper (Patricio Perez)",
+  artist: "bentejam (BENTE), giknnow.art (Gino Gaba), the.creature.keeper (Patricio Perez)",
   myth_inspiration: "In mythology, Cerberus is the three headed dog that guards the entrance to the underworld. Most know that Cerberus is the son of Typhon and Echidna and but few know that he has a 2 headed dog brother named Orthrus. This Cerberus adaptation is a 'What-If' Hades adopted yet another multi-headed dog sibling, this time female instead of two headed. As the adopted daughter of Hades, this Cerberus is also heavily influenced by Athena, the daughter of Zeus.",
   powers: "Invisibility, Intangibility, Shapeshifting, Shadow Manipulation, Familiar Creation,Teleportation, Hellfire, Microcosm: Doghouse, Extra Lives",
   home: "Underworld",
   personality: "TODO",
   first_appearance: "Act 1",
-  race: "TODO"
+  race: "Demi-human Monster (Immortal)",
+  goal: "To protect her home the Underworld and everyone in it."
 )
 load_character_images(cerberus)
 
@@ -122,7 +124,8 @@ kat = Image.create!(
   home: "Elysium",
   personality: "TODO",
   first_appearance: "Act 1",
-  race: "TODO"
+  race: "Demi-human Monster (Immortal)",
+  goal: "To become a beloved Kosmonarch just like her father Hades."
 )
 load_character_images(kat)
 
@@ -132,7 +135,7 @@ python = Image.create!(
   name: "Python",
   quote: "Every loop leads somewhere new",
   family: "Kat (twin sister), Cerberus (older sister), Hades (adoptive father), Typhon (biological father), Echidna (biological mother)",
-  artist: "Meiko (meikkochi_)",
+  artist: "Meiko (meikkochi_), the.creature.keeper (Patricio Perez)",
   myth_inspiration: "Python the original god of delphi that took the form of a giant snake. Over time the character of Python went from being a female goddess with future sight to being reimagined as the evil monster brother of Typhon.",
   powers: "Future Sight, Hellfire, Mental link to his machines and automatons, Shapeshifting",
   home: "Elysium",
@@ -140,7 +143,8 @@ python = Image.create!(
   image_url: "/images/characters/python.png",
   personality: "TODO",
   first_appearance: "Act 1",
-  race: "TODO"
+  race: "Humanoid/ Monster (Immortal)",
+  goal: "To be popular and cool."
 )
 load_character_images(python)
 
@@ -158,7 +162,8 @@ megaera = Image.create!(
   home: "Underworld",
   personality: "TODO",
   first_appearance: "Bonus Chapters",
-  race: "TODO"
+  race: "Goddess/ Child of Nyx (Immortal)",
+  goal: "To protect her home the Underworld and punish all evildoers who threaten people everywhere."
 )
 load_character_images(megaera)
 

@@ -61,16 +61,27 @@
             <strong>Artist:</strong>
             <p><%= @image.artist %></p>
           </div>
+
+          <div class="detail-item">
+            <strong>Goal/Dream:</strong>
+            <p><%= simple_format(@image.goal) %></p>
+          </div>
+
+          <div class="detail-item">
+            <strong>Personality:</strong>
+            <p><%= simple_format(@image.personality) %></p>
+          </div>
           
+          <div class="detail-item">
+            <strong>Family:</strong>
+            <p><%= simple_format(@image.family) %></p>
+          </div>
+
           <div class="detail-item">
             <strong>Mythological Inspiration:</strong>
             <p><%= simple_format(@image.myth_inspiration) %></p>
           </div>
 
-          <div class="detail-item">
-            <strong>Family:</strong>
-            <p><%= simple_format(@image.family) %></p>
-          </div>
 
           <div class="detail-item">
             <strong>Home:</strong>
@@ -81,11 +92,7 @@
             <strong>Powers:</strong>
             <p><%= simple_format(@image.powers) %></p>
           </div>
-          
-          <div class="detail-item">
-            <strong>Personality:</strong>
-            <p><%= simple_format(@image.personality) %></p>
-          </div>
+        
           
           <div class="detail-item">
             <strong>First Appearance:</strong>
