@@ -46,12 +46,43 @@ a:hover {
   min-height: calc(100vh - 60px);
 }
 
+/* Gallery Background */
+.gallery-background {
+  position: relative;
+  min-height: calc(100vh - 60px);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.gallery-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  z-index: 0;
+}
+
+.gallery-container {
+  position: relative;
+  z-index: 1;
+  background-color: transparent;
+  min-height: auto;
+}
+
 /* Header Navigation */
 header {
   background-color: #333;
   color: white;
   padding: 15px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   margin-bottom: 20px;
 }
 
@@ -191,18 +222,37 @@ header a:hover {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 30px;
+  padding: 20px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #ddd;
+  background-color: rgba(50, 50, 60, 0.7);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  color: white;
 }
 
 .header-content h1 {
   margin-bottom: 10px;
+  color: white;
 }
 
 .description {
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1.1em;
   margin-bottom: 10px;
+}
+
+.gallery-content {
+  background-color: rgba(40, 40, 50, 0.65);
+  padding: 20px;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  color: white;
+}
+
+.gallery-content h2 {
+  margin-bottom: 20px;
+  color: white;
 }
 
 .header-actions {
@@ -281,17 +331,19 @@ header a:hover {
 }
 
 .image-card {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
+  background-color: rgba(50, 50, 60, 0.75);
+  border: 1px solid rgba(200, 200, 200, 0.3);
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
 }
 
 .image-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
   transform: translateY(-3px);
+  background-color: rgba(60, 60, 70, 0.85);
 }
 
 .character-card {
@@ -321,6 +373,7 @@ header a:hover {
 
 .image-info {
   padding: 15px;
+  background-color: rgba(30, 30, 40, 0.8);
 }
 
 .caption {
@@ -333,12 +386,12 @@ header a:hover {
 .character-name {
   font-size: 1.3em;
   font-weight: bold;
-  color: #667eea;
+  color: #a8b9ff;
   margin: 0 0 10px 0;
 }
 
 .character-quote {
-  color: #666;
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.95em;
   line-height: 1.5;
   margin-bottom: 10px;
@@ -457,13 +510,13 @@ header a:hover {
 .no-images {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 1.1em;
 }
 
 .no-galleries a,
 .no-images a {
-  color: #0066cc;
+  color: #a8b9ff;
   font-weight: bold;
 }
 
