@@ -1,5 +1,15 @@
-<div class="gallery-background" style="background-image: url('/images/characters/hades_2.png');">
+<div class="gallery-background" style="background-image: url('<%= @gallery.background_image.presence || '/images/characters/hades_2.png' %>');">
   <div class="gallery-overlay"></div>
+  
+  <% if @gallery.music_file.present? %>
+    <div class="gallery-music-player">
+      <audio id="galleryAudio" controls loop>
+        <source src="<%= @gallery.music_file %>" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  <% end %>
+  
   <div class="container character-profile-container">
     <div class="character-detail">
     <div class="detail-header">
@@ -615,5 +625,41 @@ document.addEventListener('keydown', (e) => {
       closeImageZoom();
     }
   }
+});
+
+// Persist audio playback across page navigations
+document.addEventListener('DOMContentLoaded', function() {
+  const audio = document.getElementById('galleryAudio');
+  if (!audio) return;
+  
+  const galleryId = '<%= @gallery.id %>';
+  const storageKey = 'gallery_audio_' + galleryId;
+  
+  // Restore previous state
+  const savedState = sessionStorage.getItem(storageKey);
+  if (savedState) {
+    const state = JSON.parse(savedState);
+    audio.currentTime = state.time || 0;
+    if (state.playing) {
+      // Use a promise to handle autoplay restrictions
+      audio.play().catch(e => console.log('Autoplay prevented:', e));
+    }
+  }
+  
+  // Save state before leaving page
+  window.addEventListener('beforeunload', function() {
+    sessionStorage.setItem(storageKey, JSON.stringify({
+      time: audio.currentTime,
+      playing: !audio.paused
+    }));
+  });
+  
+  // Also save state periodically in case of navigation
+  setInterval(function() {
+    sessionStorage.setItem(storageKey, JSON.stringify({
+      time: audio.currentTime,
+      playing: !audio.paused
+    }));
+  }, 1000);
 });
 </script>
