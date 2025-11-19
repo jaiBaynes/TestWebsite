@@ -279,7 +279,7 @@ hydra = Image.create!(
   image_url: "/images/characters/hydra.png",
   artist: "Me (Placeholder), LDAWB, meikkochi_ (Meiko), the.creature.keeper (Patricio Perez)",
   myth_inspiration: "Hydra the many-headed serpent in greek mythology.",
-  powers: "Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
+  powers: "Flaming Eyes of Typhon, Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
   home: "Crete",
   personality: "TODO",
   first_appearance: "Act 1",
@@ -299,7 +299,7 @@ draco = Image.create!(
   image_url: "/images/characters/draco.png",
   artist: "tsuki.chiin (*pochll*)",
   myth_inspiration: "The Immortal head of Hydra that Hercules cut off and buried rather than actually killing it despite popular belief).",
-  powers: "Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
+  powers: "Flaming Eyes of Typhon,Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
   home: "Crete",
   personality: "TODO",
   first_appearance: "Act 1",
@@ -346,6 +346,126 @@ scythia = Image.create!(
   goal: "To liberate the peoples of the world from the tyranny of Olympus."
 )
 load_character_images(scythia)
+
+#Character: Nemean Lion
+nemean_lion = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Leo/ Nemean Lion",
+  quote: "TODO",
+  family: "Typhon (biological father), Echidna (biological mother), Hydra (brother), Draco (nephew)",
+  biography: "Hydra's older brother and close ally. He served the Sinisters in their war against Olympus.In his humanoid form, the Nemean lion is a tall, muscular man with black hair and red eyes. He strongly resembles his brother Hydra, but is much bulkier and hairier with a mane-like beard. He was killed by Hercules who used his skin as a pelt/ cape.",
+  image_url: "/images/characters/nemean_lion.png",
+  artist: "the.creature.keeper (Patricio Perez)",
+  myth_inspiration: "TODO",
+  powers: "Shape shifting, Invulnerability, Flaming Breath",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "Bonus Chapters",
+  race: "demi-human monster (Immortal)",
+  goal: "TODO",
+  locked: true
+)
+load_character_images(nemean_lion)
+
+#Character: Ceryneian Hind
+ceryneian_hind = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Ceryneian Hind",
+  quote: "TODO",
+  family: "Typhon (biological father), Echidna (biological mother), Hydra (brother), Cretan Bull (brother), Draco (nephew)",
+  biography: "Hydra's older sister and a member of the Sinisters. She is a former huntress of Artemis who left the huntresses in disgust by the goddess letting Zeus get away with assaulting her friend. She joined the Sinisters to try and stop Zeus and his empire's abuses of women across the Kosmos.In her humanoid form, the Ceryneian hind is a beautiful young woman with long, flowing white hair and red eyes. She strongly resembles her mother Echidna, but is much more graceful and elegant. She was captured by Hercules and imprisoned by Olympus.",
+  image_url: "/images/characters/ceryneian_hind.png",
+  artist: "the.creature.keeper (Patricio Perez)",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "Bonus Chapters",
+  race: "demi-human monster (Immortal)",
+  goal: "TODO",
+  locked: true
+)
+load_character_images(ceryneian_hind)
+
+#Character: Erymanthian Boar
+erymanthian_boar = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Erymanthian Boar",
+  quote: "TODO",
+  family: "Typhon (biological father), Echidna (biological mother), Hydra (brother), Cretan Bull (brother), Draco (nephew)",
+  biography: "Hydra's older brother and a member of the Sinisters. In his humanoid form, the Erymanthian boar is a large man with thick, dark hair and red eyes. He strongly resembles his brother Hydra, but is much chubbier and hairier but lacks a beard. He was killed by Hercules.",
+  image_url: "/images/characters/erymanthian_boar.png",
+  artist: "the.creature.keeper (Patricio Perez)",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "Bonus Chapters",
+  race: "demi-human monster (Immortal)",
+  goal: "TODO",
+  locked: true
+)
+load_character_images(erymanthian_boar)
+
+#Character: Stymphalian Birds
+stymphalian_bird = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Stymphalian Bird",
+  quote: "TODO",
+  family: "Typhon (biological father), Echidna (biological mother), Hydra (brother), Cretan Bull (brother), Draco (nephew)",
+  biography: "Hydra's older sister and a member of the Sinisters. Originally, she was raised by Ares/ Mars the god of war to be a living weapon. However after witnessing the horrors of war, she defected to the Sinisters side. In her humanoid form, the Stymphalian bird is a rugged, muscular woman with long, flowing black hair and red eyes. She strongly resembles a female version of her brother Hydra, but is much more rugged and muscular. He was killed by Hercules.",
+  image_url: "/images/characters/stymphalian_bird.png",
+  artist: "the.creature.keeper (Patricio Perez)",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "Bonus Chapters",
+  race: "demi-human monster (Immortal)",
+  goal: "TODO",
+  locked: true
+)
+load_character_images(ceryneian_hind)
+
+#Character: Cretan Bull
+cretan_bull = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Tauros/ Cretan Bull",
+  quote: "TODO",
+  family: "Typhon (biological father), Echidna (biological mother), Hydra (brother), Cretan Bull (brother), Draco (nephew)",
+  biography: "Hydra's brother and a member of the Sinisters. He didn't originally know he was the son of Typhon and Echidna. He befriended Poseidon/ Neptune and went with him to visit Crete where he slept with the queen. He was horrified to later learn that their son (which he didn't know about) was imprisoned and abused by Zeus' son on Crete and then later killed by Theseus and so joined the Sinisters. In his humanoid form, the Cretan bull is a large man with white hair and red eyes. He strongly resembles a male version of his mother Echidna. He was captured by Hercules and imprisoned by Olympus.",
+  image_url: "/images/characters/cretan_bull.png",
+  artist: "the.creature.keeper (Patricio Perez)",
+  myth_inspiration: "TODO",
+  powers: "Flaming Breath",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "Bonus Chapters",
+  race: "demi-human monster (Immortal)",
+  goal: "TODO",
+  locked: true
+)
+load_character_images(cretan_bull)
+
+#Character: Mare of Diomedes
+mare_of_diomedes = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Hipponome/ Mare of Diomedes",
+  quote: "TODO",
+  family: "Typhon (biological father), Echidna (biological mother), Hydra (brother), Cretan Bull (brother), Draco (nephew)",
+  biography: "In her humanoid form, the Mare of Diomedes is a beautiful young woman with long, flowing black hair and red eyes. She strongly resembles her mother Echidna, but has her father Typhon's black hair color. Hercules killed her children and enslaved her, presenting her as a gift to his cousin Eurystheus.",
+  image_url: "/images/characters/mare_of_diomedes.png",
+  artist: "the.creature.keeper (Patricio Perez)",
+  myth_inspiration: "TODO",
+  powers: "TODO",
+  home: "TODO",
+  personality: "TODO",
+  first_appearance: "Bonus Chapters",
+  race: "demi-human monster (Immortal)",
+  goal: "TODO",
+  locked: true
+)
+load_character_images(mare_of_diomedes)
 
 # Underworld Gallery
 underworld_gallery = Gallery.create!(
