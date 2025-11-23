@@ -20,18 +20,23 @@ class ChaptersController < ApplicationController
     @chapter = Chapter.find_by!(slug: params[:id])
     
     # Unlock all characters associated with this chapter
-    newly_unlocked = []
+    newly_unlocked_ids = []
     
     @chapter.unlockable_characters.each do |character|
       if character.locked?
         character.update(locked: false)
-        newly_unlocked << {
-          'id' => character.id,
-          'name' => character.name,
-          'image' => character.thumbnail_url,
-          'gallery_id' => character.gallery_id
-        }
+        newly_unlocked_ids << character.id
       end
+    end
+    
+    # Fetch full character data for the response
+    newly_unlocked = Image.where(id: newly_unlocked_ids).map do |character|
+      {
+        'id' => character.id,
+        'name' => character.name,
+        'image' => character.thumbnail_url,
+        'gallery_id' => character.gallery_id
+      }
     end
     
     respond_to do |format|

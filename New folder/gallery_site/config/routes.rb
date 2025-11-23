@@ -16,6 +16,10 @@ Rails.application.routes.draw do
     end
   end
   
+  # Games
+  get "games", to: "games#index", as: :games
+  post "games/random_characters", to: "games#random_characters", as: :games_random_characters
+  
   # Keep galleries for show action and nested images
   resources :galleries, only: [:show] do
     resources :images, only: [:show]

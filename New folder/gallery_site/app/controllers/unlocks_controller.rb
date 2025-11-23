@@ -8,14 +8,9 @@ class UnlocksController < ApplicationController
     @character = Image.find(params[:id])
     
     if @character.update(locked: false)
-      # Store newly unlocked character for modal display (use string keys for session)
+      # Store only character ID for modal display to avoid cookie overflow
       session[:newly_unlocked] ||= []
-      session[:newly_unlocked] << {
-        'id' => @character.id,
-        'name' => @character.name,
-        'image' => @character.thumbnail_url,
-        'gallery_id' => @character.gallery_id
-      }
+      session[:newly_unlocked] << @character.id
       
       redirect_back(fallback_location: root_path, notice: "#{@character.name} has been unlocked!")
     else
@@ -24,23 +19,15 @@ class UnlocksController < ApplicationController
   end
   
   def unlock_all
-    locked_characters = Image.locked_chars.to_a
+    locked_character_ids = Image.locked_chars.pluck(:id)
     
-    # Store all characters being unlocked for modal display
-    session[:newly_unlocked] ||= []
-    locked_characters.each do |character|
-      session[:newly_unlocked] << {
-        'id' => character.id,
-        'name' => character.name,
-        'image' => character.thumbnail_url,
-        'gallery_id' => character.gallery_id
-      }
-    end
+    # Store only character IDs to avoid cookie overflow
+    session[:newly_unlocked] = locked_character_ids
     
     # Unlock all at once
     Image.locked_chars.update_all(locked: false)
     
-    redirect_to unlocks_path, notice: "All #{locked_characters.count} locked characters have been unlocked!"
+    redirect_to unlocks_path, notice: "All #{locked_character_ids.count} locked characters have been unlocked!"
   end
   
   def lock_all

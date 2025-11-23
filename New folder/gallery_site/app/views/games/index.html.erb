@@ -1,0 +1,404 @@
+<div class="games-background">
+  <div class="games-overlay"></div>
+  
+  <div class="container games-container">
+    <div class="games-header">
+      <h1>🎮 Games & Activities</h1>
+      <p>Enjoy interactive games featuring the characters you've unlocked!</p>
+    </div>
+    
+    <!-- Random Character Generator Game -->
+    <div class="game-section">
+      <div class="game-card">
+        <div class="game-card-header">
+          <h2>🎲 Random Character Generator</h2>
+          <p>Generate a random team of 4 characters from your unlocked collection!</p>
+        </div>
+        
+        <div class="game-controls">
+          <button id="generateButton" class="btn-generate" onclick="generateRandomCharacters()">
+            ✨ Generate Random Team
+          </button>
+        </div>
+        
+        <div id="characterGrid" class="character-grid">
+          <div class="character-slot empty-slot">
+            <div class="slot-placeholder">?</div>
+          </div>
+          <div class="character-slot empty-slot">
+            <div class="slot-placeholder">?</div>
+          </div>
+          <div class="character-slot empty-slot">
+            <div class="slot-placeholder">?</div>
+          </div>
+          <div class="character-slot empty-slot">
+            <div class="slot-placeholder">?</div>
+          </div>
+        </div>
+        
+        <div id="loadingMessage" class="loading-message" style="display: none;">
+          <div class="spinner"></div>
+          <p>Generating your team...</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Placeholder for future games -->
+    <div class="game-section">
+      <div class="game-card coming-soon">
+        <div class="game-card-header">
+          <h2>🔮 More Games Coming Soon!</h2>
+          <p>Stay tuned for more interactive activities and minigames.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let isGenerating = false;
+
+function generateRandomCharacters() {
+  if (isGenerating) return;
+  
+  isGenerating = true;
+  const button = document.getElementById('generateButton');
+  const grid = document.getElementById('characterGrid');
+  const loadingMessage = document.getElementById('loadingMessage');
+  
+  // Disable button and show loading
+  button.disabled = true;
+  button.textContent = '⏳ Generating...';
+  loadingMessage.style.display = 'block';
+  
+  // Clear current grid with animation
+  grid.style.opacity = '0';
+  
+  // Fetch random characters
+  fetch('<%= games_random_characters_path %>', {
+    method: 'POST',
+    headers: {
+      'X-CSRF-Token': '<%= form_authenticity_token %>',
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Wait for fade out animation
+    setTimeout(() => {
+      displayCharacters(data.characters);
+      
+      // Fade in with new characters
+      grid.style.opacity = '1';
+      loadingMessage.style.display = 'none';
+      
+      // Re-enable button
+      button.disabled = false;
+      button.textContent = '✨ Generate Random Team';
+      isGenerating = false;
+    }, 300);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to generate characters. Please try again.');
+    loadingMessage.style.display = 'none';
+    grid.style.opacity = '1';
+    button.disabled = false;
+    button.textContent = '✨ Generate Random Team';
+    isGenerating = false;
+  });
+}
+
+function displayCharacters(characters) {
+  const grid = document.getElementById('characterGrid');
+  grid.innerHTML = '';
+  
+  characters.forEach((character, index) => {
+    const slot = document.createElement('div');
+    slot.className = 'character-slot filled-slot';
+    slot.style.animationDelay = `${index * 0.1}s`;
+    
+    slot.innerHTML = `
+      <a href="/galleries/${character.gallery_id}/images/${character.id}" class="character-link-wrapper">
+        <img src="${character.image}" alt="${character.name}" class="character-image" referrerpolicy="no-referrer" 
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22/%3E%3Crect fill=%22%23e9ecef%22 width=%22300%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2220%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3E[Image]%3C/text%3E%3C/svg%3E'">
+        <div class="character-name-overlay">
+          <p>${character.name}</p>
+        </div>
+      </a>
+    `;
+    
+    grid.appendChild(slot);
+  });
+}
+</script>
+
+<style>
+.games-background {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  padding: 60px 0;
+  position: relative;
+}
+
+.games-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 0;
+}
+
+.games-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.games-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 40px 30px;
+  background: rgba(40, 40, 50, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(200, 200, 200, 0.2);
+}
+
+.games-header h1 {
+  font-size: 2.5rem;
+  color: #d4af37;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.games-header p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.game-section {
+  margin-bottom: 40px;
+}
+
+.game-card {
+  background: rgba(40, 40, 50, 0.75);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 40px;
+  border: 1px solid rgba(200, 200, 200, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.game-card.coming-soon {
+  opacity: 0.7;
+}
+
+.game-card-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.game-card-header h2 {
+  font-size: 2rem;
+  color: #a8b9ff;
+  margin-bottom: 10px;
+}
+
+.game-card-header p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.game-controls {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.btn-generate {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-generate:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.7);
+  background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+.btn-generate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  transition: opacity 0.3s ease;
+}
+
+.character-slot {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: rgba(30, 30, 40, 0.6);
+  border: 2px solid rgba(200, 200, 200, 0.2);
+  transition: all 0.3s ease;
+}
+
+.character-slot.empty-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot-placeholder {
+  font-size: 5rem;
+  color: rgba(168, 185, 255, 0.3);
+  font-weight: bold;
+}
+
+.character-slot.filled-slot {
+  animation: slideIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.character-slot:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+  border-color: rgba(212, 175, 55, 0.6);
+}
+
+.character-link-wrapper {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  text-decoration: none;
+}
+
+.character-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.character-name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  padding: 20px 10px 10px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.character-slot:hover .character-name-overlay {
+  transform: translateY(0);
+}
+
+.character-name-overlay p {
+  color: #d4af37;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.loading-message {
+  text-align: center;
+  padding: 30px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.loading-message p {
+  margin-top: 15px;
+  font-size: 1.1rem;
+  color: #a8b9ff;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(168, 185, 255, 0.2);
+  border-top-color: #a8b9ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .games-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .game-card {
+    padding: 25px;
+  }
+  
+  .game-card-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .character-grid {
+    gap: 15px;
+  }
+  
+  .btn-generate {
+    padding: 12px 30px;
+    font-size: 1rem;
+  }
+  
+  .character-name-overlay {
+    transform: translateY(0);
+  }
+}
+</style>

@@ -42,6 +42,7 @@
           <%= link_to "Locations", locations_path %> |
           <%= link_to "Items", items_path %> |
           <%= link_to "📖 Stories", stories_path %> |
+          <%= link_to "🎮 Games", games_path %> |
           <%= link_to "🔓 Unlock System", unlocks_path, style: "color: #ffcc00;" %>
         </nav>
       </div>
@@ -62,17 +63,18 @@
     <%= yield %>
     
     <% if session[:newly_unlocked].present? && session[:newly_unlocked].any? %>
+      <% unlocked_characters = Image.where(id: session[:newly_unlocked]) %>
       <div id="unlockModal" class="unlock-modal" style="display: flex;">
         <div class="unlock-modal-content">
           <button class="unlock-modal-close" onclick="closeUnlockModal()">&times;</button>
           <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">🎉 Characters Unlocked!</h2>
           
           <div class="unlocked-characters-grid">
-            <% session[:newly_unlocked].each do |character| %>
+            <% unlocked_characters.each do |character| %>
               <div class="unlocked-character-card">
-                <%= link_to gallery_image_path(character['gallery_id'], character['id']), style: "text-decoration: none;" do %>
-                  <img src="<%= character['image'] %>" alt="<%= character['name'] %>" class="unlocked-character-img" referrerpolicy="no-referrer">
-                  <h3><%= character['name'] %></h3>
+                <%= link_to gallery_image_path(character.gallery_id, character.id), style: "text-decoration: none;" do %>
+                  <img src="<%= character.thumbnail_url %>" alt="<%= character.name %>" class="unlocked-character-img" referrerpolicy="no-referrer">
+                  <h3><%= character.name %></h3>
                 <% end %>
               </div>
             <% end %>
