@@ -654,36 +654,77 @@ puts "\n🎉 All character carousel images loaded automatically!"
 # Create chapters
 puts "\n📖 Creating chapters..."
 
-hercules_at_delphi = Chapter.create!(
-  title: "Myth 1.5: Hercules at Delphi",
-  slug: "hercules-at-delphi",
-  category: "bonus_chapters",
-  chapter_number: nil,
-  file_path: "chapters/bonus chapters/Hercules vs Apollo.md",
-  published: true
-)
+# Automatically scan and create bonus chapters from folder structure
+bonus_chapters_dir = Rails.root.join('public', 'chapters', 'bonus chapters')
 
-hercules_vs_apollo = Chapter.create!(
-  title: "Myth 1.51: Hercules vs Apollo",
-  slug: "hercules-vs-apollo",
-  category: "bonus_chapters",
-  chapter_number: nil,
-  file_path: "chapters/bonus chapters/Hercules vs Apollo.md",
-  published: true
-)
+if Dir.exist?(bonus_chapters_dir)
+  Dir.foreach(bonus_chapters_dir) do |subcategory_folder|
+    next if subcategory_folder == '.' || subcategory_folder == '..' || subcategory_folder == '.DS_Store'
+    
+    subcategory_path = bonus_chapters_dir.join(subcategory_folder)
+    next unless File.directory?(subcategory_path)
+    
+    puts "\n  📁 Processing subcategory: #{subcategory_folder}"
+    
+    # Find all markdown files in this subcategory
+    markdown_files = Dir.glob(subcategory_path.join('*.md')).sort_by do |file_path|
+      # Extract decimal number from filename for proper sorting (e.g., "Myth 0.11" = 0.11)
+      filename = File.basename(file_path, '.md')
+      if filename =~ /Myth\s+([\d.]+)/
+        $1.to_f
+      else
+        999.0 # Put files without numbers at the end
+      end
+    end
+    
+    markdown_files.each do |file_path|
+      filename = File.basename(file_path, '.md')
+      relative_path = "chapters/bonus chapters/#{subcategory_folder}/#{File.basename(file_path)}"
+      
+      # Extract chapter title from filename (use filename as fallback)
+      chapter_title = filename
+      
+      # Try to extract title from file content (first line if it's a heading)
+      first_line = File.open(file_path, &:readline).strip rescue nil
+      if first_line && first_line.start_with?('#')
+        chapter_title = first_line.gsub(/^#+\s*/, '').strip
+      end
+      
+      # Extract decimal chapter number from title for proper ordering
+      chapter_num = nil
+      if chapter_title =~ /Myth\s+([\d.]+)/
+        chapter_num = $1.to_f
+      end
+      
+      chapter = Chapter.create!(
+        title: chapter_title,
+        slug: chapter_title.parameterize,
+        category: "bonus_chapters",
+        subcategory: subcategory_folder,
+        chapter_number: chapter_num,
+        file_path: relative_path,
+        published: true
+      )
+      
+      puts "    ✅ Created: #{chapter.title} (#{chapter_num ? "Chapter #{chapter_num}" : "No number"})"
+    end
+  end
+else
+  puts "  ⚠️  Bonus chapters directory not found at: #{bonus_chapters_dir}"
+end
 
-puts "  ✅ Created chapter: #{hercules_vs_apollo.title}"
+puts "\n📖 All chapters created!"
 
 # Link chapters to unlockable characters
 puts "\n🔗 Linking chapters to unlockable characters..."
 
 # Find Apollo (should be in Olympia gallery)
+hercules_at_delphi = Chapter.find_by(title: "Myth 0.101 - Hercules at Delphi")
 apollo_char = Image.find_by(name: "Apollo")
-if apollo_char
-  hercules_at_delphi.unlockable_characters << apollo_char unless hercules_at_delphi.unlockable_characters.include?(apollo_char)
-  puts "  🔓 Hercules at Delphi will unlock: Apollo"
-else
-  puts "  ⚠️  Apollo character not found - skipping unlock link"
-end
 
-puts "\n📖 All chapters created!"
+if hercules_at_delphi && apollo_char
+  hercules_at_delphi.unlockable_characters << apollo_char unless hercules_at_delphi.unlockable_characters.include?(apollo_char)
+  puts "  🔓 '#{hercules_at_delphi.title}' will unlock: Apollo"
+else
+  puts "  ⚠️  Hercules at Delphi or Apollo not found - skipping unlock link"
+end

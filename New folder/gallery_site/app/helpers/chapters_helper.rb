@@ -42,18 +42,20 @@ module ChaptersHelper
                      class: 'character-link', 
                      title: "View #{name}'s profile")
       
-      # Replace character name with link (but not inside existing HTML tags or links)
-      # Use word boundaries to avoid partial matches
-      content = content.gsub(/\b#{Regexp.escape(name)}\b(?![^<]*>)/, link)
+      # Replace character name with link, but NOT inside:
+      # - Image markdown: ![...](...)
+      # - Existing HTML tags
+      # Use negative lookahead to avoid matching inside image alt text
+      content = content.gsub(/\b#{Regexp.escape(name)}\b(?![^\[]*\]\([^\)]*\))(?![^<]*>)/, link)
     end
     
     content
   end
   
   def wrap_artwork_with_images(html)
+    # First, handle images WITH artwork captions
     # Pattern: <img ...> followed by <p>Artwork: ...</p>
-    # Wrap them together in a centered container
-    html.gsub(/<img([^>]+)>\s*<p>Artwork:(.*?)<\/p>/mi) do
+    html = html.gsub(/<img([^>]+)>\s*<p>Artwork:(.*?)<\/p>/mi) do
       img_attrs = $1
       artwork_text = $2.strip
       
@@ -64,6 +66,34 @@ module ChaptersHelper
 </div>
       HTML
     end
+    
+    # Then, handle standalone images (that weren't already wrapped)
+    # Pattern: <img ...> that is NOT already inside a chapter-artwork div
+    html.gsub!(/<img([^>]+)>(?!.*<\/div>)/m) do |match|
+      img_attrs = $1
+      
+      # Extract alt text from the img tag for use as caption
+      alt_text = img_attrs.match(/alt="([^"]*)"/)
+      caption = alt_text ? alt_text[1] : ''
+      
+      if caption.present?
+        <<-HTML
+<div class="chapter-artwork">
+  <img#{img_attrs}>
+  <p class="artwork-caption">#{caption}</p>
+</div>
+        HTML
+      else
+        # If no alt text, just wrap the image without a caption
+        <<-HTML
+<div class="chapter-artwork">
+  <img#{img_attrs}>
+</div>
+        HTML
+      end
+    end
+    
+    html
   end
   
   def extract_plain_text_for_tts(content)

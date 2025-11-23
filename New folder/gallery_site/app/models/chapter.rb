@@ -9,7 +9,13 @@ class Chapter < ApplicationRecord
   
   scope :published, -> { where(published: true) }
   scope :by_category, ->(category) { where(category: category) }
-  scope :ordered, -> { order(:category, :chapter_number) }
+  scope :by_subcategory, ->(subcategory) { where(subcategory: subcategory) }
+  scope :ordered, -> { order(:category, :subcategory, Arel.sql('CAST(chapter_number AS DECIMAL)')) }
+  
+  # Get all unique subcategories for bonus_chapters
+  def self.bonus_subcategories
+    where(category: 'bonus_chapters').where.not(subcategory: nil).select(:subcategory).distinct.pluck(:subcategory).sort
+  end
   
   before_validation :generate_slug, if: -> { slug.blank? }
   
@@ -26,6 +32,11 @@ class Chapter < ApplicationRecord
   
   def to_param
     slug
+  end
+  
+  # Get chapter number as float for proper decimal sorting
+  def chapter_number_float
+    chapter_number.to_f if chapter_number.present?
   end
   
   private
