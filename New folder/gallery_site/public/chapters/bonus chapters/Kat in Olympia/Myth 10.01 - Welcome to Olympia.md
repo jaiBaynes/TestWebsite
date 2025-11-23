@@ -16,6 +16,7 @@ He turned to the great mountain: the city’s namesake. Blessed Mount Olympus to
 
 PART 2
 “Hey there.” A white-haired girl with animal ears interrupted his thoughts.
+![Kat by samiraim](/images/characters/kat_2.png)
 Kasious panicked; where did she come from? The girl wore strange clothes; unlike anything he’d seen before. Whatever weird style it was, all Kasious could tell was that it was fancy: fine fabrics decorated with glittering golden trinkets and all manner of precious stone the ground could offer. Perhaps she was a new high-ranking priestess at the temple? But demi-humans were barred from priestly office. How did one acquire such wealth in segregated Graia?
 “Sorry, I didn’t mean to startle you. My name is Kat and I’m new in town.” The girl held her hand out to shake.
 “I see. It is a pleasure to meet you, my lady. I am Kasious the baker.” He shook her hand nervously, hoping he’d gotten the class-based honorifics correct.

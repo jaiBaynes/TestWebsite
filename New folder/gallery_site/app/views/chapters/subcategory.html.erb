@@ -1,0 +1,182 @@
+<div class="gallery-reader-background">
+  <div class="gallery-reader-overlay"></div>
+  <div class="container stories-container">
+    <div class="stories-header">
+      <h1><%= @subcategory %></h1>
+      <p class="stories-description">
+        <%= ChaptersController::SUBCATEGORY_INFO[@subcategory] || 'TODO' %>
+      </p>
+    </div>
+
+    <div class="chapter-category-section">
+      <div class="chapters-grid">
+        <% @chapters.each do |chapter| %>
+          <div class="chapter-card">
+            <%= link_to chapter_path(chapter), class: 'chapter-card-link' do %>
+              <div class="chapter-card-content">
+                <h4 class="chapter-title"><%= chapter.title %></h4>
+                <% if chapter.chapter_number.present? %>
+                  <span class="chapter-number">Chapter <%= chapter.chapter_number %></span>
+                <% end %>
+                <div class="chapter-meta">
+                  <span class="chapter-subcategory-badge"><%= @subcategory %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="back-navigation">
+      <%= link_to '← Back to Stories', stories_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div>
+
+<style>
+.gallery-reader-background {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
+  padding: 60px 0;
+  position: relative;
+}
+
+.gallery-reader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 0;
+}
+
+.stories-container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.stories-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 40px 30px;
+  background: rgba(40, 40, 50, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(200, 200, 200, 0.2);
+}
+
+.stories-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  color: #d4af37;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.stories-description {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.chapter-category-section {
+  margin-bottom: 50px;
+  background: rgba(40, 40, 50, 0.75);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 30px;
+  border: 1px solid rgba(200, 200, 200, 0.2);
+}
+
+.chapters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.chapter-card {
+  background: rgba(50, 50, 60, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  border: 2px solid rgba(200, 200, 200, 0.2);
+}
+
+.chapter-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(212, 175, 55, 0.4);
+  border-color: #d4af37;
+  background: rgba(60, 60, 70, 0.85);
+}
+
+.chapter-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.chapter-card-content {
+  padding: 20px;
+}
+
+.chapter-title {
+  font-size: 1.1rem;
+  color: #e0e0e0;
+  margin-bottom: 10px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.chapter-number {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: #a8b9ff;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.chapter-meta {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chapter-subcategory-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #d4af37, #f4d03f);
+  color: #1a1a2e;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.back-navigation {
+  text-align: center;
+  margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+  .stories-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .chapters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .chapter-category-section {
+    padding: 20px;
+  }
+}
+</style>
+

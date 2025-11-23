@@ -2,7 +2,7 @@
 
 Jupiter had charged Zeus with upholding Fate. Zeus at once...got someone else to do it. But who could accomplish such a monumental task? Who else but the rising star: Hercules, the son of Zeus! The hero never failed to destroy anything his father pointed him at. Mission after mission, labor after labor, the enemies of Zeus fell. In a few short years, one man had accomplished more than all the other gods in Zeus's employ. There were whispers that he might be worthy of godhood himself...
 
-![Hercules, the legendary hero](/images/characters/hercules.png)
+![Hercules by bentejam](/images/characters/hercules.png)
 
 
 After his latest victory over Zeus's enemies, Hercules arrived victorious in Delphi, the city of Apollo. The metropolis was built around the sun god’s grand temple, for he was also the god of music, healing, legislation, and—most importantly—prophecy. The more divine domains, the more prestigious the god; Apollo’s popularity was second only to that of his heavenly father, Zeus. The Thunderer, a prolific philanderer, had countless sons, but in Delphi there was but one son of Zeus, and it was Apollo.

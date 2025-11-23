@@ -1,6 +1,33 @@
 class ChaptersController < ApplicationController
+  # Subcategory descriptions - can be updated as needed
+  SUBCATEGORY_INFO = {
+    'Other Adventures of Hercules' => 'Hercules\' other adventures before and after the Twelve Labors.',
+    'Divine Wrath Saga' => 'Assorted tales of divine wrath of gods on mortals; some who deserve it, some who don\'t.',
+    'Mel and Hydra - Attack on Crete' => 'The story of Mel and Hydra\'s attack on Crete to liberate it from the evil Minos brothers and their stronghold the "unconquerable" Palace of Knossos.',
+    'Kat in Olympia' => 'The story of the mysterious Kat: a girl who arrived in Olympia to "write a report" but changed the city forever.'
+    # Add more subcategories as needed
+  }
+  
   def index
-    @chapters_by_category = Chapter.published.ordered.group_by(&:category)
+    # Group published chapters by subcategory for bonus_chapters
+    @bonus_chapters = Chapter.published.where(category: 'bonus_chapters').group_by(&:subcategory)
+    
+    # Get other categories (Act 1, Act 2, etc.) - keep as is for now
+    @other_chapters = Chapter.published.where.not(category: 'bonus_chapters').group_by(&:category)
+    
+    # Make subcategory info available to the view
+    @subcategory_info = SUBCATEGORY_INFO
+  end
+  
+  def subcategory
+    @subcategory = params[:subcategory]
+    @chapters = Chapter.published
+                      .where(category: 'bonus_chapters', subcategory: @subcategory)
+                      .order(Arel.sql('CAST(chapter_number AS DECIMAL)'))
+    
+    if @chapters.empty?
+      redirect_to stories_path, alert: "Subcategory not found."
+    end
   end
 
   def show

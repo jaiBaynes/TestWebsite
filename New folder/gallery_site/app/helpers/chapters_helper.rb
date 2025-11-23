@@ -26,27 +26,58 @@ module ChaptersHelper
     html_content.html_safe
   end
   
+  # Character name aliases - alternate names that link to character profiles
+  CHARACTER_ALIASES = {
+    'Mel' => 'Melissa',
+    'Hermes' => 'Mercury',
+    'Jupiter' => 'Zeus',
+    'Poseidon' => 'Neptune',
+    'Ares' => 'Mars',
+    'Aphrodite' => 'Venus',
+    'Erymanthus' => 'Erymanthian Boar',
+    'Ceryneia' => 'Ceryneian Hind',
+    'Stymphalus' => 'Stymphalian Bird',
+    'Tauros' => 'Cretan Bull',
+    'Hipponome' => 'Mare of Diomedes',
+    # Add more aliases here as needed:
+    # 'AliasName' => 'ActualCharacterName'
+  }
+  
   def link_character_mentions(content)
     # Find all character names in the database
     character_names = Image.pluck(:name)
     
-    # Sort by length (descending) to match longer names first
-    character_names.sort_by! { |name| -name.length }
+    # Build a list of all names to link (actual names + aliases)
+    names_to_link = {}
     
+    # Add actual character names
     character_names.each do |name|
-      character = Image.find_by(name: name)
+      names_to_link[name] = name
+    end
+    
+    # Add aliases
+    CHARACTER_ALIASES.each do |alias_name, actual_name|
+      names_to_link[alias_name] = actual_name if character_names.include?(actual_name)
+    end
+    
+    # Sort by length (descending) to match longer names first
+    sorted_names = names_to_link.keys.sort_by { |name| -name.length }
+    
+    sorted_names.each do |display_name|
+      actual_name = names_to_link[display_name]
+      character = Image.find_by(name: actual_name)
       next unless character
       
       # Create a link to the character's profile
-      link = link_to(name, gallery_image_path(character.gallery, character), 
+      link = link_to(display_name, gallery_image_path(character.gallery, character), 
                      class: 'character-link', 
-                     title: "View #{name}'s profile")
+                     title: "View #{actual_name}'s profile")
       
       # Replace character name with link, but NOT inside:
       # - Image markdown: ![...](...)
       # - Existing HTML tags
       # Use negative lookahead to avoid matching inside image alt text
-      content = content.gsub(/\b#{Regexp.escape(name)}\b(?![^\[]*\]\([^\)]*\))(?![^<]*>)/, link)
+      content = content.gsub(/\b#{Regexp.escape(display_name)}\b(?![^\[]*\]\([^\)]*\))(?![^<]*>)/, link)
     end
     
     content

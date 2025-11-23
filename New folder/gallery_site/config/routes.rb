@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   
   # Chapters/Stories
   get "stories", to: "chapters#index", as: :stories
+  get "stories/:subcategory", to: "chapters#subcategory", as: :subcategory_chapters, constraints: { subcategory: /[^\/]+/ }
   resources :chapters, only: [:show] do
     member do
       post :complete
