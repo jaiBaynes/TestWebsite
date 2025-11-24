@@ -2,13 +2,17 @@ require 'redcarpet'
 
 module ChaptersHelper
   def parse_chapter_content(content)
+    # Convert single newlines into paragraph breaks (double newlines)
+    # But preserve image markdown and existing double newlines
+    content = normalize_paragraph_breaks(content)
+    
     # First, extract and process character mentions (@CharacterName)
     content = link_character_mentions(content)
     
     # Parse markdown to HTML
     markdown = Redcarpet::Markdown.new(
       Redcarpet::Render::HTML.new(
-        hard_wrap: true,
+        hard_wrap: false,  # Changed to false since we're handling breaks manually
         link_attributes: { target: '_blank' }
       ),
       autolink: true,
@@ -24,6 +28,43 @@ module ChaptersHelper
     html_content = wrap_artwork_with_images(html_content)
     
     html_content.html_safe
+  end
+  
+  def normalize_paragraph_breaks(content)
+    lines = content.split("\n")
+    result = []
+    
+    lines.each_with_index do |line, index|
+      result << line
+      
+      # Look ahead to see if we should add an extra newline
+      next_line = lines[index + 1]
+      
+      # Add extra newline if:
+      # 1. Current line is not empty
+      # 2. Next line exists and is not empty
+      # 3. Current line doesn't end with a sentence that continues on next line
+      # 4. Next line is not an image
+      # 5. Current line is not a PART marker or header
+      if line.present? && next_line && next_line.present?
+        # Don't add break if next line is image markdown
+        next if next_line.strip.start_with?('![')
+        
+        # Don't add break if current line is a PART marker
+        next if line.strip =~ /^PART \d+$/
+        
+        # Don't add break if current line is a markdown header
+        next if line.strip.start_with?('#')
+        
+        # Don't add break if next line is a markdown header
+        next if next_line.strip.start_with?('#')
+        
+        # Add an extra newline to create paragraph break
+        result << ""
+      end
+    end
+    
+    result.join("\n")
   end
   
   # Character name aliases - alternate names that link to character profiles
