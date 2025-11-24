@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_23_224421) do
+ActiveRecord::Schema[7.1].define(version: 2025_11_24_161338) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -59,6 +59,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_23_224421) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "subcategory"
+    t.boolean "locked", default: false
+    t.string "password"
     t.index ["category"], name: "index_chapters_on_category"
     t.index ["slug"], name: "index_chapters_on_slug", unique: true
   end

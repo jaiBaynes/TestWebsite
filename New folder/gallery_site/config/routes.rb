@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   # Chapters/Stories
   get "stories", to: "chapters#index", as: :stories
   get "stories/:subcategory", to: "chapters#subcategory", as: :subcategory_chapters, constraints: { subcategory: /[^\/]+/ }
+  post "stories/:subcategory/unlock", to: "chapters#unlock_subcategory", as: :unlock_subcategory
   resources :chapters, only: [:show] do
     member do
       post :complete
@@ -32,6 +33,7 @@ Rails.application.routes.draw do
   post "unlocks/unlock_all", to: "unlocks#unlock_all", as: :unlock_all
   post "unlocks/lock_all", to: "unlocks#lock_all", as: :lock_all
   post "unlocks/clear_session", to: "unlocks#clear_unlocked_session", as: :clear_unlocked_session
+  post "unlocks/clear_chapter_unlocks", to: "unlocks#clear_chapter_unlocks", as: :clear_chapter_unlocks
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

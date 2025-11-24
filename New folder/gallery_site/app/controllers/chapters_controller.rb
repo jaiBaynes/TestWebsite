@@ -4,7 +4,8 @@ class ChaptersController < ApplicationController
     'Other Adventures of Hercules' => 'Hercules\' other adventures before and after the Twelve Labors.',
     'Divine Wrath Saga' => 'Assorted tales of divine wrath of gods on mortals; some who deserve it, some who don\'t.',
     'Mel and Hydra - Attack on Crete' => 'The story of Mel and Hydra\'s attack on Crete to liberate it from the evil Minos brothers and their stronghold the "unconquerable" Palace of Knossos.',
-    'Kat in Olympia' => 'The story of the mysterious Kat: a girl who arrived in Olympia to "write a report" but changed the city forever.'
+    'Kat in Olympia' => 'The story of the mysterious Kat: a girl who arrived in Olympia to "write a report" but changed the city forever.',
+    'Locked Chapters' => 'TODO',
     # Add more subcategories as needed
   }
   
@@ -17,6 +18,9 @@ class ChaptersController < ApplicationController
     
     # Make subcategory info available to the view
     @subcategory_info = SUBCATEGORY_INFO
+    
+    # Make unlocked subcategories available to the view
+    @unlocked_subcategories = session[:unlocked_subcategories] || []
   end
   
   def subcategory
@@ -27,7 +31,47 @@ class ChaptersController < ApplicationController
     
     if @chapters.empty?
       redirect_to stories_path, alert: "Subcategory not found."
+      return
     end
+    
+    # Check if this subcategory is locked
+    first_chapter = @chapters.first
+    if first_chapter.locked? && !subcategory_unlocked?(@subcategory)
+      @locked_subcategory = @subcategory
+      @subcategory_password = first_chapter.password
+      render :locked_subcategory
+    end
+  end
+  
+  def unlock_subcategory
+    subcategory = params[:subcategory]
+    password = params[:password]
+    
+    # Find a chapter in this subcategory to check the password
+    chapter = Chapter.published
+                    .where(category: 'bonus_chapters', subcategory: subcategory)
+                    .first
+    
+    if chapter && chapter.password == password
+      # Store unlocked subcategory in session
+      session[:unlocked_subcategories] ||= []
+      session[:unlocked_subcategories] << subcategory unless session[:unlocked_subcategories].include?(subcategory)
+      
+      respond_to do |format|
+        format.json { render json: { success: true } }
+      end
+    else
+      respond_to do |format|
+        format.json { render json: { success: false, message: "Incorrect password" }, status: :unauthorized }
+      end
+    end
+  end
+  
+  private
+  
+  def subcategory_unlocked?(subcategory)
+    session[:unlocked_subcategories] ||= []
+    session[:unlocked_subcategories].include?(subcategory)
   end
 
   def show

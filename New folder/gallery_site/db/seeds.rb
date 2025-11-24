@@ -696,6 +696,18 @@ if Dir.exist?(bonus_chapters_dir)
         chapter_num = $1.to_f
       end
       
+      # Check if this subcategory should be locked and assign password
+      # Add more subcategories and their passwords here as needed
+      subcategory_passwords = {
+        "Locked Chapters" => "TestPassword",
+        # Add more locked subcategories here:
+        # "Secret Chapters" => "SecretPass123",
+        # "Premium Content" => "Premium2024"
+      }
+      
+      is_locked = subcategory_passwords.key?(subcategory_folder)
+      subcategory_password = subcategory_passwords[subcategory_folder]
+      
       chapter = Chapter.create!(
         title: chapter_title,
         slug: chapter_title.parameterize,
@@ -703,10 +715,12 @@ if Dir.exist?(bonus_chapters_dir)
         subcategory: subcategory_folder,
         chapter_number: chapter_num,
         file_path: relative_path,
-        published: true
+        published: true,
+        locked: is_locked,
+        password: subcategory_password
       )
       
-      puts "    ✅ Created: #{chapter.title} (#{chapter_num ? "Chapter #{chapter_num}" : "No number"})"
+      puts "    ✅ Created: #{chapter.title} (#{chapter_num ? "Chapter #{chapter_num}" : "No number"})#{is_locked ? ' 🔒 LOCKED' : ''}"
     end
   end
 else

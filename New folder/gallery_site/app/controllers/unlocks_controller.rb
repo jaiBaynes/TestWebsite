@@ -44,5 +44,10 @@ class UnlocksController < ApplicationController
     session[:newly_unlocked] = []
     render json: { success: true }
   end
+  
+  def clear_chapter_unlocks
+    session[:unlocked_subcategories] = []
+    redirect_back(fallback_location: stories_path, notice: "All chapter subcategories have been re-locked!")
+  end
 end
 

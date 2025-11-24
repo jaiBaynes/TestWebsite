@@ -22,16 +22,25 @@
           %>
           
           <% sorted_subcategories.each do |subcategory, chapters| %>
-            <div class="subcategory-card">
+            <% is_locked = chapters.first&.locked? && !@unlocked_subcategories.include?(subcategory) %>
+            <div class="subcategory-card <%= 'locked-card' if is_locked %>">
               <%= link_to subcategory_chapters_path(subcategory), class: 'subcategory-card-link' do %>
                 <div class="subcategory-card-content">
-                  <h3 class="subcategory-card-title"><%= subcategory %></h3>
+                  <h3 class="subcategory-card-title">
+                    <% if is_locked %>
+                      <span class="lock-badge">🔒</span>
+                    <% end %>
+                    <%= subcategory %>
+                  </h3>
                   <p class="subcategory-description"><%= @subcategory_info[subcategory] || 'TODO' %></p>
                   <div class="subcategory-stats">
                     <span class="chapter-count"><%= chapters.count %> <%= 'chapter'.pluralize(chapters.count) %></span>
+                    <% if is_locked %>
+                      <span class="locked-badge">🔒 Locked</span>
+                    <% end %>
                   </div>
                   <div class="subcategory-actions">
-                    <span class="btn btn-primary">Read Chapters →</span>
+                    <span class="btn btn-primary"><%= is_locked ? 'Unlock Chapters' : 'Read Chapters' %> →</span>
                   </div>
                 </div>
               <% end %>
@@ -169,6 +178,33 @@
   box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
   border-color: #d4af37;
   background: rgba(60, 60, 70, 0.85);
+}
+
+.subcategory-card.locked-card {
+  border-color: rgba(255, 215, 0, 0.4);
+  background: rgba(50, 50, 50, 0.7);
+}
+
+.subcategory-card.locked-card:hover {
+  border-color: #ffd700;
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
+.lock-badge {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+.locked-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 3px 10px;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #1a1a2e;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .subcategory-card-link {

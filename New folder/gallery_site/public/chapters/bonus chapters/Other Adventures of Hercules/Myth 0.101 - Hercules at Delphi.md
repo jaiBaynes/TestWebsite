@@ -32,7 +32,7 @@ With the superhuman strength Power gave him, he triumphed over these ordinary me
 "Tiny mortal, what a displeasure… Where do you think you're going with my treasure?" a voice demanded from above, compelling the acolytes to sing along. 
 Hercules turned to find that sun-kissed Apollo himself had descended to personally attend to the troublemaker.
 
-![Apollo, the radiant sun god](/images/characters/apollo.png)
+![Apollo, the radiant sun god by bentejam](/images/characters/apollo.png)
 
 
 All who bore witness to this fell prostrate and worshipped him, offering not only praise, but pleas to be forgiven and spared. In Graia, the ruling gods were both loved and feared. 
