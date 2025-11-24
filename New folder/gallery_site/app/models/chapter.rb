@@ -2,7 +2,6 @@ class Chapter < ApplicationRecord
   has_many :chapter_unlocks, dependent: :destroy
   has_many :unlockable_characters, through: :chapter_unlocks, source: :image
   
-  validates :title, presence: true
   validates :slug, presence: true, uniqueness: true
   validates :file_path, presence: true
   validates :category, presence: true, inclusion: { in: %w[bonus_chapters act1 act2 act3] }
@@ -42,6 +41,15 @@ class Chapter < ApplicationRecord
   private
   
   def generate_slug
-    self.slug = title.parameterize if title.present?
+    if title.present?
+      self.slug = title.parameterize
+    elsif file_path.present?
+      # Use filename as fallback for slug if no title
+      filename = File.basename(file_path, '.*')
+      self.slug = filename.parameterize
+    else
+      # Last resort: use random string
+      self.slug = "chapter-#{SecureRandom.hex(8)}"
+    end
   end
 end

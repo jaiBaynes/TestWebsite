@@ -682,7 +682,7 @@ if Dir.exist?(bonus_chapters_dir)
       relative_path = "chapters/bonus chapters/#{subcategory_folder}/#{File.basename(file_path)}"
       
       # Extract chapter title from filename (use filename as fallback)
-      chapter_title = filename
+      chapter_title = nil
       
       # Try to extract title from file content (first line if it's a heading)
       first_line = File.open(file_path, &:readline).strip rescue nil
@@ -690,9 +690,14 @@ if Dir.exist?(bonus_chapters_dir)
         chapter_title = first_line.gsub(/^#+\s*/, '').strip
       end
       
-      # Extract decimal chapter number from title for proper ordering
+      # If no title in file, use filename as fallback
+      chapter_title = filename if chapter_title.blank?
+      
+      # Extract decimal chapter number from title or filename for proper ordering
       chapter_num = nil
       if chapter_title =~ /Myth\s+([\d.]+)/
+        chapter_num = $1.to_f
+      elsif filename =~ /Myth\s+([\d.]+)/
         chapter_num = $1.to_f
       end
       
@@ -708,9 +713,12 @@ if Dir.exist?(bonus_chapters_dir)
       is_locked = subcategory_passwords.key?(subcategory_folder)
       subcategory_password = subcategory_passwords[subcategory_folder]
       
+      # Generate slug from title or filename
+      chapter_slug = chapter_title.present? ? chapter_title.parameterize : filename.parameterize
+      
       chapter = Chapter.create!(
         title: chapter_title,
-        slug: chapter_title.parameterize,
+        slug: chapter_slug,
         category: "bonus_chapters",
         subcategory: subcategory_folder,
         chapter_number: chapter_num,
@@ -720,7 +728,8 @@ if Dir.exist?(bonus_chapters_dir)
         password: subcategory_password
       )
       
-      puts "    ✅ Created: #{chapter.title} (#{chapter_num ? "Chapter #{chapter_num}" : "No number"})#{is_locked ? ' 🔒 LOCKED' : ''}"
+      display_title = chapter.title.present? ? chapter.title : filename
+      puts "    ✅ Created: #{display_title} (#{chapter_num ? "Chapter #{chapter_num}" : "No number"})#{is_locked ? ' 🔒 LOCKED' : ''}"
     end
   end
 else

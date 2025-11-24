@@ -67,13 +67,6 @@ class ChaptersController < ApplicationController
     end
   end
   
-  private
-  
-  def subcategory_unlocked?(subcategory)
-    session[:unlocked_subcategories] ||= []
-    session[:unlocked_subcategories].include?(subcategory)
-  end
-
   def show
     @chapter = Chapter.find_by!(slug: params[:id])
     
@@ -85,6 +78,13 @@ class ChaptersController < ApplicationController
       @previous_chapter = current_index > 0 ? all_chapters[current_index - 1] : all_chapters.last
       @next_chapter = current_index < all_chapters.length - 1 ? all_chapters[current_index + 1] : all_chapters.first
     end
+  end
+  
+  private
+  
+  def subcategory_unlocked?(subcategory)
+    session[:unlocked_subcategories] ||= []
+    session[:unlocked_subcategories].include?(subcategory)
   end
   
   def complete

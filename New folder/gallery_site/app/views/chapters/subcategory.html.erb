@@ -14,7 +14,7 @@
           <div class="chapter-card">
             <%= link_to chapter_path(chapter), class: 'chapter-card-link' do %>
               <div class="chapter-card-content">
-                <h4 class="chapter-title"><%= chapter.title %></h4>
+                <h4 class="chapter-title"><%= chapter.title.present? ? chapter.title : "Chapter #{chapter.chapter_number || chapter.slug}" %></h4>
                 <% if chapter.chapter_number.present? %>
                   <span class="chapter-number">Chapter <%= chapter.chapter_number %></span>
                 <% end %>
