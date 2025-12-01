@@ -275,17 +275,16 @@ hydra = Image.create!(
   name: "Hydra",
   quote: "I have returned from the Gates of Tartarus in tact, and sent that bastard Pelops to fill my spot among the dead!",
   family: "Typhon (biological father), Echidna (biological mother), Melissa (wife), Draco (son), Neptune (adoptive father)",
-  biography: "TODO",
+  biography: "Hydra was the child of Typhon and Echidna. After his father's defeat by the gods and his mother's disappearance, the Cult of Typhon at Lerna tried to mold Hydra into his father's successor. However, Hydra grew to love the cult members that raise them and hate the power-obsessed monster cult that enslaved them. Despite their attempts to indoctrinate them, he worked to de-radicalize them. Even as a young man he was charismatic enough to get them to abandon the cult's evil ways. However, when he led of the Cave and towards civilization, he was horrified that outside the cult, society was still set up in a cruel hierarchical way. Olympus learning of the cult's existence wanted to destroy them and since Lerna swamp was the domain of Poseidon, he peronally went to kill them. However, Hydra fought to protect the cult, his family telling them to escape in a complete revversal of what they used to believe. Instead of worshipping him as Typhon's son, Hydra was willing to sacrifice himself to let them escape. Poseidon was impressed by the boy's strength and determination and more importantly was surprised that his name was \"Hydra.\" Rather thank kill him, Poseidon decided he wanted to train Hydra and use him as a weapon in case he ever needed to destroy Zeus and his precious \"Fate.\" Poseidon trained Hydra and became almost like an adopted father to him. On Hydra's first test mission to assassinate King Minos of Crete for Poseidon, he encountered Melissa who killed the king before he had the chance to. After a tough battle, Hydra defeated Mel but decided to recruit her just like Poseidon recruited him. The two of them joined forces as revolutionary warriors trying to overthrow the gods themselves. They eventually got married and had a son named Draco.",
   image_url: "/images/characters/hydra.png",
-  artist: "Me (Placeholder), LDAWB, meikkochi_ (Meiko), the.creature.keeper (Patricio Perez)",
-  myth_inspiration: "Hydra the many-headed serpent in greek mythology.",
+  artist: "meikkochi_ (Meiko), the.creature.keeper (Patricio Perez), LDAWB",
+  myth_inspiration: "Hydra the many-headed serpent in greek mythology. Plato's Allegory of the Cave.",
   powers: "Flaming Eyes of Typhon, Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
   home: "Crete",
-  personality: "TODO",
+  personality: "Charismatic, Charming, Badboy, Flirty, Overdramatic, Passionate",
   first_appearance: "Act 1",
   race: "demi-human monster (Immortal)",
   goal: "To liberate the peoples of the world from the tyranny of Olympus.",
-  locked: true
 )
 load_character_images(hydra)
 
@@ -299,7 +298,7 @@ draco = Image.create!(
   image_url: "/images/characters/draco.png",
   artist: "tsuki.chiin (*pochll*)",
   myth_inspiration: "The Immortal head of Hydra that Hercules cut off and buried rather than actually killing it despite popular belief).",
-  powers: "Flaming Eyes of Typhon,Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
+  powers: "Flaming Eyes of Typhon, Shape shifting, Illusions, clones, Monster creation and control, Teleportation, Microcosm",
   home: "Crete",
   personality: "TODO",
   first_appearance: "Act 1",
