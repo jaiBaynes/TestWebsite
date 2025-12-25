@@ -16,7 +16,7 @@ win = pygame.display.set_mode ((xval - 20,int(yval)),HWSURFACE|DOUBLEBUF|RESIZAB
 clock = pygame.time.Clock()
 FPS = 10
 
-#Pygame initilization
+#Pygame initialization
 pygame.init()
 
 # Set up the display
@@ -50,6 +50,16 @@ class boss:
         self.image = pygame.transform.scale(pygame.image.load(image), (xval, yval))
         self.artist = artist
         self.attacks = attacks
+        self.current_attack = None
+        self.cooldown = 100
+
+    def attack(self):
+        if self.current_attack is None:
+            self.current_attack = random.choice(self.attacks)()
+            self.cooldown = 0
+            self.cooldown -= self.current_attack.attackModifier
+        else:
+            self.current_attack = None
 
 #Special Attacks (a class so multiple can happen)
 class attack:
@@ -58,46 +68,55 @@ class attack:
         self.attackType = attackType
         self.attackModifier = attackModifier
 
+    def useAttack(self):
+        print(self.name)
+        self.cooldown = 0
+
 #Zeus/ Athena Attacks
 class lightningBolt(attack):
-    # heavenly light above top then bolt quickly comes down
-    #alternate version is a chain of bolts
-    def __init__(self, name, attackType, attackModifier):
-        super().__init__(self, name, attackType, attackModifier)
+    def __init__(self):
+        super().__init__(name="Lightning Bolt", attackType="Magic", attackModifier=5)
+        self.useAttack()
 
 class keraunos(attack):
-    # launches the blade directly at your current location at an angle. Like roaring knight
-    # can launch multiple of them in a row
-    def __init__(self, name, attackType, attackModifier):
-        super().__init__(self, name, attackType, attackModifier)
+    def __init__(self):
+        super().__init__(name="Keraunos", attackType="Physical", attackModifier=7)
+        self.useAttack()
 
 class eagleGust(attack):
-    # Caucasian Eagle appears and flaps wings, blowing player in that direction, making it harder to move
-    # no damage
-    def __init__(self, name, attackType, attackModifier):
-        super().__init__(self, name, attackType, attackModifier)
+    def __init__(self):
+        super().__init__(name="Eagle Gust", attackType="Wind", attackModifier=0)
+        self.useAttack()
 
 # Hades/ Cerberus attacks
 class fireBlast(attack):
-    # Fires start underneath you and then shoot up
-    def __init__(self, name, attackType, attackModifier):
-        super().__init__(self, name, attackType, attackModifier)
+    def __init__(self):
+        super().__init__(name="Fire Blast", attackType="Fire", attackModifier=6)
+        self.useAttack()
 
-class fireWall (attack):
-    # covers portion of the screen with fire
-    # fired from monster head to the side. either left or right
-    def __init__(self, name, attackType, attackModifier):
-        super().__init__(self, name, attackType, attackModifier)
+class fireWall(attack):
+    def __init__(self):
+        super().__init__(name="Fire Wall", attackType="Fire", attackModifier=8)
+        self.useAttack()
 
+class bident(attack):
+    def __init__(self):
+        super().__init__(name="Bident", attackType="Physical", attackModifier=9)
+        self.useAttack()
 
 #Boss initialization
-Zeus = boss("Zeus", "Storm God-King of Olympus", 10,10,10,10,10,Yellow,"Zeus Boss Image.png", "philipe_sca", [lightningBolt, keraunos])
+Zeus = boss("Zeus", "Storm God-King of Olympus", 10,10,10,10,10,Yellow,"Zeus Boss Image.png", "philipe_sca", [lightningBolt, keraunos, eagleGust])
 boss = Zeus
 
 # Main
 while True:
     screen.blit(boss.image, (0,0))
     # Update the display to show what's drawn
+    
+    # Boss attack
+    boss.cooldown += boss.speed
+    if boss.cooldown >= 100:
+        boss.attack()
         
     pygame.display.update()     
-    clock.tick(FPS)     
+    clock.tick(FPS)
