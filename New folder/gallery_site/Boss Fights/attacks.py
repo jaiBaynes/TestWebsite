@@ -363,7 +363,7 @@ class MinionSpawn(Attack):
             current = sum(1 for m in game.minions if m.name == self.minion_name)
             allowed = MINION_LIMITS.get(self.minion_name, self.max_allowed)
             if current < allowed:
-                minion = Minion(name=self.minion_name, artist="philipe_sca", hp=max(5, int(game.boss.hp * 0.1)))
+                minion = Minion(name=self.minion_name, artist="the.creature.keeper", hp=max(5, int(game.boss.hp * 0.1)))
                 game.add_minion(minion)
             # finish in any case (prevents repeated immediate spawns)
             self.state = "finished"

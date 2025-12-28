@@ -61,7 +61,7 @@ class Game:
             return Boss("Zeus", "Storm God-King of Olympus", 12, 45, 12, 6, 12, (255, 255, 0), "Zeus Boss Image.png", "philipe_sca",
                         attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])
         elif name == "Hades":
-            return Boss("Hades", "Lord of the Underworld", 15, 60, 8, 8, 14, (200, 80, 40), "Hades Boss Image.png", "mike_martin",
+            return Boss("Hades", "Lord of the Underworld", 15, 60, 8, 8, 14, (200, 80, 40), "Hades Boss Image.png", "me_placeholder",
                         attacks=[attacks_mod.FireBlast, attacks_mod.FireWall, attacks_mod.BidentAttack, lambda: attacks_mod.MinionSpawn(minion_name='CerberusHead')])
         else:
             raise ValueError(f"Unknown boss: {name}")
@@ -270,13 +270,14 @@ class Game:
             elif name == 'wind':
                 icon = self.element_icons.get('wind')
             if icon:
-                iw, ih = icon.get_size()
+                iw, ih = 25,25
+                icon = pygame.transform.scale(icon,(iw,ih))                
                 pos = (icon_x - ((iw + spacing) * i) - iw // 2, icon_y)
                 self.screen.blit(icon, pos)
             else:
                 # fallback: render text
                 st_surf = self.font.render(name, True, (255, 200, 60))
-                pos = (icon_x - ((st_surf.get_width() + spacing) * i) - st_surf.get_width() // 2, icon_y)
+                pos = (icon_x - ((25 + spacing) * i) - 25 // 2, icon_y)
                 self.screen.blit(st_surf, pos)
             i += 1
 

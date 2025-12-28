@@ -28,7 +28,7 @@ MINION_LIMITS = {
 }
 
 # Default boss selected by website / external launcher (Zeus or Hades)
-DEFAULT_BOSS = "Hades" #'Zeus'
+DEFAULT_BOSS = 'Zeus'
 
 # Global attack tuning
 ATTACK_TUNING = {
