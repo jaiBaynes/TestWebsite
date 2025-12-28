@@ -17,13 +17,9 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.player = Player(self.screen.get_size())
-        # boss selection menu state
-        self.available_bosses = ["Zeus", "Hades"]
-        self.selected_boss_index = 0
-        self.in_menu = True  # start in selection menu
-
-        # initially no boss until selection
-        self.boss: Boss | None = None
+        # Boss selection is driven externally (e.g., website). Use config.DEFAULT_BOSS.
+        from config import DEFAULT_BOSS
+        self.boss: Boss = self.create_boss(DEFAULT_BOSS)
         self.minions: List[Minion] = []
 
         # UI images & element icons
@@ -91,34 +87,21 @@ class Game:
                 self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 self.player = Player(self.screen.get_size())
             elif event.type == pygame.KEYDOWN:
-                # If we're in the boss-selection menu, handle menu navigation and confirm
-                if self.in_menu:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                        self.selected_boss_index = max(0, self.selected_boss_index - 1)
-                    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                        self.selected_boss_index = min(len(self.available_bosses) - 1, self.selected_boss_index + 1)
-                    elif event.key == pygame.K_RETURN:
-                        chosen = self.available_bosses[self.selected_boss_index]
-                        self.boss = self.create_boss(chosen)
-                        self.in_menu = False
+                # player-turn toggles
+                if event.key == pygame.K_RETURN and self.player.attack_gauge >= 100 and not self.player_turn:
+                    # enter player turn
+                    self.player_turn = True
+                    self.target_index = 0
+                elif self.player_turn:
+                    if event.key == pygame.K_LEFT:
+                        # select left
+                        self.target_index = max(0, self.target_index - 1)
+                    elif event.key == pygame.K_RIGHT:
+                        self.target_index = min(len(self.minions), self.target_index + 1)
+                    elif event.key == pygame.K_SPACE:
+                        # commit attack
+                        self.player_attack()
                         self.player_turn = False
-                        self.target_index = 0
-                    # ignore other keys while in menu
-                else:
-                    if event.key == pygame.K_RETURN and self.player.attack_gauge >= 100 and not self.player_turn:
-                        # enter player turn
-                        self.player_turn = True
-                        self.target_index = 0
-                    elif self.player_turn:
-                        if event.key == pygame.K_LEFT:
-                            # select left
-                            self.target_index = max(0, self.target_index - 1)
-                        elif event.key == pygame.K_RIGHT:
-                            self.target_index = min(len(self.minions), self.target_index + 1)
-                        elif event.key == pygame.K_SPACE:
-                            # commit attack
-                            self.player_attack()
-                            self.player_turn = False
 
         # continuous movement
         keys = pygame.key.get_pressed()
@@ -130,10 +113,6 @@ class Game:
     def update(self) -> None:
         # update player statuses first (DoT / stun duration)
         self.player.update_statuses()
-
-        # if we're in the selection menu don't process boss/minion behavior yet
-        if self.in_menu:
-            return
 
         # if not player turn, enemy attacks continue and gauge builds
         if not self.player_turn:
@@ -184,44 +163,73 @@ class Game:
         self.player.attack_gauge = 0.0
 
     def draw_ui(self) -> None:
-        hp_text = f"HP: {int(self.player.hp)}"
-        gauge_text = f"Gauge: {int(self.player.attack_gauge)}%"
-        hp_surf = self.font.render(hp_text, True, (255, 255, 255))
-        gauge_surf = self.font.render(gauge_text, True, (255, 255, 255))
-        self.screen.blit(hp_surf, (10, 10))
-        self.screen.blit(gauge_surf, (10, 30))
+        w, h = self.screen.get_size()
+
+        # Boss HP bar at the top with current attack name beneath
+        if self.boss:
+            bar_w = int(w * 0.66)
+            bar_h = 18
+            x = (w - bar_w) // 2
+            y = 8
+            # translucent backdrop for readability
+            overlay = pygame.Surface((bar_w + 8, bar_h * 2 + 24), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 120))
+            self.screen.blit(overlay, (x - 4, y - 4))
+            # background and fill
+            pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(x, y, bar_w, bar_h))
+            frac = max(0.0, min(1.0, self.boss.hp / 100.0))
+            pygame.draw.rect(self.screen, (200, 60, 60), pygame.Rect(x, y, int(bar_w * frac), bar_h))
+            # name and HP text
+            name_surf = self.font.render(self.boss.name, True, (255, 255, 255))
+            self.screen.blit(name_surf, (x + 6, y + bar_h + 4))
+            # show active attack name (charging/active) or Idle
+            active_attack = None
+            for atk in self.boss.active_attacks:
+                if atk.state in ("charging", "active"):
+                    active_attack = atk
+                    break
+            attack_text = f"{active_attack.name} ({active_attack.state})" if active_attack else "Idle"
+            att_surf = self.font.render(attack_text, True, (200, 200, 200))
+            self.screen.blit(att_surf, (x + bar_w - att_surf.get_width() - 6, y + bar_h + 4))
+
+        # Player's HP and gauge directly under the player's horizontal line
+        player_x = int(self.player.x)
+        player_y = int(self.player.y)
+        # keep UI visible if player is near bottom
+        hp_bar_y = player_y + 8
+        if hp_bar_y + 60 > h:
+            hp_bar_y = max(player_y - 70, h - 90)
+        bar_w = min(360, int(w * 0.45))
+        hp_x = player_x - bar_w // 2
+        # translucent backdrop
+        overlay2 = pygame.Surface((bar_w + 8, 48), pygame.SRCALPHA)
+        overlay2.fill((0, 0, 0, 110))
+        self.screen.blit(overlay2, (hp_x - 4, hp_bar_y - 6))
+        # HP bar
+        pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(hp_x, hp_bar_y, bar_w, 12))
+        hp_frac = max(0.0, min(1.0, self.player.hp / 100.0))
+        pygame.draw.rect(self.screen, (180, 40, 40), pygame.Rect(hp_x, hp_bar_y, int(bar_w * hp_frac), 12))
+        hp_surf = self.font.render(f"HP: {int(self.player.hp)}", True, (255, 255, 255))
+        self.screen.blit(hp_surf, (hp_x + 6, hp_bar_y - 14))
+        # Turn gauge under HP (centered on player.x, expands both ways)
+        bar_y2 = hp_bar_y + 20
+        frac = max(0.0, min(1.0, self.player.attack_gauge / 100.0))
+        center_x = player_x
+        bar_half = int(frac * bar_w / 2)
+        # background full bar
+        pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(hp_x, bar_y2, bar_w, 10))
+        filled_rect = pygame.Rect(center_x - bar_half, bar_y2, max(1, bar_half * 2), 10)
+        pygame.draw.rect(self.screen, (120, 200, 60), filled_rect)
+        perc_surf = self.font.render(f"{int(frac * 100)}%", True, (10, 10, 10))
+        self.screen.blit(perc_surf, (center_x - perc_surf.get_width() // 2, bar_y2 + (10 - perc_surf.get_height()) // 2))
+
         if self.player_turn:
             prompt = self.font.render("Player Turn - Use ← → to choose target, SPACE to attack", True, (255, 255, 255))
-            self.screen.blit(prompt, (10, 50))
+            self.screen.blit(prompt, (10, bar_y2 + 20))
 
     def draw(self) -> None:
         self.screen.fill((30, 30, 40))
-        # if in menu, draw selection screen and return
-        if self.in_menu:
-            title = self.font.render("Choose a Boss to Fight", True, (240, 240, 240))
-            self.screen.blit(title, (self.screen.get_width() // 2 - title.get_width() // 2, 40))
-            # draw boss choices horizontally
-            spacing = 280
-            start_x = self.screen.get_width() // 2 - spacing // 2
-            y = 140
-            for i, name in enumerate(self.available_bosses):
-                label = self.font.render(name, True, (255, 255, 255))
-                x = start_x + i * spacing
-                rect = pygame.Rect(x - 40, y - 40, 160, 160)
-                # box background
-                color = (80, 60, 60) if i != self.selected_boss_index else (120, 100, 40)
-                pygame.draw.rect(self.screen, color, rect)
-                # try to show boss image if available
-                try:
-                    img = load_image(f"{name} Boss Image.png")
-                    iw, ih = img.get_size()
-                    self.screen.blit(img, (x - iw // 2 + 40, y - ih // 2))
-                except Exception:
-                    pass
-                self.screen.blit(label, (x + 40 - label.get_width() // 2, y + 70))
-            hint = self.font.render("Use ← → to select, ENTER to confirm", True, (200, 200, 200))
-            self.screen.blit(hint, (self.screen.get_width() // 2 - hint.get_width() // 2, y + 120))
-            return
+
 
         # normal gameplay drawing
         if self.boss:

@@ -27,6 +27,9 @@ MINION_LIMITS = {
     'CerberusHead': 3,
 }
 
+# Default boss selected by website / external launcher (Zeus or Hades)
+DEFAULT_BOSS = "Hades" #'Zeus'
+
 # Global attack tuning
 ATTACK_TUNING = {
     'boss_attack_chance_divisor': 400.0,  # used to scale boss.speed to spawn chance

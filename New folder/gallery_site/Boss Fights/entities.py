@@ -123,9 +123,9 @@ class Boss:
         self.hp = min(100, self.hp + self.regeneration * 0.01)
 
     def draw(self, game: "Game") -> None:
+        # Draw the boss image scaled to fill the entire background
         w, h = game.screen.get_size()
-        boss_h = int(h * 0.45)
-        self.ensure_image((w, boss_h))
+        self.ensure_image((w, h))
         game.screen.blit(self.image, (0, 0))
 
     def take_damage(self, amount: int) -> None:
