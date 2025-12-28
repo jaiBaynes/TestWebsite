@@ -21,11 +21,30 @@ class Game:
         self.boss = Boss("Zeus", "Storm God-King of Olympus", 10, 40, 10, 5, 10, (255, 255, 0), "Zeus Boss Image.png", "philipe_sca",
                          attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])
         self.minions: List[Minion] = []
-        # UI images
+        # UI images & element icons
         try:
             self.select_arrow = load_image("Select Arrow Icon.png")
         except Exception:
             self.select_arrow = None
+        # elemental icons
+        self.element_icons = {}
+        try:
+            self.element_icons['electric'] = load_image("Lightning Elemental Symbol.png")
+        except Exception:
+            self.element_icons['electric'] = None
+        try:
+            self.element_icons['wind'] = load_image("Wind Elemental Symbol.png")
+        except Exception:
+            self.element_icons['wind'] = None
+        try:
+            self.element_icons['fire'] = load_image("Fire Elemental Symbol.png")
+        except Exception:
+            self.element_icons['fire'] = None
+        try:
+            self.element_icons['poison'] = load_image("Poison Elemental Symbol.png")
+        except Exception:
+            self.element_icons['poison'] = None
+
         self.font = pygame.font.SysFont(None, 20)
         # player-turn state
         self.player_turn = False
@@ -36,6 +55,11 @@ class Game:
         return w // 2
 
     def add_minion(self, minion: Minion) -> None:
+        # allow only a limited number of certain minions and set default attacks
+        import attacks as attacks_mod
+        # default attacks for Aquila
+        if minion.name == "Aquila" and not minion.attacks:
+            minion.attacks = [attacks_mod.EagleGustAttack]
         minion.ensure_image((80, 80))
         self.minions.append(minion)
 
@@ -70,14 +94,17 @@ class Game:
             self.player.move(self.player.speed, self.screen.get_width())
 
     def update(self) -> None:
+        # update player statuses first (DoT / stun duration)
+        self.player.update_statuses()
+
         # if not player turn, enemy attacks continue and gauge builds
         if not self.player_turn:
             self.boss.update(self)
             for atk in list(self.boss.active_attacks):
                 if atk.state == "active":
                     if atk.check_collision_with_player(self.player):
-                        # apply damage and finish attack
-                        self.player.hp -= getattr(atk, "damage", 0)
+                        # apply damage/effects and finish attack
+                        atk.apply_to_player(self.player, self)
                         atk.state = "finished"
             # minions behavior
             for m in list(self.minions):
@@ -150,6 +177,33 @@ class Game:
             x += 90
         # draw player
         self.player.draw(self.screen)
+        # draw player status icons above the player
+        icon_x = int(self.player.x)
+        icon_y = int(self.player.y) - 44
+        spacing = 6
+        i = 0
+        for name, data in self.player.statuses.items():
+            # map status to element icon
+            icon = None
+            if name == 'stun':
+                icon = self.element_icons.get('electric')
+            elif name == 'burn':
+                icon = self.element_icons.get('fire')
+            elif name == 'poison':
+                icon = self.element_icons.get('poison')
+            elif name == 'wind':
+                icon = self.element_icons.get('wind')
+            if icon:
+                iw, ih = icon.get_size()
+                pos = (icon_x - ((iw + spacing) * i) - iw // 2, icon_y)
+                self.screen.blit(icon, pos)
+            else:
+                # fallback: render text
+                st_surf = self.font.render(name, True, (255, 200, 60))
+                pos = (icon_x - ((st_surf.get_width() + spacing) * i) - st_surf.get_width() // 2, icon_y)
+                self.screen.blit(st_surf, pos)
+            i += 1
+
         # draw player-turn target arrow over boss if selected
         if self.player_turn and self.target_index == 0:
             w, _ = self.screen.get_size()

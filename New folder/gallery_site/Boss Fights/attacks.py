@@ -76,13 +76,45 @@ class Attack:
     def is_finished(self) -> bool:
         return self.state == "finished"
 
+    def apply_to_player(self, player: "Player", game: "Game") -> None:
+        """Apply damage and elemental effects to the player when hit."""
+        # base damage
+        player.hp -= float(self.damage)
+        # elemental side-effects
+        from utils import FPS
+        from config import ELEMENT_CONFIG
+        if self.element_type == 'electric':
+            # stun the player for configured duration
+            stun_seconds = ELEMENT_CONFIG['electric'].get('stun_seconds', 0.7)
+            stun_frames = int(stun_seconds * FPS)
+            player.add_status('stun', stun_frames)
+        elif self.element_type == 'wind':
+            # immediate push away from center of attack rect
+            if hasattr(self, 'rect') and self.rect.width > 0:
+                push_strength = ELEMENT_CONFIG['wind'].get('push_strength', 20)
+                push = -push_strength if player.x < (self.rect.left + self.rect.right) / 2 else push_strength
+                player.move(push, game.screen.get_width())
+        elif self.element_type == 'fire':
+            # burn over configured seconds at configured DPS
+            burn_seconds = ELEMENT_CONFIG['fire'].get('burn_seconds', 3)
+            burn_dps = ELEMENT_CONFIG['fire'].get('burn_dps', 2.0)
+            player.add_status('burn', int(burn_seconds * FPS), dps=burn_dps)
+        elif self.element_type == 'poison':
+            # poison for configured seconds at configured DPS
+            poison_seconds = ELEMENT_CONFIG['poison'].get('poison_seconds', 6)
+            poison_dps = ELEMENT_CONFIG['poison'].get('poison_dps', 1.0)
+            player.add_status('poison', int(poison_seconds * FPS), dps=poison_dps)
+        # default: other elements may be added later
+
 
 # --- Zeus-specific attacks ---
 class SideWallAttack(Attack):
     """Covers either full left or right side of the screen. Useful for 'tornado' wall."""
 
-    def __init__(self, side: str = "left", width_frac: float = 0.25, damage: int = 12):
-        super().__init__(name="SideWall", element_type="wind", damage=damage)
+    def __init__(self, side: str = "left", width_frac: float = 0.25, damage: int | None = None):
+        from config import ELEMENT_CONFIG
+        dmg = damage if damage is not None else ELEMENT_CONFIG['wind']['base_damage']
+        super().__init__(name="SideWall", element_type="wind", damage=dmg)
         self.side = side
         self.width_frac = width_frac
         self.charge_time = 45
@@ -194,13 +226,127 @@ class RisingTornado(Attack):
                 pygame.draw.rect(surf, (180, 30, 200), self.rect)
 
 
-class MinionSpawn(Attack):
-    """Spawns an Aquila minion when charge completes."""
+# --- Hades fire attacks (prototypes for later boss) ---
+class FireBlast(Attack):
+    """An upward fire explosion from the bottom of the screen."""
 
-    def __init__(self):
-        super().__init__(name="MinionSpawn", element_type="summon", damage=0)
+    def __init__(self, damage: int | None = None):
+        from config import ELEMENT_CONFIG
+        dmg = damage if damage is not None else ELEMENT_CONFIG['fire']['base_damage']
+        super().__init__(name="FireBlast", element_type="fire", damage=dmg)
+        self.charge_time = 36
+        self.active_time = 40
+        self.growth = 0
+        self.width_frac = 0.12
+
+    def spawn(self, game: "Game") -> None:
+        super().spawn(game)
+        w, h = game.screen.get_size()
+        width = max(16, int(w * self.width_frac))
+        self.x = int(game.player.x)
+        self.growth = 0
+        self.rect = pygame.Rect(max(0, self.x - width // 2), h, width, 0)
+
+    def update(self, game: "Game") -> None:
+        if self.state == "charging":
+            super().update(game)
+        elif self.state == "active":
+            w, h = game.screen.get_size()
+            growth_rate = max(8, int(h * 0.04))
+            self.growth += growth_rate
+            new_height = min(h // 2, self.growth)
+            self.rect = pygame.Rect(max(0, self.x - self.rect.width // 2), h - new_height, self.rect.width, new_height)
+            super().update(game)
+
+    def draw(self, surf: pygame.Surface) -> None:
+        if self.state == "charging":
+            pygame.draw.rect(surf, (255, 120, 20), pygame.Rect(self.x - 6, surf.get_height() - 40, 12, 24))
+        elif self.state == "active":
+            try:
+                img = load_image("Fireblast.png")
+                img = pygame.transform.scale(img, (self.rect.width, max(1, self.rect.height)))
+                surf.blit(img, self.rect.topleft)
+            except Exception:
+                pygame.draw.rect(surf, (255, 80, 0), self.rect)
+
+
+class FireWall(Attack):
+    """A wall of flame that covers one side or the entire bottom edge."""
+
+    def __init__(self, side: str = "bottom", damage: int | None = None):
+        from config import ELEMENT_CONFIG
+        dmg = damage if damage is not None else ELEMENT_CONFIG['fire']['base_damage']
+        super().__init__(name="FireWall", element_type="fire", damage=dmg)
+        self.side = side
+        self.charge_time = 40
+        self.active_time = 140
+
+    def spawn(self, game: "Game") -> None:
+        super().spawn(game)
+        w, h = game.screen.get_size()
+        if self.side == "bottom":
+            height = int(h * 0.2)
+            self.rect = pygame.Rect(0, h - height, w, height)
+        elif self.side == "left":
+            self.rect = pygame.Rect(0, 0, int(w * 0.25), h)
+        else:
+            self.rect = pygame.Rect(int(w * 0.75), 0, int(w * 0.25), h)
+
+    def draw(self, surf: pygame.Surface) -> None:
+        if self.state == "charging":
+            pygame.draw.rect(surf, (200, 80, 0), self.rect, 2)
+        elif self.state == "active":
+            try:
+                img = load_image("Fireblast.png")
+                img = pygame.transform.scale(img, (self.rect.width, self.rect.height))
+                surf.blit(img, self.rect.topleft)
+            except Exception:
+                pygame.draw.rect(surf, (255, 80, 0), self.rect)
+
+
+class BidentAttack(Attack):
+    """A downward stabbing attack that can track the player during charge and then strike."""
+
+    def __init__(self, damage: int | None = None, tracking: bool = True):
+        from config import ELEMENT_CONFIG
+        dmg = damage if damage is not None else ELEMENT_CONFIG['fire'].get('base_damage', 12)
+        super().__init__(name="Bident", element_type="physical", damage=dmg)
+        self.charge_time = 38
+        self.active_time = 15
+        self.tracking = tracking
+        self.x = None
+
+    def spawn(self, game: "Game") -> None:
+        super().spawn(game)
+        w, h = game.screen.get_size()
+        if self.tracking and random.random() < 0.8:
+            self.x = int(game.player.x)
+        else:
+            self.x = random.randint(64, w - 64)
+        width = max(10, int(w * 0.03))
+        self.rect = pygame.Rect(max(0, self.x - width // 2), 0, width, h)
+
+    def draw(self, surf: pygame.Surface) -> None:
+        if self.state == "charging":
+            try:
+                img = load_image("Hades Bident.png")
+                img = pygame.transform.scale(img, (48, 48))
+                surf.blit(img, (self.x - 24, 30))
+            except Exception:
+                pygame.draw.rect(surf, (160, 160, 160), pygame.Rect(self.x - 8, 0, 16, 40))
+        elif self.state == "active":
+            pygame.draw.rect(surf, (180, 160, 120), self.rect)
+
+
+class MinionSpawn(Attack):
+    """Spawns a named minion when charge completes; enforces a per-boss limit."""
+
+    def __init__(self, minion_name: str = "Aquila", max_allowed: int = 1):
+        super().__init__(name=f"MinionSpawn_{minion_name}", element_type="summon", damage=0)
         self.charge_time = 30
         self.active_time = 1
+        self.minion_name = minion_name
+        self.max_allowed = max_allowed
 
     def spawn(self, game: "Game") -> None:
         super().spawn(game)
@@ -208,20 +354,29 @@ class MinionSpawn(Attack):
     def update(self, game: "Game") -> None:
         prev_state = self.state
         super().update(game)
-        # when charging -> active transition, spawn minion
+        # when charging -> active transition, spawn minion (if under limit)
         if prev_state == "charging" and self.state == "active":
             from entities import Minion
+            from config import MINION_LIMITS
 
-            minion = Minion(name="Aquila", artist="philipe_sca", hp=max(5, int(game.boss.hp * 0.1)))
-            game.add_minion(minion)
+            # determine how many of this minion already exist
+            current = sum(1 for m in game.minions if m.name == self.minion_name)
+            allowed = MINION_LIMITS.get(self.minion_name, self.max_allowed)
+            if current < allowed:
+                minion = Minion(name=self.minion_name, artist="philipe_sca", hp=max(5, int(game.boss.hp * 0.1)))
+                game.add_minion(minion)
+            # finish in any case (prevents repeated immediate spawns)
             self.state = "finished"
 
 
 class LightningStrikeAttack(Attack):
     """Vertical lightning strike that can track player on spawn (tracking flag)."""
 
-    def __init__(self, damage: int = 45, tracking: bool = True):
-        super().__init__(name="LightningStrike", element_type="electric", damage=damage)
+    def __init__(self, damage: int | None = None, tracking: bool = True):
+        # allow config default if damage is None
+        from config import ELEMENT_CONFIG
+        dmg = damage if damage is not None else ELEMENT_CONFIG['electric']['base_damage']
+        super().__init__(name="LightningStrike", element_type="electric", damage=dmg)
         self.charge_time = 50
         self.active_time = 20
         self.tracking = tracking
@@ -257,7 +412,9 @@ class LightningStrikeAttack(Attack):
 # simple gust used by minions
 class EagleGustAttack(Attack):
     def __init__(self, damage: int = 0):
-        super().__init__(name="EagleGust", element_type="wind", damage=damage)
+        from config import ELEMENT_CONFIG
+        dmg = damage if damage is not None else ELEMENT_CONFIG['wind']['base_damage']
+        super().__init__(name="EagleGust", element_type="wind", damage=dmg)
         self.charge_time = 8
         self.active_time = 14
         self.direction = random.choice(("left", "right"))
@@ -271,4 +428,10 @@ class EagleGustAttack(Attack):
         super().update(game)
         if self.state == "active":
             push = -6 if self.direction == "left" else 6
-            game.player.move(push, game.screen.get_width())
+            # Wind gust also applies the wind element behavior via apply_to_player when colliding
+            # For minion gust we just push the player if they overlap with the gust rect
+            if self.check_collision_with_player(game.player):
+                game.player.move(push, game.screen.get_width())
+
+
+

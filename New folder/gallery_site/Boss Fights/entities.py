@@ -12,6 +12,7 @@ class Player:
     """Player constrained to a horizontal line.
 
     Has HP and an attack gauge which, when full, allows a player turn.
+    Supports status effects (stun, burn, poison, etc.).
     """
 
     def __init__(self, screen_size: Tuple[int, int]):
@@ -20,16 +21,49 @@ class Player:
         self.y = h * 0.8
         self.radius = max(6, int(w * 0.01))
         self.speed = max(4, int(w * 0.01 * 1.5))
-        self.hp = 100
+        self.hp = 100.0  # float to allow fractional DoT
         self.attack_gauge = 0.0
+        # statuses: dict[name] = {'remaining': frames, 'dps': float, 'acc': float, 'meta': {...}}
+        self.statuses = {}
 
     def move(self, dx: float, screen_width: int) -> None:
+        # movement is disabled while stunned
+        if self.is_stunned():
+            return
         self.x += dx
         self.x = max(self.radius, min(screen_width - self.radius, self.x))
 
     def draw(self, surf: pygame.Surface) -> None:
         pygame.draw.line(surf, (255, 255, 255), (0, self.y), (surf.get_width(), self.y), 1)
         pygame.draw.circle(surf, (0, 0, 0), (int(self.x), int(self.y)), self.radius)
+
+    # Status management
+    def add_status(self, name: str, duration_frames: int, dps: float = 0.0, meta: dict | None = None) -> None:
+        """Add or refresh a status on the player."""
+        self.statuses[name] = {
+            'remaining': int(duration_frames),
+            'dps': float(dps),
+            'acc': 0.0,
+            'meta': meta or {}
+        }
+
+    def is_stunned(self) -> bool:
+        return 'stun' in self.statuses and self.statuses['stun']['remaining'] > 0
+
+    def update_statuses(self) -> None:
+        """Update statuses each frame and apply DoT effects."""
+        from utils import FPS
+        to_remove = []
+        for name, s in list(self.statuses.items()):
+            if s['dps'] > 0.0:
+                # apply fractional damage per frame
+                dmg_frame = s['dps'] / float(FPS)
+                self.hp -= dmg_frame
+            s['remaining'] -= 1
+            if s['remaining'] <= 0:
+                to_remove.append(name)
+        for n in to_remove:
+            del self.statuses[n]
 
 
 class Boss:

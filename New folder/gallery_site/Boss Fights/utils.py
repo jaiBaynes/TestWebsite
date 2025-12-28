@@ -3,6 +3,9 @@ import os
 import pygame
 from typing import Tuple
 
+# Frames per second used throughout the game logic (used for status durations)
+FPS = 60
+
 BASE_DIR = os.path.dirname(__file__)
 
 
