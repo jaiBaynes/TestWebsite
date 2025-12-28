@@ -1,0 +1,53 @@
+BOSS ATTRIBUTES:
+name:
+characterTitle:
+strength:
+speed:
+durability:
+regeneration:
+supernatural:
+color:
+image:
+artist:
+attacks: a list of attacks the boss can use
+
+Example Boss: Zeus = boss("Zeus", "Storm God-King of Olympus", 10, 10, 10, 10, 10, Yellow, "Zeus Boss Image.png", "philipe_sca", [lightningBolt, keraunos, eagleGust])
+
+Zeus Attacks to add: tornado - a side sideWall attack that covers a random side of the screen and deals damage if the player enters it. stormCloud - a homing blast that tracks the player before exploding. risingTornado - an upwardAttack where a tornado starts at the bottom of the screen before quickly growing up underneath where the player was standing. aquila - Zeus spawns the aquila as a minion. It has 1/10 of his remaining hp and can only (but very frequently use) eagleGust to blow the player in a random direction.
+
+
+BOSS ATTACKS
+Attack Types reuse recurring types but change out the image, damage and speed so each character can have unique attacks even though the moves are similar. Key attributes that store things that can change between similar moves:
+a: delay time - how long it changes before firing
+b: tracking - a Boolean that is true for if it tracks you before firing directly or false where it fires in the same place the attack spawned
+c: homing - a Boolean that is true if it tracks you even after firing or false if it does not
+d: maxNumber is an int that stores how many of an attack can be spawned at once.
+e: xSpot - x location on screen
+f: ySpot - y location on screen
+g: chargeImage - a list containing the image that represents the attack as element 0, the width of the image as element 1 and the height of the image as element 2. This is the image of the attack when it fires
+h: attackImage - a list containing the image that represents the attack as element 0, the width of the image as element 1 and the height of the image as element 2. This is the image of the attack when it fires
+i: elementType - a string that stores if the attack has an element such is fire, electricity, physical, poison, etc. These elements can cause secondary effects.
+j: damage - the amount of damage an attack does if the player enters the area of the image. Can be 0.
+k: sound - the sound file to play when the attack goes off if this value. optional.
+
+downwardAttacks: An attack appears above the player and then after a delay fires down directly from where it spawned. Spawn point can be a random spot on screen or tracking meaning it appears directly above the player when it spawned. Examples - Zeus' lightning bolts falling from the sky, Hades' bident following the player before stabbing down.
+
+upwardAttacks: The same as a Downward attack except it spawns at the bottom of the screen and it shoots up. Example - Hades' Fireblast explodes from the bottom of the screen.
+
+sideWalls: An end of the screen is covered and entering that area causes damage and possible elemental effects. Example - Hades' wall of flames.
+
+angledBlast: Attacks that aim at a target and fire at them from that starting point.
+
+homingBlast: A blast that goes towards the player's location for a while before exploding.
+
+minionSpawn: Spawns a temporary helper that fires attacks too. They only have 1 attack they can use repeatedly until they are killed off. Minions inherit from bosses but have much lower stats.
+
+minionAbsorb: Kill one of their minions but regain all the remaining HP it had left.
+
+PLAYER CONTROLS
+ENEMY TURN
+While the enemy is attacking, player controls a tiny ball (can replace with mage later) to dodge attacks by moving left and right along the horizontal line. They also have different healing items they can use to restore their HP. Players have to dodge enemy attacks until the attack gauge fills. All enemies, boss and minions can attack during the Enemy turn
+
+PLAYER TURN
+When the attack gauge fills up and the player clicks the attack button, the enemy stops attacking and player selects a target (which boss or minion) which an arrow icon points to using the image "Select Arrow Icon.png"
+After pressing the space bar, the player does damage to their target (can swap between targets if there are multiple enemies). A minigame for dealing damage based on Dragon Ball Fusions can be added later.
