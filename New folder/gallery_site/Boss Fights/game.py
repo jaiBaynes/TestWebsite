@@ -17,10 +17,15 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.player = Player(self.screen.get_size())
-        # Zeus setup: use classes from attacks module
-        self.boss = Boss("Zeus", "Storm God-King of Olympus", 10, 40, 10, 5, 10, (255, 255, 0), "Zeus Boss Image.png", "philipe_sca",
-                         attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])
+        # boss selection menu state
+        self.available_bosses = ["Zeus", "Hades"]
+        self.selected_boss_index = 0
+        self.in_menu = True  # start in selection menu
+
+        # initially no boss until selection
+        self.boss: Boss | None = None
         self.minions: List[Minion] = []
+
         # UI images & element icons
         try:
             self.select_arrow = load_image("Select Arrow Icon.png")
@@ -54,12 +59,27 @@ class Game:
         w, _ = self.screen.get_size()
         return w // 2
 
+    def create_boss(self, name: str) -> Boss:
+        """Factory to create bosses by name."""
+        if name == "Zeus":
+            return Boss("Zeus", "Storm God-King of Olympus", 12, 45, 12, 6, 12, (255, 255, 0), "Zeus Boss Image.png", "philipe_sca",
+                        attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])
+        elif name == "Hades":
+            return Boss("Hades", "Lord of the Underworld", 15, 60, 8, 8, 14, (200, 80, 40), "Hades Boss Image.png", "mike_martin",
+                        attacks=[attacks_mod.FireBlast, attacks_mod.FireWall, attacks_mod.BidentAttack, lambda: attacks_mod.MinionSpawn(minion_name='CerberusHead')])
+        else:
+            raise ValueError(f"Unknown boss: {name}")
+
     def add_minion(self, minion: Minion) -> None:
-        # allow only a limited number of certain minions and set default attacks
+        """Add a minion and set sensible defaults per minion type (e.g., Aquila, CerberusHead)."""
         import attacks as attacks_mod
         # default attacks for Aquila
         if minion.name == "Aquila" and not minion.attacks:
             minion.attacks = [attacks_mod.EagleGustAttack]
+        # default attacks for Cerberus head
+        if minion.name == "CerberusHead" and not minion.attacks:
+            # Cerberus head uses a small bident bite
+            minion.attacks = [attacks_mod.BidentAttack]
         minion.ensure_image((80, 80))
         self.minions.append(minion)
 
@@ -71,20 +91,34 @@ class Game:
                 self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 self.player = Player(self.screen.get_size())
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and self.player.attack_gauge >= 100 and not self.player_turn:
-                    # enter player turn
-                    self.player_turn = True
-                    self.target_index = 0
-                elif self.player_turn:
-                    if event.key == pygame.K_LEFT:
-                        # select left
-                        self.target_index = max(0, self.target_index - 1)
-                    elif event.key == pygame.K_RIGHT:
-                        self.target_index = min(len(self.minions), self.target_index + 1)
-                    elif event.key == pygame.K_SPACE:
-                        # commit attack
-                        self.player_attack()
+                # If we're in the boss-selection menu, handle menu navigation and confirm
+                if self.in_menu:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                        self.selected_boss_index = max(0, self.selected_boss_index - 1)
+                    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                        self.selected_boss_index = min(len(self.available_bosses) - 1, self.selected_boss_index + 1)
+                    elif event.key == pygame.K_RETURN:
+                        chosen = self.available_bosses[self.selected_boss_index]
+                        self.boss = self.create_boss(chosen)
+                        self.in_menu = False
                         self.player_turn = False
+                        self.target_index = 0
+                    # ignore other keys while in menu
+                else:
+                    if event.key == pygame.K_RETURN and self.player.attack_gauge >= 100 and not self.player_turn:
+                        # enter player turn
+                        self.player_turn = True
+                        self.target_index = 0
+                    elif self.player_turn:
+                        if event.key == pygame.K_LEFT:
+                            # select left
+                            self.target_index = max(0, self.target_index - 1)
+                        elif event.key == pygame.K_RIGHT:
+                            self.target_index = min(len(self.minions), self.target_index + 1)
+                        elif event.key == pygame.K_SPACE:
+                            # commit attack
+                            self.player_attack()
+                            self.player_turn = False
 
         # continuous movement
         keys = pygame.key.get_pressed()
@@ -97,15 +131,20 @@ class Game:
         # update player statuses first (DoT / stun duration)
         self.player.update_statuses()
 
+        # if we're in the selection menu don't process boss/minion behavior yet
+        if self.in_menu:
+            return
+
         # if not player turn, enemy attacks continue and gauge builds
         if not self.player_turn:
-            self.boss.update(self)
-            for atk in list(self.boss.active_attacks):
-                if atk.state == "active":
-                    if atk.check_collision_with_player(self.player):
-                        # apply damage/effects and finish attack
-                        atk.apply_to_player(self.player, self)
-                        atk.state = "finished"
+            if self.boss:
+                self.boss.update(self)
+                for atk in list(self.boss.active_attacks):
+                    if atk.state == "active":
+                        if atk.check_collision_with_player(self.player):
+                            # apply damage/effects and finish attack
+                            atk.apply_to_player(self.player, self)
+                            atk.state = "finished"
             # minions behavior
             for m in list(self.minions):
                 if random.random() < 0.01:
@@ -124,7 +163,7 @@ class Game:
         if self.player.hp <= 0:
             print("Player defeated.")
             self.running = False
-        if self.boss.hp <= 0:
+        if self.boss and self.boss.hp <= 0:
             print("Boss defeated.")
             self.running = False
 
@@ -157,10 +196,39 @@ class Game:
 
     def draw(self) -> None:
         self.screen.fill((30, 30, 40))
-        self.boss.draw(self)
-        for atk in self.boss.active_attacks:
-            if atk.state in ("charging", "active"):
-                atk.draw(self.screen)
+        # if in menu, draw selection screen and return
+        if self.in_menu:
+            title = self.font.render("Choose a Boss to Fight", True, (240, 240, 240))
+            self.screen.blit(title, (self.screen.get_width() // 2 - title.get_width() // 2, 40))
+            # draw boss choices horizontally
+            spacing = 280
+            start_x = self.screen.get_width() // 2 - spacing // 2
+            y = 140
+            for i, name in enumerate(self.available_bosses):
+                label = self.font.render(name, True, (255, 255, 255))
+                x = start_x + i * spacing
+                rect = pygame.Rect(x - 40, y - 40, 160, 160)
+                # box background
+                color = (80, 60, 60) if i != self.selected_boss_index else (120, 100, 40)
+                pygame.draw.rect(self.screen, color, rect)
+                # try to show boss image if available
+                try:
+                    img = load_image(f"{name} Boss Image.png")
+                    iw, ih = img.get_size()
+                    self.screen.blit(img, (x - iw // 2 + 40, y - ih // 2))
+                except Exception:
+                    pass
+                self.screen.blit(label, (x + 40 - label.get_width() // 2, y + 70))
+            hint = self.font.render("Use ← → to select, ENTER to confirm", True, (200, 200, 200))
+            self.screen.blit(hint, (self.screen.get_width() // 2 - hint.get_width() // 2, y + 120))
+            return
+
+        # normal gameplay drawing
+        if self.boss:
+            self.boss.draw(self)
+            for atk in self.boss.active_attacks:
+                if atk.state in ("charging", "active"):
+                    atk.draw(self.screen)
         # draw minions
         x = 20
         for i, m in enumerate(self.minions):
