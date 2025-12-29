@@ -21,7 +21,8 @@ class Player:
         self.y = h * 0.8
         self.radius = max(6, int(w * 0.01))
         self.speed = max(4, int(w * 0.01 * 1.5))
-        self.hp = 100.0  # float to allow fractional DoT
+        self.max_hp = 100
+        self.hp = float(self.max_hp)  # float to allow fractional DoT
         self.attack_gauge = 0.0
         # statuses: dict[name] = {'remaining': frames, 'dps': float, 'acc': float, 'meta': {...}}
         self.statuses = {}
@@ -72,7 +73,7 @@ class Boss:
     Boss.schedule_attack will instantiate attacks and add to boss.active_attacks.
     """
 
-    def __init__(self, name: str, characterTitle: str, strength: int, speed: int, durability: int, regeneration: int, supernatural: int, color: Tuple[int, int, int], image_file: str, artist: str, attacks: list):
+    def __init__(self, name: str, characterTitle: str, strength: int, speed: int, durability: int, regeneration: int, supernatural: int, color: Tuple[int, int, int], image_file: str, artist: str, attacks: list, max_hp: int = 100):
         self.name = name
         self.characterTitle = characterTitle
         self.strength = strength
@@ -85,7 +86,8 @@ class Boss:
         self.attacks = attacks
         self.active_attacks: List[Attack] = []
         self.minions: List[Minion] = []
-        self.hp = 100
+        self.max_hp = int(max_hp)
+        self.hp = float(self.max_hp)
         self.image_file = image_file
         self.image: Optional[pygame.Surface] = None
 
@@ -135,7 +137,23 @@ class Boss:
 
 
 class Minion(Boss):
-    def __init__(self, name: str, artist: str, hp: int = 10):
-        # simple minion with one gust attack
-        super().__init__(name, name, 1, 10, 1, 0, 0, (200, 200, 200), "Aquila.png", artist, attacks=[])
+    def __init__(self, name: str, artist: str, hp: int = 10, image_file: str | None = None):
+        # determine a sensible default image for this minion when not provided
+        import os
+        from utils import BASE_DIR
+
+        def _guess_image(n: str) -> str:
+            # try exact match
+            candidates = [f"{n}.png", f"{n.replace('Head',' Head')}.png", f"{n.replace('Head',' head')}.png"]
+            for c in candidates:
+                if os.path.exists(os.path.join(BASE_DIR, c)):
+                    return c
+            # fallback: find any file containing name
+            for f in os.listdir(BASE_DIR):
+                if n.lower() in f.lower() and f.lower().endswith('.png'):
+                    return f
+            return "Aquila.png"
+
+        img = image_file if image_file else _guess_image(name)
+        super().__init__(name, name, 1, 10, 1, 0, 0, (200, 200, 200), img, artist, attacks=[])
         self.hp = hp

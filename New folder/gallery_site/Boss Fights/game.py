@@ -86,6 +86,20 @@ class Game:
             elif event.type == pygame.VIDEORESIZE:
                 self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 self.player = Player(self.screen.get_size())
+                # clear cached scaled images so they're re-created at the new size
+                if self.boss:
+                    self.boss.image = None
+                for m in self.minions:
+                    m.image = None
+                # clear derived caches
+                if hasattr(self, '_hp_bar_cache'):
+                    self._hp_bar_cache = {}
+                # clear utils image cache as well in case of stale scaled versions
+                try:
+                    from utils import _IMAGE_CACHE
+                    _IMAGE_CACHE.clear()
+                except Exception:
+                    pass
             elif event.type == pygame.KEYDOWN:
                 # player-turn toggles
                 if event.key == pygame.K_RETURN and self.player.attack_gauge >= 100 and not self.player_turn:
@@ -134,6 +148,10 @@ class Game:
             # build gauge slowly while surviving
             if self.player.hp > 0:
                 self.player.attack_gauge = min(100.0, self.player.attack_gauge + 0.35)
+        # ensure cached images are refreshed on any resize that changed screen size
+        # (handled in VIDEORESIZE event as well, but clear here as additional safety)
+        if self.boss and getattr(self.boss, 'image', None) is None:
+            self.boss.ensure_image(self.screen.get_size())
         else:
             # during player turn, enemy attacks may pause; we keep boss.active_attacks at whatever state
             pass
@@ -171,14 +189,58 @@ class Game:
             bar_h = 18
             x = (w - bar_w) // 2
             y = 8
-            # translucent backdrop for readability
-            overlay = pygame.Surface((bar_w + 8, bar_h * 2 + 24), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 120))
-            self.screen.blit(overlay, (x - 4, y - 4))
-            # background and fill
-            pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(x, y, bar_w, bar_h))
-            frac = max(0.0, min(1.0, self.boss.hp / 100.0))
-            pygame.draw.rect(self.screen, (200, 60, 60), pygame.Rect(x, y, int(bar_w * frac), bar_h))
+            # try boss-specific HP bar images if mapped in config
+            from config import BOSS_HP_BARS
+            mapped = BOSS_HP_BARS.get(self.boss.name)
+            frac = max(0.0, min(1.0, self.boss.hp / getattr(self.boss, 'max_hp', 100)))
+
+            if mapped:
+                # compute a frame height slightly taller than the fill bar (frame surrounds the thin fill)
+                frame_h = max(bar_h + 8, int(bar_h * 1.8))
+                # translucent backdrop sized for frame
+                overlay = pygame.Surface((bar_w + 8, frame_h + 12), pygame.SRCALPHA)
+                overlay.fill((0, 0, 0, 120))
+                self.screen.blit(overlay, (x - 4, y - 4))
+
+                # cache scaled frames/fills per boss+size to avoid repeated scaling
+                cache_key = (self.boss.name, bar_w, bar_h, frame_h)
+                if not hasattr(self, '_hp_bar_cache'):
+                    self._hp_bar_cache = {}
+                cached = self._hp_bar_cache.get(cache_key)
+                if not cached:
+                    try:
+                        frame = load_image(mapped['frame'])
+                        fill = load_image(mapped['fill'])
+                        frame_scaled = pygame.transform.scale(frame, (bar_w, frame_h))
+                        fill_scaled = pygame.transform.scale(fill, (bar_w, bar_h))
+                        cached = {'frame': frame_scaled, 'fill': fill_scaled}
+                        self._hp_bar_cache[cache_key] = cached
+                    except Exception:
+                        cached = None
+
+                if cached:
+                    frame_scaled = cached['frame']
+                    fill_scaled = cached['fill']
+                    fill_w = max(1, int(bar_w * frac))
+                    fill_y = y + (frame_h - bar_h) // 2
+                    self.screen.blit(fill_scaled.subsurface((0, 0, fill_w, bar_h)), (x, fill_y))
+                    self.screen.blit(frame_scaled, (x, y))
+                    hp_text = f"HP {int(self.boss.hp)}/{int(getattr(self.boss,'max_hp',100))}"
+                    hp_surf = self.font.render(hp_text, True, (255, 255, 255))
+                    self.screen.blit(hp_surf, (x + bar_w // 2 - hp_surf.get_width() // 2, y + frame_h // 2 - hp_surf.get_height() // 2))
+                else:
+                    pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(x, y, bar_w, bar_h))
+                    pygame.draw.rect(self.screen, (200, 60, 60), pygame.Rect(x, y, int(bar_w * frac), bar_h))
+            else:
+                overlay = pygame.Surface((bar_w + 8, bar_h + 16), pygame.SRCALPHA)
+                overlay.fill((0, 0, 0, 120))
+                self.screen.blit(overlay, (x - 4, y - 4))
+                pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(x, y, bar_w, bar_h))
+                pygame.draw.rect(self.screen, (200, 60, 60), pygame.Rect(x, y, int(bar_w * frac), bar_h))
+                hp_text = f"HP {int(self.boss.hp)}/{int(getattr(self.boss,'max_hp',100))}"
+                hp_surf = self.font.render(hp_text, True, (255, 255, 255))
+                self.screen.blit(hp_surf, (x + bar_w // 2 - hp_surf.get_width() // 2, y + bar_h // 2 - hp_surf.get_height() // 2))
+
             # name and HP text
             name_surf = self.font.render(self.boss.name, True, (255, 255, 255))
             self.screen.blit(name_surf, (x + 6, y + bar_h + 4))
@@ -207,10 +269,11 @@ class Game:
         self.screen.blit(overlay2, (hp_x - 4, hp_bar_y - 6))
         # HP bar
         pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(hp_x, hp_bar_y, bar_w, 12))
-        hp_frac = max(0.0, min(1.0, self.player.hp / 100.0))
+        hp_frac = max(0.0, min(1.0, self.player.hp / float(self.player.max_hp)))
         pygame.draw.rect(self.screen, (180, 40, 40), pygame.Rect(hp_x, hp_bar_y, int(bar_w * hp_frac), 12))
-        hp_surf = self.font.render(f"HP: {int(self.player.hp)}", True, (255, 255, 255))
-        self.screen.blit(hp_surf, (hp_x + 6, hp_bar_y - 14))
+        hp_surf = self.font.render(f"HP {int(self.player.hp)}/{int(self.player.max_hp)}", True, (255, 255, 255))
+        # center HP text inside bar
+        self.screen.blit(hp_surf, (hp_x + bar_w // 2 - hp_surf.get_width() // 2, hp_bar_y + 6 - hp_surf.get_height() // 2))
         # Turn gauge under HP (centered on player.x, expands both ways)
         bar_y2 = hp_bar_y + 20
         frac = max(0.0, min(1.0, self.player.attack_gauge / 100.0))

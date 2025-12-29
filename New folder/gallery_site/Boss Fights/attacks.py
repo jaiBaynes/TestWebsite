@@ -328,14 +328,49 @@ class BidentAttack(Attack):
 
     def draw(self, surf: pygame.Surface) -> None:
         if self.state == "charging":
+            # ensure x is set (fallback to center)
+            if self.x is None:
+                self.x = surf.get_width() // 2
             try:
-                img = load_image("Hades Bident.png")
-                img = pygame.transform.scale(img, (48, 48))
-                surf.blit(img, (self.x - 24, 30))
+                # try a few fallback names in case of asset naming differences
+                img = None
+                for candidate in ("Hades Bident.png", "Bident.png", "HadesBident.png"):
+                    try:
+                        img = load_image(candidate)
+                        break
+                    except Exception:
+                        img = None
+                if img:
+                    # charge marker is slightly larger and centered above the hitline
+                    ch_w = max(48, int(surf.get_width() * 0.03))
+                    ch_h = min(120, max(48, ch_w * 2))
+                    # cache per-attack scaled charge image
+                    if not hasattr(self, '_charge_cache') or self._charge_cache.get('size') != (ch_w, ch_h):
+                        self._charge_cache = {'size': (ch_w, ch_h), 'img': pygame.transform.scale(img, (ch_w, ch_h))}
+                    surf.blit(self._charge_cache['img'], (self.x - ch_w // 2, 30))
+                else:
+                    raise FileNotFoundError("Bident image not found")
             except Exception:
                 pygame.draw.rect(surf, (160, 160, 160), pygame.Rect(self.x - 8, 0, 16, 40))
         elif self.state == "active":
-            pygame.draw.rect(surf, (180, 160, 120), self.rect)
+            # when active, make the bident visual cover the full vertical rect like a lightning strike
+            try:
+                img = None
+                for candidate in ("Hades Bident.png", "Bident.png", "HadesBident.png"):
+                    try:
+                        img = load_image(candidate)
+                        break
+                    except Exception:
+                        img = None
+                if img:
+                    target_size = (max(8, self.rect.width), self.rect.height)
+                    if not hasattr(self, '_active_cache') or self._active_cache.get('size') != target_size:
+                        self._active_cache = {'size': target_size, 'img': pygame.transform.scale(img, target_size)}
+                    surf.blit(self._active_cache['img'], self.rect.topleft)
+                else:
+                    raise FileNotFoundError("Bident image not found")
+            except Exception:
+                pygame.draw.rect(surf, (180, 160, 120), self.rect)
 
 
 class MinionSpawn(Attack):
