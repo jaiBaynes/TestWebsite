@@ -80,6 +80,7 @@ class Attack:
         """Apply damage and elemental effects to the player when hit."""
         # base damage
         player.hp -= float(self.damage)
+        print(self.name, "Dealt: ",self.damage)
         # elemental side-effects
         from utils import FPS
         from config import ELEMENT_CONFIG
@@ -117,9 +118,10 @@ class SideWallAttack(Attack):
         super().__init__(name="SideWall", element_type="wind", damage=dmg)
         self.side = side
         self.width_frac = width_frac
-        self.charge_time = 45
+        self.charge_time = 60
         self.active_time = 120
         self.max_number = 1
+        self.damage = 0
 
     def spawn(self, game: "Game") -> None:
         super().spawn(game)
@@ -328,14 +330,49 @@ class BidentAttack(Attack):
 
     def draw(self, surf: pygame.Surface) -> None:
         if self.state == "charging":
+            # ensure x is set (fallback to center)
+            if self.x is None:
+                self.x = surf.get_width() // 2
             try:
-                img = load_image("Hades Bident.png")
-                img = pygame.transform.scale(img, (48, 48))
-                surf.blit(img, (self.x - 24, 30))
+                # try a few fallback names in case of asset naming differences
+                img = None
+                for candidate in ("Hades Bident.png", "Bident.png", "HadesBident.png"):
+                    try:
+                        img = load_image(candidate)
+                        break
+                    except Exception:
+                        img = None
+                if img:
+                    # charge marker is slightly larger and centered above the hitline
+                    ch_w = max(48, int(surf.get_width() * 0.03))
+                    ch_h = min(120, max(48, ch_w * 2))
+                    # cache per-attack scaled charge image
+                    if not hasattr(self, '_charge_cache') or self._charge_cache.get('size') != (ch_w, ch_h):
+                        self._charge_cache = {'size': (ch_w, ch_h), 'img': pygame.transform.scale(img, (ch_w, ch_h))}
+                    surf.blit(self._charge_cache['img'], (self.x - ch_w // 2, 30))
+                else:
+                    raise FileNotFoundError("Bident image not found")
             except Exception:
                 pygame.draw.rect(surf, (160, 160, 160), pygame.Rect(self.x - 8, 0, 16, 40))
         elif self.state == "active":
-            pygame.draw.rect(surf, (180, 160, 120), self.rect)
+            # when active, make the bident visual cover the full vertical rect like a lightning strike
+            try:
+                img = None
+                for candidate in ("Hades Bident.png", "Bident.png", "HadesBident.png"):
+                    try:
+                        img = load_image(candidate)
+                        break
+                    except Exception:
+                        img = None
+                if img:
+                    target_size = (max(8, self.rect.width), self.rect.height)
+                    if not hasattr(self, '_active_cache') or self._active_cache.get('size') != target_size:
+                        self._active_cache = {'size': target_size, 'img': pygame.transform.scale(img, target_size)}
+                    surf.blit(self._active_cache['img'], self.rect.topleft)
+                else:
+                    raise FileNotFoundError("Bident image not found")
+            except Exception:
+                pygame.draw.rect(surf, (180, 160, 120), self.rect)
 
 
 class MinionSpawn(Attack):
@@ -363,7 +400,7 @@ class MinionSpawn(Attack):
             current = sum(1 for m in game.minions if m.name == self.minion_name)
             allowed = MINION_LIMITS.get(self.minion_name, self.max_allowed)
             if current < allowed:
-                minion = Minion(name=self.minion_name, artist="philipe_sca", hp=max(5, int(game.boss.hp * 0.1)))
+                minion = Minion(name=self.minion_name, artist="the.creature.keeper", hp=max(5, int(game.boss.hp * 0.1)))
                 game.add_minion(minion)
             # finish in any case (prevents repeated immediate spawns)
             self.state = "finished"
@@ -391,7 +428,7 @@ class LightningStrikeAttack(Attack):
         width = max(12, int(w * 0.03))
         self.rect = pygame.Rect(max(0, self.x - width // 2), 0, width, h)
         try:
-            self.charge_image = pygame.transform.scale(load_image("Heavenly Light.png"), (48, 48))
+            self.charge_image = pygame.transform.scale(load_image("Heavenly Light.png"), (1.5*self.rect.width, self.rect.height))
             self.attack_image = pygame.transform.scale(load_image("Lightning Strike.png"), (self.rect.width, self.rect.height))
         except Exception:
             pass
@@ -418,6 +455,7 @@ class EagleGustAttack(Attack):
         self.charge_time = 8
         self.active_time = 14
         self.direction = random.choice(("left", "right"))
+        self.damage = 0
 
     def spawn(self, game: "Game") -> None:
         super().spawn(game)
@@ -432,6 +470,4 @@ class EagleGustAttack(Attack):
             # For minion gust we just push the player if they overlap with the gust rect
             if self.check_collision_with_player(game.player):
                 game.player.move(push, game.screen.get_width())
-
-
 

@@ -27,6 +27,14 @@ MINION_LIMITS = {
     'CerberusHead': 3,
 }
 
+# Default boss selected by website / external launcher (Zeus or Hades)
+DEFAULT_BOSS = 'Zeus'
+
+# Custom boss HP bar mappings: maps boss name -> {frame: frame_image, fill: fill_image}
+BOSS_HP_BARS = {
+    'Zeus': {'frame': 'Zeus HP Bar Frame.png', 'fill': 'Zeus HP Bar.png'},
+}
+
 # Global attack tuning
 ATTACK_TUNING = {
     'boss_attack_chance_divisor': 400.0,  # used to scale boss.speed to spawn chance
