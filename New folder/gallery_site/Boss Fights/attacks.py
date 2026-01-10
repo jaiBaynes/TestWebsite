@@ -120,6 +120,7 @@ class SideWallAttack(Attack):
         self.charge_time = 45
         self.active_time = 120
         self.max_number = 1
+        self.damage = 0
 
     def spawn(self, game: "Game") -> None:
         super().spawn(game)
@@ -453,6 +454,7 @@ class EagleGustAttack(Attack):
         self.charge_time = 8
         self.active_time = 14
         self.direction = random.choice(("left", "right"))
+        self.damage = 0
 
     def spawn(self, game: "Game") -> None:
         super().spawn(game)
@@ -467,6 +469,4 @@ class EagleGustAttack(Attack):
             # For minion gust we just push the player if they overlap with the gust rect
             if self.check_collision_with_player(game.player):
                 game.player.move(push, game.screen.get_width())
-
-
 
