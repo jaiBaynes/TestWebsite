@@ -80,6 +80,7 @@ class Attack:
         """Apply damage and elemental effects to the player when hit."""
         # base damage
         player.hp -= float(self.damage)
+        print(self.name, "Dealt: ",self.damage)
         # elemental side-effects
         from utils import FPS
         from config import ELEMENT_CONFIG
@@ -427,7 +428,7 @@ class LightningStrikeAttack(Attack):
         width = max(12, int(w * 0.03))
         self.rect = pygame.Rect(max(0, self.x - width // 2), 0, width, h)
         try:
-            self.charge_image = pygame.transform.scale(load_image("Heavenly Light.png"), (48, 48))
+            self.charge_image = pygame.transform.scale(load_image("Heavenly Light.png"), (1.5*self.rect.width, self.rect.height))
             self.attack_image = pygame.transform.scale(load_image("Lightning Strike.png"), (self.rect.width, self.rect.height))
         except Exception:
             pass
