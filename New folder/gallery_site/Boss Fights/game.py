@@ -112,10 +112,17 @@ class Game:
                         self.target_index = max(0, self.target_index - 1)
                     elif event.key == pygame.K_RIGHT:
                         self.target_index = min(len(self.minions), self.target_index + 1)
+                    elif event.key == pygame.K_h:
+                        self.player.hp = self.player.max_hp
+                        self.player.attack_gauge = 0.0
+                        self.player_turn = False                        
                     elif event.key == pygame.K_SPACE:
                         # commit attack
                         self.player_attack()
                         self.player_turn = False
+                        if self.boss.hp <= 0:
+                            print("Boss defeated.")
+                            self.running = False                        
 
         # continuous movement
         keys = pygame.key.get_pressed()
@@ -160,15 +167,13 @@ class Game:
         if self.player.hp <= 0:
             print("Player defeated.")
             self.running = False
-        if self.boss and self.boss.hp <= 0:
-            print("Boss defeated.")
-            self.running = False
 
     def player_attack(self) -> None:
         # simple fixed damage attack: reduce hp of selected target
         dmg = 25 + int(self.player.attack_gauge * 0.1)
         if self.target_index == 0:
             self.boss.take_damage(dmg)
+            self.boss.active_attacks = []
         else:
             idx = self.target_index - 1
             if 0 <= idx < len(self.minions):
@@ -196,9 +201,9 @@ class Game:
 
             if mapped:
                 # compute a frame height slightly taller than the fill bar (frame surrounds the thin fill)
-                frame_h = max(bar_h + 8, int(bar_h * 1.8))
+                frame_h = max(bar_h + 8, int(bar_h * 3))
                 # translucent backdrop sized for frame
-                overlay = pygame.Surface((bar_w + 8, frame_h + 12), pygame.SRCALPHA)
+                overlay = pygame.Surface((bar_w + 20, frame_h + 12), pygame.SRCALPHA)
                 overlay.fill((0, 0, 0, 120))
                 self.screen.blit(overlay, (x - 4, y - 4))
 
@@ -211,7 +216,7 @@ class Game:
                     try:
                         frame = load_image(mapped['frame'])
                         fill = load_image(mapped['fill'])
-                        frame_scaled = pygame.transform.scale(frame, (bar_w, frame_h))
+                        frame_scaled = pygame.transform.scale(frame, (bar_w*1.2, frame_h))
                         fill_scaled = pygame.transform.scale(fill, (bar_w, bar_h))
                         cached = {'frame': frame_scaled, 'fill': fill_scaled}
                         self._hp_bar_cache[cache_key] = cached
@@ -224,7 +229,7 @@ class Game:
                     fill_w = max(1, int(bar_w * frac))
                     fill_y = y + (frame_h - bar_h) // 2
                     self.screen.blit(fill_scaled.subsurface((0, 0, fill_w, bar_h)), (x, fill_y))
-                    self.screen.blit(frame_scaled, (x, y))
+                    self.screen.blit(frame_scaled, (x - bar_w*0.1, y))
                     hp_text = f"HP {int(self.boss.hp)}/{int(getattr(self.boss,'max_hp',100))}"
                     hp_surf = self.font.render(hp_text, True, (255, 255, 255))
                     self.screen.blit(hp_surf, (x + bar_w // 2 - hp_surf.get_width() // 2, y + frame_h // 2 - hp_surf.get_height() // 2))
@@ -241,40 +246,46 @@ class Game:
                 hp_surf = self.font.render(hp_text, True, (255, 255, 255))
                 self.screen.blit(hp_surf, (x + bar_w // 2 - hp_surf.get_width() // 2, y + bar_h // 2 - hp_surf.get_height() // 2))
 
-            # name and HP text
+# show boss name above the frame and active attack centered beneath the frame
             name_surf = self.font.render(self.boss.name, True, (255, 255, 255))
-            self.screen.blit(name_surf, (x + 6, y + bar_h + 4))
-            # show active attack name (charging/active) or Idle
+            self.screen.blit(name_surf, (x + bar_w // 2 - name_surf.get_width() // 2, y - 18))
+            # show active attack name (charging/active) or Idle centered below
             active_attack = None
             for atk in self.boss.active_attacks:
                 if atk.state in ("charging", "active"):
                     active_attack = atk
                     break
             attack_text = f"{active_attack.name} ({active_attack.state})" if active_attack else "Idle"
-            att_surf = self.font.render(attack_text, True, (200, 200, 200))
-            self.screen.blit(att_surf, (x + bar_w - att_surf.get_width() - 6, y + bar_h + 4))
+            att_surf = self.font.render(attack_text, True, (220, 220, 220))
+            # center under the frame (frame may be wider than bar)
+            frame_center_x = x + (frame_scaled.get_width() if mapped and cached else bar_w) // 2
+            att_x = frame_center_x - att_surf.get_width() // 2
+            att_y = y + (frame_scaled.get_height() if mapped and cached else bar_h) + 6
+            self.screen.blit(att_surf, (att_x, att_y))
 
-        # Player's HP and gauge directly under the player's horizontal line
+        # Player's HP and gauge directly under the player's horizontal line (shorter width)
         player_x = int(self.player.x)
         player_y = int(self.player.y)
         # keep UI visible if player is near bottom
         hp_bar_y = player_y + 8
         if hp_bar_y + 60 > h:
             hp_bar_y = max(player_y - 70, h - 90)
-        bar_w = min(360, int(w * 0.45))
+        # reduce lengths by about half (previously up to 360 or 45% width)
+        full_bar_w = min(360, int(w * 0.45))
+        bar_w = max(80, int(full_bar_w * 0.5))
         hp_x = player_x - bar_w // 2
         # translucent backdrop
         overlay2 = pygame.Surface((bar_w + 8, 48), pygame.SRCALPHA)
         overlay2.fill((0, 0, 0, 110))
         self.screen.blit(overlay2, (hp_x - 4, hp_bar_y - 6))
-        # HP bar
+        # HP bar (shorter)
         pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(hp_x, hp_bar_y, bar_w, 12))
         hp_frac = max(0.0, min(1.0, self.player.hp / float(self.player.max_hp)))
         pygame.draw.rect(self.screen, (180, 40, 40), pygame.Rect(hp_x, hp_bar_y, int(bar_w * hp_frac), 12))
         hp_surf = self.font.render(f"HP {int(self.player.hp)}/{int(self.player.max_hp)}", True, (255, 255, 255))
         # center HP text inside bar
         self.screen.blit(hp_surf, (hp_x + bar_w // 2 - hp_surf.get_width() // 2, hp_bar_y + 6 - hp_surf.get_height() // 2))
-        # Turn gauge under HP (centered on player.x, expands both ways)
+        # Turn gauge under HP (centered on player.x, expands both ways) - shorter bar
         bar_y2 = hp_bar_y + 20
         frac = max(0.0, min(1.0, self.player.attack_gauge / 100.0))
         center_x = player_x
@@ -287,7 +298,7 @@ class Game:
         self.screen.blit(perc_surf, (center_x - perc_surf.get_width() // 2, bar_y2 + (10 - perc_surf.get_height()) // 2))
 
         if self.player_turn:
-            prompt = self.font.render("Player Turn - Use ← → to choose target, SPACE to attack", True, (255, 255, 255))
+            prompt = self.font.render("Player Turn - Use ← → to choose target, SPACE to attack, H to heal", True, (255, 255, 255))
             self.screen.blit(prompt, (10, bar_y2 + 20))
 
     def draw(self) -> None:
@@ -307,12 +318,30 @@ class Game:
             # show HP
             hp_surf = self.font.render(str(int(m.hp)), True, (255, 255, 255))
             self.screen.blit(hp_surf, (x + 20, 140))
-            # show selection arrow if player_turn and selected
+            # show selection arrow if player_turn and selected (scaled to minion size)
             if self.player_turn and self.target_index == i + 1:
+                arrow_w = int(m.image.get_width() * 0.6)
+                arrow_h = int(arrow_w * 0.6)
+                arrow_x = x + m.image.get_width() // 2 - arrow_w // 2
+                arrow_y = 40
                 if self.select_arrow:
-                    self.screen.blit(self.select_arrow, (x + 20, 40))
+                    # cache scaled arrow images by size to avoid repeated scaling
+                    if not hasattr(self, '_arrow_cache'):
+                        self._arrow_cache = {}
+                    cache_key = (arrow_w, arrow_h)
+                    if cache_key not in self._arrow_cache:
+                        try:
+                            self._arrow_cache[cache_key] = pygame.transform.scale(self.select_arrow, (arrow_w, arrow_h))
+                        except Exception:
+                            self._arrow_cache[cache_key] = None
+                    scaled = self._arrow_cache.get(cache_key)
+                    if scaled:
+                        self.screen.blit(scaled, (arrow_x, arrow_y))
+                    else:
+                        # fallback polygon sized relative to minion
+                        pygame.draw.polygon(self.screen, (255, 255, 255), [(arrow_x + arrow_w // 2, arrow_y), (arrow_x, arrow_y + arrow_h), (arrow_x + arrow_w, arrow_y + arrow_h)])
                 else:
-                    pygame.draw.polygon(self.screen, (255, 255, 255), [(x + 24, 48), (x + 14, 64), (x + 34, 64)])
+                    pygame.draw.polygon(self.screen, (255, 255, 255), [(arrow_x + arrow_w // 2, arrow_y), (arrow_x, arrow_y + arrow_h), (arrow_x + arrow_w, arrow_y + arrow_h)])
             x += 90
         # draw player
         self.player.draw(self.screen)
