@@ -130,6 +130,10 @@ class Game:
             self.player.move(-self.player.speed, self.screen.get_width())
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.player.move(self.player.speed, self.screen.get_width())
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            self.player.move_vertical(self.player.speed, self.screen.get_width()) 
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
+            self.player.move_vertical(-self.player.speed, self.screen.get_width())           
 
     def update(self) -> None:
         # update player statuses first (DoT / stun duration)

@@ -33,7 +33,14 @@ class Player:
             return
         self.x += dx
         self.x = max(self.radius, min(screen_width - self.radius, self.x))
-
+    
+    def move_vertical(self, dy: float, screen_width: int) -> None:
+        # movement is disabled while stunned
+        if self.is_stunned():
+            return
+        self.y += dy
+        self.y = max(self.radius, min(screen_width - self.radius, self.y))
+        
     def draw(self, surf: pygame.Surface) -> None:
         pygame.draw.line(surf, (255, 255, 255), (0, self.y), (surf.get_width(), self.y), 1)
         pygame.draw.circle(surf, (0, 0, 0), (int(self.x), int(self.y)), self.radius)
