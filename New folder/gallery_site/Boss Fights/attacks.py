@@ -118,7 +118,7 @@ class SideWallAttack(Attack):
         super().__init__(name="SideWall", element_type="wind", damage=dmg)
         self.side = side
         self.width_frac = width_frac
-        self.charge_time = 45
+        self.charge_time = 60
         self.active_time = 120
         self.max_number = 1
         self.damage = 0

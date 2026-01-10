@@ -309,7 +309,7 @@ class Game:
         self.screen.blit(perc_surf, (center_x - perc_surf.get_width() // 2, bar_y2 + (10 - perc_surf.get_height()) // 2))
 
         if self.player_turn:
-            prompt = self.font.render("Player Turn - Use ← → to choose target, SPACE to attack, H to heal", True, (255, 255, 255))
+            prompt = self.font.render("Player Turn - Use <- -> to choose target, SPACE to attack, H to heal", True, (255, 255, 255))
             self.screen.blit(prompt, (10, bar_y2 + 20))
 
     def draw(self) -> None:
@@ -331,9 +331,9 @@ class Game:
             self.screen.blit(hp_surf, (x + 20, 140))
             # show selection arrow if player_turn and selected (scaled to minion size)
             if self.player_turn and self.target_index == i + 1:
-                arrow_w = int(m.image.get_width() * 0.6)
-                arrow_h = int(arrow_w * 0.6)
-                arrow_x = x + m.image.get_width() // 2 - arrow_w // 2
+                arrow_w = 50
+                arrow_h = 50
+                arrow_x = x // 2 - arrow_w // 2
                 arrow_y = 40
                 if self.select_arrow:
                     # cache scaled arrow images by size to avoid repeated scaling
@@ -386,11 +386,29 @@ class Game:
 
         # draw player-turn target arrow over boss if selected
         if self.player_turn and self.target_index == 0:
-            w, _ = self.screen.get_size()
+            arrow_w = 50
+            arrow_h = 50
+            arrow_x = (self.screen.get_width() - arrow_w)// 2
+            arrow_y = 80
             if self.select_arrow:
-                self.screen.blit(self.select_arrow, (w // 2 - 32, 40))
+                # cache scaled arrow images by size to avoid repeated scaling
+                if not hasattr(self, '_arrow_cache'):
+                    self._arrow_cache = {}
+                cache_key = (arrow_w, arrow_h)
+                if cache_key not in self._arrow_cache:
+                    try:
+                        self._arrow_cache[cache_key] = pygame.transform.scale(self.select_arrow, (arrow_w, arrow_h))
+                    except Exception:
+                        self._arrow_cache[cache_key] = None
+                scaled = self._arrow_cache.get(cache_key)
+                if scaled:
+                    self.screen.blit(scaled, (arrow_x, arrow_y))
+                else:
+                    # fallback polygon sized relative to minion
+                    pygame.draw.polygon(self.screen, (255, 255, 255), [(arrow_x + arrow_w // 2, arrow_y), (arrow_x, arrow_y + arrow_h), (arrow_x + arrow_w, arrow_y + arrow_h)])
             else:
-                pygame.draw.polygon(self.screen, (255, 255, 255), [(w // 2, 48), (w // 2 - 12, 64), (w // 2 + 12, 64)])
+                pygame.draw.polygon(self.screen, (255, 255, 255), [(arrow_x + arrow_w // 2, arrow_y), (arrow_x, arrow_y + arrow_h), (arrow_x + arrow_w, arrow_y + arrow_h)])
+
         self.draw_ui()
         fps_surf = self.font.render(str(int(self.clock.get_fps())), True, (255, 255, 255))
         self.screen.blit(fps_surf, (self.screen.get_width() - 30, 10))
