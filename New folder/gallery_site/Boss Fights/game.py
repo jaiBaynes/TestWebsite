@@ -48,9 +48,16 @@ class Game:
 
         self.font = pygame.font.SysFont(None, 20)
         # player-turn state
-        self.player_turn = False
+        self.player_turn = False        
         self.target_index = 0  # 0 = boss, 1+ = minions
 
+    def turn_swap(self):
+        if self.player_turn:
+            self.player_turn = False
+        else:
+            self.player_turn = True
+        self.player.player_turn = self.player_turn
+        
     def boss_img_center_x(self) -> int:
         w, _ = self.screen.get_size()
         return w // 2
@@ -104,7 +111,7 @@ class Game:
                 # player-turn toggles
                 if event.key == pygame.K_RETURN and self.player.attack_gauge >= 100 and not self.player_turn:
                     # enter player turn
-                    self.player_turn = True
+                    self.turn_swap()
                     self.target_index = 0
                 elif self.player_turn:
                     if event.key == pygame.K_LEFT:
@@ -115,11 +122,11 @@ class Game:
                     elif event.key == pygame.K_h:
                         self.player.hp = self.player.max_hp
                         self.player.attack_gauge = 0.0
-                        self.player_turn = False                        
+                        self.turn_swap()
                     elif event.key == pygame.K_SPACE:
                         # commit attack
                         self.player_attack()
-                        self.player_turn = False
+                        self.turn_swap()
                         if self.boss.hp <= 0:
                             print("Boss defeated.")
                             self.running = False                        

@@ -26,20 +26,21 @@ class Player:
         self.attack_gauge = 0.0
         # statuses: dict[name] = {'remaining': frames, 'dps': float, 'acc': float, 'meta': {...}}
         self.statuses = {}
+        self.player_turn = False
 
     def move(self, dx: float, screen_width: int) -> None:
-        # movement is disabled while stunned
-        if self.is_stunned():
+        # movement is disabled while stunned or it is the player's turn
+        if self.is_stunned() or self.player_turn:
             return
         self.x += dx
         self.x = max(self.radius, min(screen_width - self.radius, self.x))
     
-    def move_vertical(self, dy: float, screen_width: int) -> None:
-        # movement is disabled while stunned
-        if self.is_stunned():
+    def move_vertical(self, dy: float, screen_height: int) -> None:
+        # movement is disabled while stunned or it is the player's turn
+        if self.is_stunned() or self.player_turn:
             return
         self.y += dy
-        self.y = max(self.radius, min(screen_width - self.radius, self.y))
+        self.y = max(self.radius, min(screen_height - self.radius, self.y))
         
     def draw(self, surf: pygame.Surface) -> None:
         pygame.draw.line(surf, (255, 255, 255), (0, self.y), (surf.get_width(), self.y), 1)
