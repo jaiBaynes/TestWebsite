@@ -43,6 +43,33 @@
       </div>
     </div>
     
+    <!-- Boss Fights Embedded Game -->
+    <div class="game-section">
+      <div class="game-card">
+        <div class="game-card-header">
+          <h2>⚔️ Boss Fights</h2>
+          <p>Play the boss fight mini-game right in your browser.</p>
+        </div>
+        <div class="game-controls">
+          <button id="launchBossBtn" class="btn-generate" onclick="showBossGame()">
+            ▶️ Launch Boss Fights
+          </button>
+          <button id="tryLocalBtn" class="btn-generate" onclick="useLocalDev()" style="display:none;">
+            🛠 Use Local Dev Server
+          </button>
+          <label style="margin-left: 12px;">
+            <input type="checkbox" id="muteGameChk" onchange="toggleMuteGame(this.checked)" />
+            Mute game (stop audio)
+          </label>
+          <a id="openNewWin" href="/games/bossfights/index.html" target="_blank" style="margin-left:12px;">Open in new window</a>
+        </div>
+
+        <div id="bossContainer" style="display:none; margin-top:20px;">
+          <iframe id="bossIframe" src="/games/bossfights/index.html" width="100%" height="650" frameborder="0" allow="autoplay; fullscreen"></iframe>
+        </div>
+      </div>
+    </div>
+
     <!-- Placeholder for future games -->
     <div class="game-section">
       <div class="game-card coming-soon">
@@ -131,6 +158,52 @@ function displayCharacters(characters) {
     grid.appendChild(slot);
   });
 }
+
+// Boss Fights embed helpers
+let bossDefaultSrc = '/games/bossfights/index.html';
+let bossDevSrc = 'http://localhost:8000/';
+let bossCurrentSrc = bossDefaultSrc;
+let bossSavedSrc = bossDefaultSrc;
+
+async function probeLocalDev() {
+  try {
+    await fetch(bossDevSrc, { mode: 'no-cors' });
+    document.getElementById('tryLocalBtn').style.display = 'inline-block';
+  } catch (e) {
+    // local dev not available
+  }
+}
+
+// probe as soon as the page loads
+probeLocalDev();
+
+function showBossGame() {
+  document.getElementById('bossContainer').style.display = 'block';
+  const iframe = document.getElementById('bossIframe');
+  iframe.src = bossCurrentSrc;
+  iframe.scrollIntoView({behavior:'smooth'});
+}
+
+function useLocalDev() {
+  bossSavedSrc = document.getElementById('bossIframe').src || bossDefaultSrc;
+  bossCurrentSrc = bossDevSrc;
+  document.getElementById('bossIframe').src = bossCurrentSrc;
+  document.getElementById('openNewWin').href = bossCurrentSrc;
+}
+
+function toggleMuteGame(mute) {
+  const iframe = document.getElementById('bossIframe');
+  if (mute) {
+    if (iframe.src && iframe.src !== 'about:blank') {
+      iframe.dataset.prevsrc = iframe.src;
+      iframe.src = 'about:blank';
+    }
+  } else {
+    const prev = iframe.dataset.prevsrc || bossCurrentSrc;
+    iframe.src = prev;
+  }
+}
+
 </script>
 
 <style>
