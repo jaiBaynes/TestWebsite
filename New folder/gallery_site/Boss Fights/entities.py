@@ -81,7 +81,7 @@ class Boss:
     Boss.schedule_attack will instantiate attacks and add to boss.active_attacks.
     """
 
-    def __init__(self, name: str, characterTitle: str, strength: int, speed: int, durability: int, regeneration: int, supernatural: int, color: Tuple[int, int, int], image_file: str, artist: str, attacks: list, max_hp: int = 100):
+    def __init__(self, name: str, characterTitle: str, strength: int, speed: int, durability: int, regeneration: int, supernatural: int, color: Tuple[int, int, int], image_file: str, artist: str, boss_image: str, transform: str, max_hp: int, attacks: list):
         self.name = name
         self.characterTitle = characterTitle
         self.strength = strength
@@ -98,7 +98,10 @@ class Boss:
         self.hp = float(self.max_hp)
         self.image_file = image_file
         self.image: Optional[pygame.Surface] = None
-
+        self.transform = transform
+        self.boss_image_file = boss_image
+        self.boss_image: Optional[pygame.Surface] = None
+        
     def ensure_image(self, size: Tuple[int, int]) -> None:
         if self.image is None:
             try:
@@ -137,6 +140,11 @@ class Boss:
         w, h = game.screen.get_size()
         self.ensure_image((w, h))
         game.screen.blit(self.image, (0, 0))
+        
+        if self.boss_image_file != None:
+            self.boss_image = pygame.transform.scale(load_image(self.boss_image_file), (2*w//3,2*h//3))
+            game.screen.blit(self.boss_image, (w//6, h//6))
+            
 
     def take_damage(self, amount: int) -> None:
         self.hp -= amount
@@ -163,5 +171,5 @@ class Minion(Boss):
             return "Aquila.png"
 
         img = image_file if image_file else _guess_image(name)
-        super().__init__(name, name, 1, 10, 1, 0, 0, (200, 200, 200), img, artist, attacks=[])
+        super().__init__(name, name, 1, 10, 1, 0, 0, (200, 200, 200), img, artist, None,None, attacks=[])
         self.hp = hp

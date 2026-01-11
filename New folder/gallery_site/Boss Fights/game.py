@@ -51,6 +51,9 @@ class Game:
         self.player_turn = False        
         self.target_index = 0  # 0 = boss, 1+ = minions
 
+    def transform_boss(self):
+        self.boss = self.create_boss(self.boss.transform)
+            
     def turn_swap(self):
         if self.player_turn:
             self.player_turn = False
@@ -65,10 +68,16 @@ class Game:
     def create_boss(self, name: str) -> Boss:
         """Factory to create bosses by name."""
         if name == "Zeus":
-            return Boss("Zeus", "Storm God-King of Olympus", 12, 45, 12, 6, 12, (255, 255, 0), "Zeus Boss Image.png", "philipe_sca",
+            return Boss("Zeus", "Storm God-King of Olympus", 12, 45, 12, 6, 12, (255, 255, 0), "Zeus Boss Image.png", "philipe_sca", None, None, 500,
                         attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])
+        elif name == "Aquila":
+            return Boss("Caucasian Eagle", "Storm Eagle of Zeus", 12, 45, 12, 6, 12, (255, 255, 0), "Storm Background.png", "the.creature.keeper", "Aquila.png", "Storm Aquila", 100,
+                        attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])
+        elif name == "Storm Aquila":
+            return Boss("Caucasian Eagle", "Storm Eagle of Zeus", 12, 45, 12, 6, 12, (255, 255, 0), "Storm Background.png", "the.creature.keeper", "Aquila Storm.png", "None", 150,
+                        attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])        
         elif name == "Hades":
-            return Boss("Hades", "Lord of the Underworld", 15, 60, 8, 8, 14, (200, 80, 40), "Hades Boss Image.png", "me_placeholder",
+            return Boss("Hades", "Lord of the Underworld", 15, 60, 8, 8, 14, (200, 80, 40), "Hades Boss Image.png", "me_placeholder", None, None, 500,
                         attacks=[attacks_mod.FireBlast, attacks_mod.FireWall, attacks_mod.BidentAttack, lambda: attacks_mod.MinionSpawn(minion_name='CerberusHead')])
         else:
             raise ValueError(f"Unknown boss: {name}")
@@ -128,8 +137,11 @@ class Game:
                         self.player_attack()
                         self.turn_swap()
                         if self.boss.hp <= 0:
-                            print("Boss defeated.")
-                            self.running = False                        
+                            if self.boss.transform != None:
+                                self.transform_boss()                            
+                            else:
+                                print("Boss defeated.")
+                                self.running = False                        
 
         # continuous movement
         keys = pygame.key.get_pressed()

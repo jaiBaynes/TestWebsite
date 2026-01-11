@@ -28,7 +28,7 @@ MINION_LIMITS = {
 }
 
 # Default boss selected by website / external launcher (Zeus or Hades)
-DEFAULT_BOSS = 'Zeus'
+DEFAULT_BOSS = "Aquila" #'Zeus'
 
 # Custom boss HP bar mappings: maps boss name -> {frame: frame_image, fill: fill_image}
 BOSS_HP_BARS = {
