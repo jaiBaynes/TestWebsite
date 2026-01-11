@@ -152,6 +152,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.10-x64-mingw-ucrt)
       racc (~> 1.4)
+    nokogiri (1.18.10-x86_64-linux-gnu)
+      racc (~> 1.4)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -230,6 +232,7 @@ GEM
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
     sqlite3 (1.7.3-arm64-darwin)
+    sqlite3 (1.7.3-x86_64-linux)
     stringio (3.1.8)
     thor (1.4.0)
     timeout (0.4.4)
@@ -255,6 +258,7 @@ GEM
 PLATFORMS
   arm64-darwin-24
   x64-mingw-ucrt
+  x86_64-linux
 
 DEPENDENCIES
   bootsnap

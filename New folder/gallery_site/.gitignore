@@ -37,3 +37,9 @@
 # Ignore macOS system files
 .DS_Store
 */.DS_Store
+
+# Ignore bundler vendor directory (local install of gems)
+/vendor/bundle
+
+# Ignore local sqlite databases
+/db/*.sqlite3
