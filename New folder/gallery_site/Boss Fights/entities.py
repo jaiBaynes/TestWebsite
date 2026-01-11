@@ -133,7 +133,7 @@ class Boss:
                 self.active_attacks.remove(atk)
 
         # regeneration
-        self.hp = min(100, self.hp + self.regeneration * 0.01)
+        self.hp = min(self.max_hp, self.hp + self.regeneration * 0.01)
 
     def draw(self, game: "Game") -> None:
         # Draw the boss image scaled to fill the entire background
@@ -171,5 +171,5 @@ class Minion(Boss):
             return "Aquila.png"
 
         img = image_file if image_file else _guess_image(name)
-        super().__init__(name, name, 1, 10, 1, 0, 0, (200, 200, 200), img, artist, None,None, attacks=[])
+        super().__init__(name, name, 1, 10, 1, 0, 0, (200, 200, 200), img, artist, None,None, 10, attacks=[])
         self.hp = hp

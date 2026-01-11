@@ -68,10 +68,10 @@ class Game:
     def create_boss(self, name: str) -> Boss:
         """Factory to create bosses by name."""
         if name == "Zeus":
-            return Boss("Zeus", "Storm God-King of Olympus", 12, 45, 12, 6, 12, (255, 255, 0), "Zeus Boss Image.png", "philipe_sca", None, None, 500,
+            return Boss("Zeus", "Storm God-King of Olympus", 12, 45, 12, 20, 12, (255, 255, 0), "Zeus Boss Image.png", "philipe_sca", None, None, 500,
                         attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])
         elif name == "Aquila":
-            return Boss("Caucasian Eagle", "Storm Eagle of Zeus", 12, 45, 12, 6, 12, (255, 255, 0), "Storm Background.png", "the.creature.keeper", "Aquila.png", "Storm Aquila", 100,
+            return Boss("Caucasian Eagle", "Storm Eagle of Zeus", 12, 45, 12, 0, 12, (255, 255, 0), "Storm Background.png", "the.creature.keeper", "Aquila.png", "Storm Aquila", 100,
                         attacks=[attacks_mod.LightningStrikeAttack, lambda: attacks_mod.SideWallAttack(side=random.choice(("left","right"))), attacks_mod.HomingCloud, attacks_mod.RisingTornado, attacks_mod.MinionSpawn])
         elif name == "Storm Aquila":
             return Boss("Caucasian Eagle", "Storm Eagle of Zeus", 12, 45, 12, 6, 12, (255, 255, 0), "Storm Background.png", "the.creature.keeper", "Aquila Storm.png", "None", 150,
@@ -137,7 +137,7 @@ class Game:
                         self.player_attack()
                         self.turn_swap()
                         if self.boss.hp <= 0:
-                            if self.boss.transform != None:
+                            if self.boss.transform != None and self.boss.transform != "None":
                                 self.transform_boss()                            
                             else:
                                 print("Boss defeated.")
@@ -220,7 +220,7 @@ class Game:
             # try boss-specific HP bar images if mapped in config
             from config import BOSS_HP_BARS
             mapped = BOSS_HP_BARS.get(self.boss.name)
-            frac = max(0.0, min(1.0, self.boss.hp / getattr(self.boss, 'max_hp', 100)))
+            frac = max(0.0, min(1.0, self.boss.hp / getattr(self.boss, 'max_hp', self.boss.max_hp)))
 
             if mapped:
                 # compute a frame height slightly taller than the fill bar (frame surrounds the thin fill)
@@ -253,7 +253,7 @@ class Game:
                     fill_y = y + (frame_h - bar_h) // 2
                     self.screen.blit(fill_scaled.subsurface((0, 0, fill_w, bar_h)), (x, fill_y))
                     self.screen.blit(frame_scaled, (x - bar_w*0.1, y))
-                    hp_text = f"HP {int(self.boss.hp)}/{int(getattr(self.boss,'max_hp',100))}"
+                    hp_text = f"HP {int(self.boss.hp)}/{int(getattr(self.boss,'max_hp',self.boss.max_hp))}"
                     hp_surf = self.font.render(hp_text, True, (255, 255, 255))
                     self.screen.blit(hp_surf, (x + bar_w // 2 - hp_surf.get_width() // 2, y + frame_h // 2 - hp_surf.get_height() // 2))
                 else:
@@ -265,7 +265,7 @@ class Game:
                 self.screen.blit(overlay, (x - 4, y - 4))
                 pygame.draw.rect(self.screen, (60, 60, 60), pygame.Rect(x, y, bar_w, bar_h))
                 pygame.draw.rect(self.screen, (200, 60, 60), pygame.Rect(x, y, int(bar_w * frac), bar_h))
-                hp_text = f"HP {int(self.boss.hp)}/{int(getattr(self.boss,'max_hp',100))}"
+                hp_text = f"HP {int(self.boss.hp)}/{int(getattr(self.boss,'max_hp',self.boss.max_hp))}"
                 hp_surf = self.font.render(hp_text, True, (255, 255, 255))
                 self.screen.blit(hp_surf, (x + bar_w // 2 - hp_surf.get_width() // 2, y + bar_h // 2 - hp_surf.get_height() // 2))
 
@@ -322,7 +322,7 @@ class Game:
 
         if self.player_turn:
             prompt = self.font.render("Player Turn - Use <- -> to choose target, SPACE to attack, H to heal", True, (255, 255, 255))
-            self.screen.blit(prompt, (10, bar_y2 + 20))
+            self.screen.blit(prompt, (hp_x, bar_y2 + 20))
 
     def draw(self) -> None:
         self.screen.fill((30, 30, 40))
