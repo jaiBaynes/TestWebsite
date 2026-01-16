@@ -1,1 +1,0 @@
-This file is locked. The only way to get to it is if you enter the password found at the end of Act 1 in the book. The password is TestPassword
