@@ -29,6 +29,7 @@ function loadImage(src) {
   });
 }
 
+
 function rectCircleCollide(rect, cx, cy, radius) {
   const closestX = Math.max(rect.x, Math.min(cx, rect.x + rect.width));
   const closestY = Math.max(rect.y, Math.min(cy, rect.y + rect.height));
@@ -49,6 +50,24 @@ class Player {
     this.attackGauge = 0;
     this.statuses = {};
     this.playerTurn = false;
+    this.chargeLevel = 0; // 0 = no charge, 1 = 2.5x, 2 = 6.25x
+    this.maxCharges = 2;
+  }
+
+  getChargeMult() {
+    return Math.pow(2.5, this.chargeLevel);
+  }
+
+  addCharge() {
+    if (this.chargeLevel < this.maxCharges) {
+      this.chargeLevel++;
+      return true;
+    }
+    return false;
+  }
+
+  resetCharge() {
+    this.chargeLevel = 0;
   }
 
   move(dx, screenWidth) {
@@ -237,6 +256,8 @@ class SideWallAttack extends Attack {
     this.widthFrac = 0.25;
     this.chargeTime = 60;
     this.activeTime = 120;
+    this.pushStrength = 4; // How hard the wind pushes
+    this.continuous = true; // Continuous effect while in area
   }
 
   spawn(game) {
@@ -249,25 +270,41 @@ class SideWallAttack extends Attack {
       : { x: w - width, y: 0, width, height: h };
   }
 
+  // Continuous push effect - called every frame when active
+  applyContinuousEffect(player, game) {
+    if (this.state !== 'active') return;
+    
+    // Check if player is in the wind area
+    if (this.checkCollision(player)) {
+      // Push player away from the wind source
+      const pushDir = this.side === 'left' ? 1 : -1;
+      player.x += this.pushStrength * pushDir;
+      // Keep player in bounds
+      player.x = Math.max(player.radius, Math.min(game.canvas.width - player.radius, player.x));
+    }
+  }
+
   draw(ctx) {
     const alpha = this.state === 'charging' ? 0.3 : 0.6;
     ctx.fillStyle = `rgba(150, 100, 200, ${alpha})`;
     ctx.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
     
-    // Draw tornado swirl effect
+    // Draw wind direction arrows
     if (this.state === 'active') {
       ctx.strokeStyle = 'rgba(200, 150, 255, 0.8)';
       ctx.lineWidth = 3;
+      const arrowDir = this.side === 'left' ? 1 : -1;
       for (let i = 0; i < 5; i++) {
         const y = this.rect.y + (this.rect.height / 5) * i + Date.now() / 50 % (this.rect.height / 5);
+        const startX = this.side === 'left' ? this.rect.x : this.rect.x + this.rect.width;
+        const endX = this.side === 'left' ? this.rect.x + this.rect.width : this.rect.x;
         ctx.beginPath();
-        ctx.moveTo(this.rect.x, y);
-        ctx.quadraticCurveTo(
-          this.rect.x + this.rect.width / 2,
-          y + 30,
-          this.rect.x + this.rect.width,
-          y
-        );
+        ctx.moveTo(startX, y);
+        ctx.lineTo(endX, y);
+        // Arrow head
+        ctx.lineTo(endX - arrowDir * 10, y - 10);
+        ctx.moveTo(endX, y);
+        ctx.lineTo(endX - arrowDir * 10, y + 10);
         ctx.stroke();
       }
     }
@@ -516,7 +553,7 @@ class BidentAttack extends Attack {
 class MinionSpawn extends Attack {
   constructor(minionName = 'Aquila') {
     super(`MinionSpawn_${minionName}`, 'summon', 0);
-    this.chargeTime = 30;
+    this.chargeTime = 1800; // 30 seconds at 60fps
     this.activeTime = 1;
     this.minionName = minionName;
     this.maxAllowed = MINION_LIMITS[minionName] || 1;
@@ -1190,7 +1227,7 @@ class DarkVeil extends Attack {
 
 // ============= MINION CLASS =============
 class Minion {
-  constructor(name, hp = 10) {
+  constructor(name, hp = 10, game = null) {
     this.name = name;
     this.hp = hp;
     this.maxHp = hp;
@@ -1198,6 +1235,26 @@ class Minion {
     this.activeAttacks = [];
     this.image = null;
     this.imageFile = this.guessImage(name);
+    
+    // Monster heads (Cerberus, Hydra) appear on sides and fire beams
+    this.isMonsterHead = ['CerberusHead', 'HydraHead'].includes(name);
+    if (this.isMonsterHead) {
+      // Assign to left or right side randomly
+      this.side = Math.random() < 0.5 ? 'left' : 'right';
+      // Vertical position (spread out on the side)
+      this.yPos = 0.2 + Math.random() * 0.4; // Between 20% and 60% of screen height
+      // Beam attack properties
+      this.beamCooldown = 0;
+      this.beamMaxCooldown = 180; // 3 seconds between beams
+      this.beamActive = false;
+      this.beamTimer = 0;
+      this.beamDuration = 40; // How long the beam is active
+      this.beamCharging = false;
+      this.beamChargeTimer = 0;
+      this.beamChargeTime = 60; // 1 second charge time
+      // Element type based on monster
+      this.beamElement = name === 'CerberusHead' ? 'fire' : 'poison';
+    }
   }
 
   guessImage(name) {
@@ -1210,6 +1267,141 @@ class Minion {
       'ShadowMinion': 'hecate_1.png'
     };
     return mappings[name] || 'Aquila.png';
+  }
+
+  update(game) {
+    if (!this.isMonsterHead) return;
+    
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    
+    // Handle beam attack cycle
+    if (this.beamActive) {
+      this.beamTimer++;
+      if (this.beamTimer >= this.beamDuration) {
+        this.beamActive = false;
+        this.beamTimer = 0;
+        this.beamCooldown = this.beamMaxCooldown;
+      }
+      
+      // Check beam collision with player
+      const beamY = h * this.yPos;
+      const beamHeight = 30;
+      if (game.player.y >= beamY - beamHeight / 2 && 
+          game.player.y <= beamY + beamHeight / 2) {
+        // Player is in beam path
+        const damage = this.beamElement === 'fire' ? CONFIG.fire.base_damage : CONFIG.poison.base_damage;
+        game.player.hp -= damage * 0.05; // Damage per frame
+        
+        // Apply status effect
+        if (this.beamElement === 'fire') {
+          game.player.addStatus('burn', CONFIG.fire.burn_seconds * FPS, CONFIG.fire.burn_dps);
+        } else {
+          game.player.addStatus('poison', CONFIG.poison.poison_seconds * FPS, CONFIG.poison.poison_dps);
+        }
+      }
+    } else if (this.beamCharging) {
+      this.beamChargeTimer++;
+      if (this.beamChargeTimer >= this.beamChargeTime) {
+        this.beamCharging = false;
+        this.beamActive = true;
+        this.beamChargeTimer = 0;
+      }
+    } else {
+      // Cooldown
+      if (this.beamCooldown > 0) {
+        this.beamCooldown--;
+      } else {
+        // Start charging beam
+        this.beamCharging = true;
+      }
+    }
+  }
+
+  draw(ctx, game, index) {
+    if (this.isMonsterHead) {
+      this.drawMonsterHead(ctx, game, index);
+    }
+  }
+
+  drawMonsterHead(ctx, game, index) {
+    const w = ctx.canvas.width;
+    const h = ctx.canvas.height;
+    const headSize = 70;
+    
+    // Position on side of screen
+    const x = this.side === 'left' ? 10 : w - headSize - 10;
+    const y = h * this.yPos - headSize / 2;
+    
+    // Draw head background
+    const color = this.beamElement === 'fire' ? 'rgba(180, 60, 40, 0.9)' : 'rgba(60, 140, 80, 0.9)';
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x + headSize / 2, y + headSize / 2, headSize / 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw eyes
+    ctx.fillStyle = this.beamCharging ? '#ffff00' : (this.beamActive ? '#ff0000' : '#fff');
+    const eyeOffset = this.side === 'left' ? 10 : -10;
+    ctx.beginPath();
+    ctx.arc(x + headSize / 2 + eyeOffset - 10, y + headSize / 3, 8, 0, Math.PI * 2);
+    ctx.arc(x + headSize / 2 + eyeOffset + 10, y + headSize / 3, 8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw HP bar above head
+    const hpFrac = this.hp / this.maxHp;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(x, y - 12, headSize, 8);
+    ctx.fillStyle = '#cc3333';
+    ctx.fillRect(x, y - 12, headSize * hpFrac, 8);
+    
+    // Draw name
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(this.name, x + headSize / 2, y - 16);
+    ctx.textAlign = 'left';
+    
+    // Draw beam charge indicator
+    if (this.beamCharging) {
+      const chargeFrac = this.beamChargeTimer / this.beamChargeTime;
+      const beamColor = this.beamElement === 'fire' 
+        ? `rgba(255, ${Math.floor(100 + 100 * (1 - chargeFrac))}, 0, ${0.3 + chargeFrac * 0.4})`
+        : `rgba(0, 255, 100, ${0.3 + chargeFrac * 0.4})`;
+      ctx.fillStyle = beamColor;
+      
+      const beamY = h * this.yPos;
+      const startX = this.side === 'left' ? x + headSize : 0;
+      const endX = this.side === 'left' ? w : x;
+      ctx.fillRect(startX, beamY - 5, (endX - startX) * chargeFrac, 10);
+    }
+    
+    // Draw active beam
+    if (this.beamActive) {
+      const beamY = h * this.yPos;
+      const startX = this.side === 'left' ? x + headSize : 0;
+      const endX = this.side === 'left' ? w : x;
+      
+      // Main beam
+      const beamGradient = ctx.createLinearGradient(0, beamY - 15, 0, beamY + 15);
+      if (this.beamElement === 'fire') {
+        beamGradient.addColorStop(0, 'rgba(255, 200, 0, 0.3)');
+        beamGradient.addColorStop(0.5, 'rgba(255, 100, 0, 0.9)');
+        beamGradient.addColorStop(1, 'rgba(255, 200, 0, 0.3)');
+      } else {
+        beamGradient.addColorStop(0, 'rgba(100, 255, 100, 0.3)');
+        beamGradient.addColorStop(0.5, 'rgba(50, 200, 100, 0.9)');
+        beamGradient.addColorStop(1, 'rgba(100, 255, 100, 0.3)');
+      }
+      ctx.fillStyle = beamGradient;
+      ctx.fillRect(startX, beamY - 15, endX - startX, 30);
+      
+      // Glow effect
+      ctx.shadowColor = this.beamElement === 'fire' ? '#ff6600' : '#00ff66';
+      ctx.shadowBlur = 20;
+      ctx.fillRect(startX, beamY - 10, endX - startX, 20);
+      ctx.shadowBlur = 0;
+    }
   }
 
   takeDamage(amount) {
@@ -1231,6 +1423,8 @@ class Boss {
     this.color = config.color;
     this.imageFile = config.imageFile;
     this.bossImageFile = config.bossImageFile;
+    this.backgroundFile = config.backgroundFile || null; // Separate background
+    this.useImageAsBossSprite = config.useImageAsBossSprite || false; // If true, imageFile is character sprite on storm bg
     this.transform = config.transform;
     this.maxHp = config.maxHp;
     this.hp = this.maxHp;
@@ -1238,6 +1432,7 @@ class Boss {
     this.activeAttacks = [];
     this.image = null;
     this.bossImage = null;
+    this.backgroundImage = null;
     this.difficulty = config.difficulty || 'medium';
   }
 
@@ -1272,19 +1467,41 @@ class Boss {
   }
 
   draw(ctx, game) {
-    // Draw background image
-    if (this.image) {
+    // Draw background image (or storm background as default)
+    if (this.backgroundImage) {
+      ctx.drawImage(this.backgroundImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    } else if (this.image && !this.useImageAsBossSprite) {
+      // Image is the full background (Zeus, Hades style)
       ctx.drawImage(this.image, 0, 0, ctx.canvas.width, ctx.canvas.height);
     } else {
+      // Fallback solid color
       ctx.fillStyle = `rgb(${this.color[0]}, ${this.color[1]}, ${this.color[2]})`;
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
-    // Draw boss image overlay
-    if (this.bossImage) {
-      const bw = ctx.canvas.width * 2 / 3;
-      const bh = ctx.canvas.height * 2 / 3;
-      ctx.drawImage(this.bossImage, ctx.canvas.width / 6, ctx.canvas.height / 6, bw, bh);
+    // Draw boss character image in center with proper aspect ratio
+    const spriteImg = this.bossImage || (this.image && this.useImageAsBossSprite ? this.image : null);
+    if (spriteImg) {
+      // Calculate dimensions that fit within the available space while maintaining aspect ratio
+      const maxW = ctx.canvas.width * 0.5;
+      const maxH = ctx.canvas.height * 0.6;
+      const imgRatio = spriteImg.naturalWidth / spriteImg.naturalHeight;
+      const maxRatio = maxW / maxH;
+      
+      let bw, bh;
+      if (imgRatio > maxRatio) {
+        // Image is wider than space - fit by width
+        bw = maxW;
+        bh = maxW / imgRatio;
+      } else {
+        // Image is taller than space - fit by height
+        bh = maxH;
+        bw = maxH * imgRatio;
+      }
+      
+      const bx = (ctx.canvas.width - bw) / 2;
+      const by = ctx.canvas.height * 0.1 + (maxH - bh) / 2; // Center vertically in the available space
+      ctx.drawImage(spriteImg, bx, by, bw, bh);
     }
   }
 
@@ -1375,6 +1592,7 @@ function createBoss(name) {
       color: [50, 120, 80],
       imageFile: 'hydra_1.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: 'Hydra Monster',
       maxHp: 200,
       difficulty: 'medium',
@@ -1393,6 +1611,7 @@ function createBoss(name) {
       color: [40, 100, 60],
       imageFile: 'hydra_2.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 350,
       difficulty: 'medium',
@@ -1413,6 +1632,7 @@ function createBoss(name) {
       color: [255, 200, 50],
       imageFile: 'apollo.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 400,
       difficulty: 'medium',
@@ -1432,6 +1652,7 @@ function createBoss(name) {
       color: [50, 100, 180],
       imageFile: 'neptune_1.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 500,
       difficulty: 'hard',
@@ -1450,6 +1671,7 @@ function createBoss(name) {
       color: [180, 180, 200],
       imageFile: 'mercury.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 250,
       difficulty: 'easy',
@@ -1468,6 +1690,7 @@ function createBoss(name) {
       color: [255, 150, 180],
       imageFile: 'venus.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 300,
       difficulty: 'easy',
@@ -1487,6 +1710,7 @@ function createBoss(name) {
       color: [80, 40, 40],
       imageFile: 'cerberus_1.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 600,
       difficulty: 'hard',
@@ -1506,6 +1730,7 @@ function createBoss(name) {
       color: [150, 50, 80],
       imageFile: 'megaera.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 350,
       difficulty: 'medium',
@@ -1525,6 +1750,7 @@ function createBoss(name) {
       color: [80, 50, 120],
       imageFile: 'hecate_1.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 400,
       difficulty: 'medium',
@@ -1544,6 +1770,7 @@ function createBoss(name) {
       color: [60, 80, 50],
       imageFile: 'python_1.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 450,
       difficulty: 'medium',
@@ -1564,6 +1791,7 @@ function createBoss(name) {
       color: [180, 140, 80],
       imageFile: 'hercules.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 600,
       difficulty: 'hard',
@@ -1583,6 +1811,7 @@ function createBoss(name) {
       color: [100, 150, 200],
       imageFile: 'melissa_1.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 400,
       difficulty: 'medium',
@@ -1602,6 +1831,7 @@ function createBoss(name) {
       color: [150, 200, 150],
       imageFile: 'hebe.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 300,
       difficulty: 'easy',
@@ -1621,6 +1851,7 @@ function createBoss(name) {
       color: [80, 100, 60],
       imageFile: 'echidna_1.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 500,
       difficulty: 'hard',
@@ -1641,6 +1872,7 @@ function createBoss(name) {
       color: [100, 80, 120],
       imageFile: 'kat_1.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 200,
       difficulty: 'easy',
@@ -1659,6 +1891,7 @@ function createBoss(name) {
       color: [80, 60, 100],
       imageFile: 'draco.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 500,
       difficulty: 'hard',
@@ -1678,6 +1911,7 @@ function createBoss(name) {
       color: [120, 140, 180],
       imageFile: 'metis.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 350,
       difficulty: 'medium',
@@ -1696,6 +1930,7 @@ function createBoss(name) {
       color: [150, 120, 80],
       imageFile: 'scythia.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 350,
       difficulty: 'medium',
@@ -1714,6 +1949,7 @@ function createBoss(name) {
       color: [255, 180, 80],
       imageFile: 'terra_solaris.png',
       bossImageFile: null,
+      useImageAsBossSprite: true,
       transform: null,
       maxHp: 600,
       difficulty: 'hard',
@@ -1754,10 +1990,224 @@ class Game {
     
     this.imagesLoaded = false;
     this.loadAssets();
+    
+    // Touch/Click controls
+    this.setupTouchControls();
+  }
+
+  setupTouchControls() {
+    // Define button layout
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const btnSize = 50;
+    const margin = 10;
+    
+    this.touchButtons = {
+      // Movement buttons (left side)
+      left: { x: margin, y: h - btnSize * 2 - margin, w: btnSize, h: btnSize, label: '◀', key: 'ArrowLeft' },
+      right: { x: margin + btnSize * 2, y: h - btnSize * 2 - margin, w: btnSize, h: btnSize, label: '▶', key: 'ArrowRight' },
+      up: { x: margin + btnSize, y: h - btnSize * 3 - margin, w: btnSize, h: btnSize, label: '▲', key: 'ArrowUp' },
+      down: { x: margin + btnSize, y: h - btnSize - margin, w: btnSize, h: btnSize, label: '▼', key: 'ArrowDown' },
+      
+      // Action buttons (right side)
+      enter: { x: w - btnSize * 2 - margin, y: h - btnSize * 4 - margin, w: btnSize * 2, h: btnSize, label: 'ENTER', action: 'enter' },
+      targetLeft: { x: w - btnSize * 2 - margin * 2, y: h - btnSize * 3 - margin, w: btnSize, h: btnSize, label: '◁', action: 'targetLeft', turnOnly: true },
+      targetRight: { x: w - btnSize - margin, y: h - btnSize * 3 - margin, w: btnSize, h: btnSize, label: '▷', action: 'targetRight', turnOnly: true },
+      attack: { x: w - btnSize - margin, y: h - btnSize * 2 - margin, w: btnSize, h: btnSize, label: 'X', action: 'attack' },
+      charge: { x: w - btnSize * 2 - margin * 2, y: h - btnSize * 2 - margin, w: btnSize, h: btnSize, label: 'C', action: 'charge' },
+      heal: { x: w - btnSize - margin, y: h - btnSize - margin, w: btnSize, h: btnSize, label: 'H', action: 'heal' },
+    };
+    
+    // Touch/click handlers
+    this.canvas.addEventListener('mousedown', (e) => this.handlePointerDown(e));
+    this.canvas.addEventListener('mouseup', (e) => this.handlePointerUp(e));
+    this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+    this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+    
+    this.activeTouch = null;
+  }
+
+  getPointerPos(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  handleTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const pos = this.getPointerPos(touch);
+    this.handlePointerAction(pos, true);
+  }
+
+  handleTouchEnd(e) {
+    // Release all movement keys
+    for (const btn of Object.values(this.touchButtons)) {
+      if (btn.key) {
+        this.keys[btn.key] = false;
+      }
+    }
+  }
+
+  handlePointerDown(e) {
+    const pos = this.getPointerPos(e);
+    this.handlePointerAction(pos, true);
+  }
+
+  handlePointerUp(e) {
+    // Release all movement keys
+    for (const btn of Object.values(this.touchButtons)) {
+      if (btn.key) {
+        this.keys[btn.key] = false;
+      }
+    }
+  }
+
+  handlePointerAction(pos, isDown) {
+    for (const [name, btn] of Object.entries(this.touchButtons)) {
+      if (pos.x >= btn.x && pos.x <= btn.x + btn.w &&
+          pos.y >= btn.y && pos.y <= btn.y + btn.h) {
+        
+        if (btn.key) {
+          // Movement button - hold
+          this.keys[btn.key] = isDown;
+        } else if (btn.action && isDown) {
+          // Action button - trigger once
+          this.triggerAction(btn.action);
+        }
+        break;
+      }
+    }
+  }
+
+  triggerAction(action) {
+    switch (action) {
+      case 'enter':
+        if (this.player.attackGauge >= 100 && !this.playerTurn) {
+          this.playerTurn = true;
+          this.player.playerTurn = true;
+          this.targetIndex = 0;
+        }
+        break;
+      case 'targetLeft':
+        if (this.playerTurn) {
+          this.targetIndex = Math.max(0, this.targetIndex - 1);
+        }
+        break;
+      case 'targetRight':
+        if (this.playerTurn) {
+          this.targetIndex = Math.min(this.minions.length, this.targetIndex + 1);
+        }
+        break;
+      case 'attack':
+        if (this.playerTurn) {
+          this.playerAttack();
+          this.player.resetCharge();
+          this.playerTurn = false;
+          this.player.playerTurn = false;
+          
+          if (this.boss.hp <= 0) {
+            if (this.boss.transform) {
+              this.transformBoss();
+            } else {
+              this.victory = true;
+              this.gameOver = true;
+              this.recordVictory();
+            }
+          }
+        }
+        break;
+      case 'charge':
+        if (this.playerTurn && this.player.attackGauge >= 100 && 
+            this.player.chargeLevel < this.player.maxCharges) {
+          this.player.addCharge();
+          this.player.attackGauge = 0;
+          this.playerTurn = false;
+          this.player.playerTurn = false;
+        }
+        break;
+      case 'heal':
+        if (this.playerTurn) {
+          this.player.hp = this.player.maxHp;
+          this.player.attackGauge = 0;
+          this.player.resetCharge();
+          this.playerTurn = false;
+          this.player.playerTurn = false;
+        }
+        break;
+    }
+  }
+
+  drawTouchControls() {
+    const ctx = this.ctx;
+    
+    for (const [name, btn] of Object.entries(this.touchButtons)) {
+      // Skip turn-only buttons when not in player turn
+      if (btn.turnOnly && !this.playerTurn) continue;
+      
+      // Determine button visibility/state
+      let isEnabled = true;
+      let bgColor = 'rgba(60, 60, 80, 0.7)';
+      
+      if (name === 'enter' && (this.player.attackGauge < 100 || this.playerTurn)) {
+        isEnabled = false;
+        bgColor = 'rgba(40, 40, 50, 0.4)';
+      }
+      if ((name === 'attack' || name === 'heal' || name === 'charge') && !this.playerTurn) {
+        isEnabled = false;
+        bgColor = 'rgba(40, 40, 50, 0.4)';
+      }
+      if (name === 'charge' && this.player.chargeLevel >= this.player.maxCharges) {
+        isEnabled = false;
+        bgColor = 'rgba(40, 40, 50, 0.4)';
+      }
+      
+      // Button background
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
+      
+      // Border
+      ctx.strokeStyle = isEnabled ? 'rgba(255, 255, 255, 0.5)' : 'rgba(100, 100, 100, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
+      
+      // Highlight if active
+      if (btn.key && this.keys[btn.key]) {
+        ctx.fillStyle = 'rgba(100, 200, 100, 0.5)';
+        ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
+      }
+      
+      // Label
+      ctx.fillStyle = isEnabled ? '#fff' : 'rgba(255, 255, 255, 0.4)';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2);
+    }
+    
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
   }
 
   async loadAssets() {
     try {
+      // Load background first
+      if (this.boss.backgroundFile) {
+        this.boss.backgroundImage = await loadImage(this.boss.backgroundFile);
+      } else if (this.boss.useImageAsBossSprite) {
+        // Use storm background as default for bosses with sprite images
+        try {
+          this.boss.backgroundImage = await loadImage('Storm Background.png');
+        } catch (e) {
+          console.log('Storm background not found, using color fallback');
+        }
+      }
+      
+      // Load boss image
       if (this.boss.imageFile) {
         this.boss.image = await loadImage(this.boss.imageFile);
       }
@@ -1784,6 +2234,11 @@ class Game {
   handleKeyDown(e) {
     this.keys[e.code] = true;
 
+    // Prevent page scrolling on space
+    if (e.code === 'Space') {
+      e.preventDefault();
+    }
+
     if (e.code === 'Enter' && this.player.attackGauge >= 100 && !this.playerTurn) {
       this.playerTurn = true;
       this.player.playerTurn = true;
@@ -1793,14 +2248,25 @@ class Game {
         this.targetIndex = Math.max(0, this.targetIndex - 1);
       } else if (e.code === 'ArrowRight') {
         this.targetIndex = Math.min(this.minions.length, this.targetIndex + 1);
+      } else if (e.code === 'KeyC') {
+        // Charge attack (only if gauge is full and not at max charges)
+        if (this.player.attackGauge >= 100 && this.player.chargeLevel < this.player.maxCharges) {
+          this.player.addCharge();
+          this.player.attackGauge = 0; // Reset gauge after charging
+          this.playerTurn = false;
+          this.player.playerTurn = false;
+        }
       } else if (e.code === 'KeyH') {
-        // Heal
+        // Heal (resets charge)
         this.player.hp = this.player.maxHp;
         this.player.attackGauge = 0;
+        this.player.resetCharge();
         this.playerTurn = false;
         this.player.playerTurn = false;
-      } else if (e.code === 'Space') {
+      } else if (e.code === 'KeyX') {
+        // Attack (resets charge after dealing damage)
         this.playerAttack();
+        this.player.resetCharge();
         this.playerTurn = false;
         this.player.playerTurn = false;
         
@@ -1822,7 +2288,9 @@ class Game {
   }
 
   playerAttack() {
-    const dmg = 25 + Math.floor(this.player.attackGauge * 0.1);
+    const baseDmg = 25 + Math.floor(this.player.attackGauge * 0.1);
+    const chargeMult = this.player.getChargeMult();
+    const dmg = Math.floor(baseDmg * chargeMult);
     
     if (this.targetIndex === 0) {
       this.boss.takeDamage(dmg);
@@ -1864,9 +2332,23 @@ class Game {
       // Boss update
       this.boss.update(this);
 
-      // Check collisions
+      // Update minions (for monster head beam attacks)
+      for (const minion of this.minions) {
+        if (minion.update) {
+          minion.update(this);
+        }
+      }
+
+      // Apply continuous effects (like wind pushing)
       for (const atk of this.boss.activeAttacks) {
-        if (atk.state === 'active' && atk.checkCollision(this.player)) {
+        if (atk.continuous && atk.applyContinuousEffect) {
+          atk.applyContinuousEffect(this.player, this);
+        }
+      }
+
+      // Check collisions (one-time damage effects)
+      for (const atk of this.boss.activeAttacks) {
+        if (atk.state === 'active' && !atk.continuous && atk.checkCollision(this.player)) {
           atk.applyToPlayer(this.player, this);
           atk.state = 'finished';
         }
@@ -1912,13 +2394,29 @@ class Game {
     let mx = 20;
     for (let i = 0; i < this.minions.length; i++) {
       const m = this.minions[i];
-      this.ctx.fillStyle = 'rgba(200, 200, 200, 0.8)';
-      this.ctx.fillRect(mx, 60, 60, 60);
-      this.ctx.fillStyle = '#fff';
-      this.ctx.font = '14px sans-serif';
-      this.ctx.fillText(`${m.name}`, mx + 5, 75);
-      this.ctx.fillText(`HP: ${Math.floor(m.hp)}`, mx + 5, 110);
       
+      // Monster heads draw themselves on screen sides
+      if (m.isMonsterHead) {
+        m.draw(this.ctx, this, i);
+        // Still draw a small indicator in the minion bar
+        this.ctx.fillStyle = m.beamElement === 'fire' ? 'rgba(180, 60, 40, 0.8)' : 'rgba(60, 140, 80, 0.8)';
+        this.ctx.fillRect(mx, 60, 60, 60);
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = '10px sans-serif';
+        this.ctx.fillText(`${m.name}`, mx + 2, 75);
+        this.ctx.fillText(`HP: ${Math.floor(m.hp)}`, mx + 2, 90);
+        this.ctx.fillText(`[${m.side}]`, mx + 2, 105);
+      } else {
+        // Regular minions - draw in the top bar
+        this.ctx.fillStyle = 'rgba(200, 200, 200, 0.8)';
+        this.ctx.fillRect(mx, 60, 60, 60);
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = '14px sans-serif';
+        this.ctx.fillText(`${m.name}`, mx + 5, 75);
+        this.ctx.fillText(`HP: ${Math.floor(m.hp)}`, mx + 5, 110);
+      }
+      
+      // Draw selection arrow
       if (this.playerTurn && this.targetIndex === i + 1) {
         this.ctx.fillStyle = '#ffff00';
         this.ctx.beginPath();
@@ -1951,6 +2449,9 @@ class Game {
 
     // Draw UI
     this.drawUI();
+
+    // Draw touch controls
+    this.drawTouchControls();
 
     // Draw game over screen
     if (this.gameOver) {
@@ -2051,15 +2552,31 @@ class Game {
     this.ctx.fillStyle = '#000';
     this.ctx.fillText(`${Math.floor(gaugeFrac * 100)}%`, px + playerBarW / 2, py + 28);
 
+    // Charge indicator
+    if (this.player.chargeLevel > 0) {
+      const chargeY = py + 34;
+      const chargeColors = ['#ff8800', '#ff0088'];
+      for (let i = 0; i < this.player.chargeLevel; i++) {
+        this.ctx.fillStyle = chargeColors[i] || '#ff0088';
+        this.ctx.beginPath();
+        this.ctx.arc(px + 20 + i * 25, chargeY, 8, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = 'bold 10px sans-serif';
+        this.ctx.fillText(`${i === 0 ? '2.5' : '6.25'}x`, px + 20 + i * 25, chargeY + 3);
+      }
+    }
+
     // Turn prompt
     if (this.playerTurn) {
       this.ctx.fillStyle = '#ffff88';
-      this.ctx.font = '13px sans-serif';
-      this.ctx.fillText('← → select | SPACE attack | H heal', px + playerBarW / 2, py + 45);
+      this.ctx.font = '12px sans-serif';
+      const chargeText = this.player.chargeLevel < 2 ? ' | C charge' : '';
+      this.ctx.fillText(`← → select | X attack | H heal${chargeText}`, px + playerBarW / 2, py + 50);
     } else if (this.player.attackGauge >= 100) {
       this.ctx.fillStyle = '#88ff88';
       this.ctx.font = '13px sans-serif';
-      this.ctx.fillText('Press ENTER to attack!', px + playerBarW / 2, py + 45);
+      this.ctx.fillText('Press ENTER to attack!', px + playerBarW / 2, py + 50);
     }
 
     this.ctx.textAlign = 'left';
