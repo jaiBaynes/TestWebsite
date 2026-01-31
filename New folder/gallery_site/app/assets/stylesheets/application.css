@@ -680,3 +680,144 @@ header a:hover {
     width: 250px;
   }
 }
+
+/* ==================== User Status Bar ==================== */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.navbar-brand h1 {
+  margin: 0;
+  font-size: 1.4em;
+}
+
+.navbar-brand a {
+  color: #d4af37;
+  text-decoration: none;
+}
+
+.navbar-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* User Status (logged in) */
+.user-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 25px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.user-rank-icon {
+  font-size: 1.3em;
+}
+
+.user-points {
+  font-weight: 600;
+  color: #d4af37;
+  font-size: 0.95em;
+}
+
+.user-profile-link {
+  color: #fff !important;
+  text-decoration: none !important;
+  padding: 4px 10px;
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+.user-profile-link:hover {
+  background: rgba(212, 175, 55, 0.4);
+  text-decoration: none !important;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+/* Auth Links (logged out) */
+.auth-links {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.auth-links .auth-link {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  font-size: 0.95em;
+}
+
+.auth-links .auth-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+.auth-links .auth-link-primary {
+  background: linear-gradient(135deg, #d4af37, #f5d76e);
+  color: #1a1a2e !important;
+  font-weight: 600;
+}
+
+.auth-links .auth-link-primary:hover {
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Points Animation */
+@keyframes pointsEarned {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #44ff44; }
+  100% { transform: scale(1); }
+}
+
+.points-earned {
+  animation: pointsEarned 0.5s ease;
+}
+
+/* Responsive User Bar */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .navbar-user {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .user-status {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .auth-links {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -70,6 +70,11 @@ class ChaptersController < ApplicationController
   def show
     @chapter = Chapter.find_by!(slug: params[:id])
     
+    # Award points for reading chapter (first time only)
+    if current_user
+      current_user.record_chapter_read!(@chapter)
+    end
+    
     # Find next and previous chapters in the same category
     all_chapters = Chapter.published.where(category: @chapter.category).order(:chapter_number, :created_at)
     current_index = all_chapters.index(@chapter)
