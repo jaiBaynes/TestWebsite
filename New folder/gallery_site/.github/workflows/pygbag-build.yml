@@ -1,0 +1,30 @@
+name: Build Boss Fights (pygbag)
+
+on:
+  push:
+    branches: [ BossBattles-Accessible-on-Main-Site, main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install pygbag
+      - run: python -m pygbag --build "Boss Fights" --cdn https://pygame-web.github.io/archives/0.8/
+      - run: |
+          mkdir -p public/games/bossfights
+          rsync -a "Boss Fights/build/web/" public/games/bossfights/
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'chore(ci): update Boss Fights web build'
+          file_pattern: 'public/games/bossfights/**'
+          branch: ${{ github.ref_name }}

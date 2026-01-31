@@ -43,6 +43,83 @@
       </div>
     </div>
     
+    <!-- Boss Fights Game Section -->
+    <div class="game-section">
+      <div class="game-card boss-fights-card">
+        <div class="game-card-header">
+          <h2>⚔️ Boss Fights</h2>
+          <p>Battle legendary Greek gods and mythical creatures! Choose your opponent and test your skills.</p>
+        </div>
+        
+        <div class="boss-roster">
+          <div class="boss-roster-row">
+            <span class="roster-label">⚡ Gods:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('Zeus')">Zeus</span>
+              <span class="roster-boss" onclick="launchBossFight('Hades')">Hades</span>
+              <span class="roster-boss" onclick="launchBossFight('Neptune')">Neptune</span>
+              <span class="roster-boss" onclick="launchBossFight('Apollo')">Apollo</span>
+              <span class="roster-boss" onclick="launchBossFight('Mercury')">Mercury</span>
+              <span class="roster-boss" onclick="launchBossFight('Venus')">Venus</span>
+              <span class="roster-boss" onclick="launchBossFight('Hebe')">Hebe</span>
+            </div>
+          </div>
+          <div class="boss-roster-row">
+            <span class="roster-label">🔥 Underworld:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('Cerberus')">Cerberus</span>
+              <span class="roster-boss" onclick="launchBossFight('Hecate')">Hecate</span>
+              <span class="roster-boss" onclick="launchBossFight('Megaera')">Megaera</span>
+            </div>
+          </div>
+          <div class="boss-roster-row">
+            <span class="roster-label">🐍 Monsters:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('Hydra')">Hydra</span>
+              <span class="roster-boss" onclick="launchBossFight('Echidna')">Echidna</span>
+              <span class="roster-boss" onclick="launchBossFight('Python')">Python</span>
+              <span class="roster-boss" onclick="launchBossFight('Aquila')">Aquila</span>
+              <span class="roster-boss" onclick="launchBossFight('Draco')">Draco</span>
+            </div>
+          </div>
+          <div class="boss-roster-row">
+            <span class="roster-label">⚔️ Heroes:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('Hercules')">Hercules</span>
+              <span class="roster-boss" onclick="launchBossFight('Melissa')">Melissa</span>
+              <span class="roster-boss" onclick="launchBossFight('Scythia')">Scythia</span>
+            </div>
+          </div>
+          <div class="boss-roster-row">
+            <span class="roster-label">🌟 Titans:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('TerraSolaris')">Terra Solaris</span>
+              <span class="roster-boss" onclick="launchBossFight('Metis')">Metis</span>
+              <span class="roster-boss" onclick="launchBossFight('Kat')">Kat</span>
+            </div>
+          </div>
+        </div>
+        
+        <p class="boss-count-note">20 bosses available! Click any name to fight directly.</p>
+
+        <div class="game-controls">
+          <a href="/games/bossfights/index.html" class="btn-generate" target="_blank">
+            🎮 Open Full Boss Fight Arena
+          </a>
+          <button id="embedBossBtn" class="btn-generate btn-secondary-style" onclick="toggleBossEmbed()">
+            📺 Play Embedded
+          </button>
+        </div>
+
+        <div id="bossContainer" style="display:none; margin-top:20px;">
+          <div class="embed-controls">
+            <button onclick="closeBossEmbed()" class="btn-close-embed">✕ Close</button>
+          </div>
+          <iframe id="bossIframe" src="" width="100%" height="750" frameborder="0" allow="autoplay; fullscreen" style="border-radius: 12px; border: 2px solid rgba(212, 175, 55, 0.3);"></iframe>
+        </div>
+      </div>
+    </div>
+
     <!-- Placeholder for future games -->
     <div class="game-section">
       <div class="game-card coming-soon">
@@ -131,6 +208,38 @@ function displayCharacters(characters) {
     grid.appendChild(slot);
   });
 }
+
+// Boss Fights helpers
+function launchBossFight(bossName) {
+  // Open in new window with boss pre-selected via hash
+  window.open(`/games/bossfights/index.html#boss=${bossName}`, '_blank');
+}
+
+function toggleBossEmbed() {
+  const container = document.getElementById('bossContainer');
+  const iframe = document.getElementById('bossIframe');
+  const btn = document.getElementById('embedBossBtn');
+  
+  if (container.style.display === 'none') {
+    container.style.display = 'block';
+    iframe.src = '/games/bossfights/index.html';
+    btn.textContent = '📺 Hide Game';
+    container.scrollIntoView({behavior: 'smooth'});
+  } else {
+    closeBossEmbed();
+  }
+}
+
+function closeBossEmbed() {
+  const container = document.getElementById('bossContainer');
+  const iframe = document.getElementById('bossIframe');
+  const btn = document.getElementById('embedBossBtn');
+  
+  container.style.display = 'none';
+  iframe.src = '';
+  btn.textContent = '📺 Play Embedded';
+}
+
 </script>
 
 <style>
@@ -206,6 +315,109 @@ function displayCharacters(characters) {
 
 .game-card.coming-soon {
   opacity: 0.7;
+}
+
+/* Boss Fights Card Styles */
+.boss-fights-card {
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.boss-roster {
+  margin-bottom: 25px;
+}
+
+.boss-roster-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(100, 100, 120, 0.2);
+}
+
+.boss-roster-row:last-child {
+  border-bottom: none;
+}
+
+.roster-label {
+  font-weight: 700;
+  color: #d4af37;
+  min-width: 120px;
+  font-size: 0.95rem;
+}
+
+.roster-bosses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.roster-boss {
+  background: rgba(50, 50, 60, 0.7);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(100, 100, 120, 0.3);
+}
+
+.roster-boss:hover {
+  background: rgba(212, 175, 55, 0.3);
+  border-color: #d4af37;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.boss-count-note {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.btn-secondary-style {
+  background: linear-gradient(135deg, #4a4a5e, #3a3a4e) !important;
+  margin-left: 15px;
+}
+
+.btn-secondary-style:hover {
+  background: linear-gradient(135deg, #5a5a6e, #4a4a5e) !important;
+}
+
+.embed-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.btn-close-embed {
+  background: rgba(100, 50, 50, 0.8);
+  color: #fff;
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.btn-close-embed:hover {
+  background: rgba(150, 50, 50, 0.9);
+}
+
+@media (max-width: 600px) {
+  .roster-label {
+    min-width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .btn-secondary-style {
+    margin-left: 0;
+    margin-top: 10px;
+  }
 }
 
 .game-card-header {

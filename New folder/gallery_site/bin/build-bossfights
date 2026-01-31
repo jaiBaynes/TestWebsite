@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+pygbag 'Boss Fights' --build
+mkdir -p public/games/bossfights
+rsync -a "Boss Fights/build/web/" public/games/bossfights/
+echo "Built and copied to public/games/bossfights"

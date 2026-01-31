@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boss Fights - Select Your Challenge</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Philosopher:wght@400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Philosopher', sans-serif;
+      background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 40%, #16213e 100%);
+      min-height: 100vh;
+      color: #e8e8e8;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 80, 200, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(200, 150, 50, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(50, 100, 200, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #d4af37 0%, #f5d76e 50%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 60px rgba(212, 175, 55, 0.4);
+      letter-spacing: 4px;
+      margin-bottom: 15px;
+    }
+
+    .header p {
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 2px;
+    }
+
+    /* Boss Selection */
+    #boss-select {
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+      margin-bottom: 40px;
+    }
+
+    .boss-category {
+      background: rgba(20, 20, 30, 0.6);
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid rgba(100, 100, 120, 0.2);
+    }
+
+    .category-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      color: #d4af37;
+      margin-bottom: 25px;
+      text-align: center;
+      letter-spacing: 3px;
+    }
+
+    .boss-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .boss-card {
+      position: relative;
+      background: rgba(20, 20, 30, 0.9);
+      border: 2px solid rgba(100, 100, 120, 0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .boss-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--boss-color, #d4af37);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px var(--boss-glow, rgba(212, 175, 55, 0.2));
+    }
+
+    /* Boss color themes */
+    .boss-card.zeus { --boss-color: #ffdd44; --boss-glow: rgba(255, 221, 68, 0.4); }
+    .boss-card.aquila { --boss-color: #88aaff; --boss-glow: rgba(136, 170, 255, 0.4); }
+    .boss-card.hades { --boss-color: #ff6644; --boss-glow: rgba(255, 102, 68, 0.4); }
+    .boss-card.hydra { --boss-color: #66ff66; --boss-glow: rgba(102, 255, 102, 0.4); }
+    .boss-card.neptune { --boss-color: #4488ff; --boss-glow: rgba(68, 136, 255, 0.4); }
+    .boss-card.apollo { --boss-color: #ffcc44; --boss-glow: rgba(255, 204, 68, 0.4); }
+    .boss-card.mercury { --boss-color: #aabbcc; --boss-glow: rgba(170, 187, 204, 0.4); }
+    .boss-card.venus { --boss-color: #ff99bb; --boss-glow: rgba(255, 153, 187, 0.4); }
+    .boss-card.hebe { --boss-color: #99dd99; --boss-glow: rgba(153, 221, 153, 0.4); }
+    .boss-card.cerberus { --boss-color: #cc4444; --boss-glow: rgba(204, 68, 68, 0.4); }
+    .boss-card.hecate { --boss-color: #9966cc; --boss-glow: rgba(153, 102, 204, 0.4); }
+    .boss-card.megaera { --boss-color: #cc6688; --boss-glow: rgba(204, 102, 136, 0.4); }
+    .boss-card.echidna { --boss-color: #88aa66; --boss-glow: rgba(136, 170, 102, 0.4); }
+    .boss-card.python { --boss-color: #77aa55; --boss-glow: rgba(119, 170, 85, 0.4); }
+    .boss-card.draco { --boss-color: #8866aa; --boss-glow: rgba(136, 102, 170, 0.4); }
+    .boss-card.hercules { --boss-color: #ddaa66; --boss-glow: rgba(221, 170, 102, 0.4); }
+    .boss-card.melissa { --boss-color: #6699cc; --boss-glow: rgba(102, 153, 204, 0.4); }
+    .boss-card.scythia { --boss-color: #bb9966; --boss-glow: rgba(187, 153, 102, 0.4); }
+    .boss-card.terra-solaris { --boss-color: #ffaa44; --boss-glow: rgba(255, 170, 68, 0.4); }
+    .boss-card.metis { --boss-color: #8899bb; --boss-glow: rgba(136, 153, 187, 0.4); }
+    .boss-card.kat { --boss-color: #aa88bb; --boss-glow: rgba(170, 136, 187, 0.4); }
+
+    .boss-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      transition: transform 0.4s ease;
+      background: linear-gradient(135deg, rgba(40, 40, 50, 1), rgba(60, 60, 70, 1));
+    }
+
+    .boss-card:hover .boss-image {
+      transform: scale(1.08);
+    }
+
+    .boss-info {
+      padding: 15px;
+      background: linear-gradient(to top, rgba(10, 10, 15, 0.98), rgba(20, 20, 30, 0.9));
+      text-align: center;
+    }
+
+    .boss-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--boss-color, #d4af37);
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
+
+    .boss-title {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    .boss-difficulty {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .difficulty-easy { background: rgba(80, 200, 80, 0.25); color: #88ff88; border: 1px solid rgba(80, 200, 80, 0.4); }
+    .difficulty-medium { background: rgba(200, 180, 80, 0.25); color: #ffee88; border: 1px solid rgba(200, 180, 80, 0.4); }
+    .difficulty-hard { background: rgba(200, 80, 80, 0.25); color: #ff8888; border: 1px solid rgba(200, 80, 80, 0.4); }
+
+    .boss-card::after {
+      content: '▶ FIGHT';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(0, 0, 0, 0.92);
+      color: var(--boss-color, #d4af37);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      border: 2px solid var(--boss-color, #d4af37);
+      opacity: 0;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .boss-card:hover::after {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    /* Game Container */
+    #game-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #game-container.active {
+      display: flex;
+    }
+
+    #boss-select.hidden {
+      display: none;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1000px;
+      margin-bottom: 20px;
+      padding: 15px 25px;
+      background: rgba(20, 20, 30, 0.8);
+      border-radius: 12px;
+      border: 1px solid rgba(100, 100, 120, 0.3);
+    }
+
+    .game-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      color: #d4af37;
+    }
+
+    .back-btn {
+      background: linear-gradient(135deg, #444, #333);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 25px;
+      border-radius: 25px;
+      font-family: 'Philosopher', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: linear-gradient(135deg, #555, #444);
+      transform: translateY(-2px);
+    }
+
+    #game-canvas {
+      border: 3px solid rgba(100, 100, 120, 0.5);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      background: #1a1a2e;
+    }
+
+    .controls-info {
+      margin-top: 25px;
+      padding: 20px 30px;
+      background: rgba(20, 20, 30, 0.8);
+      border-radius: 12px;
+      border: 1px solid rgba(100, 100, 120, 0.3);
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .controls-info h3 {
+      font-family: 'Cinzel', serif;
+      color: #d4af37;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .key {
+      background: linear-gradient(135deg, #333, #222);
+      border: 1px solid #555;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #ffdd88;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .control-desc {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+    }
+
+    /* Loading Screen */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0a0a12;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-text {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      color: #d4af37;
+      margin-bottom: 30px;
+    }
+
+    .loading-bar {
+      width: 300px;
+      height: 6px;
+      background: rgba(100, 100, 120, 0.3);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .loading-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #d4af37, #f5d76e);
+      animation: load 1.5s ease-in-out forwards;
+    }
+
+    @keyframes load {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2.2rem;
+      }
+
+      #boss-select {
+        grid-template-columns: 1fr;
+      }
+
+      #game-canvas {
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      .game-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading" id="loading">
+    <div class="loading-text">Preparing the Arena...</div>
+    <div class="loading-bar">
+      <div class="loading-fill"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>⚔️ BOSS FIGHTS ⚔️</h1>
+      <p>Choose your opponent and test your mettle</p>
+    </div>
+
+    <!-- Boss Selection -->
+    <div id="boss-select">
+      <!-- Category: Olympian Gods -->
+      <div class="boss-category">
+        <h2 class="category-title">⚡ Olympian Gods</h2>
+        <div class="boss-grid">
+          <div class="boss-card zeus" onclick="startGame('Zeus')">
+            <img src="assets/Zeus Boss Image.png" alt="Zeus" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">ZEUS</h2>
+              <p class="boss-title">Storm God-King</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card hades" onclick="startGame('Hades')">
+            <img src="assets/Hades Boss Image.png" alt="Hades" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HADES</h2>
+              <p class="boss-title">Lord of the Underworld</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card neptune" onclick="startGame('Neptune')">
+            <img src="assets/neptune_1.png" alt="Neptune" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">NEPTUNE</h2>
+              <p class="boss-title">God of the Seas</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card apollo" onclick="startGame('Apollo')">
+            <img src="assets/apollo.png" alt="Apollo" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">APOLLO</h2>
+              <p class="boss-title">God of the Sun</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card mercury" onclick="startGame('Mercury')">
+            <img src="assets/mercury.png" alt="Mercury" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">MERCURY</h2>
+              <p class="boss-title">Messenger God</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
+          <div class="boss-card venus" onclick="startGame('Venus')">
+            <img src="assets/venus.png" alt="Venus" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">VENUS</h2>
+              <p class="boss-title">Goddess of Love</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
+          <div class="boss-card hebe" onclick="startGame('Hebe')">
+            <img src="assets/hebe.png" alt="Hebe" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HEBE</h2>
+              <p class="boss-title">Goddess of Youth</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category: Underworld -->
+      <div class="boss-category">
+        <h2 class="category-title">🔥 Underworld</h2>
+        <div class="boss-grid">
+          <div class="boss-card cerberus" onclick="startGame('Cerberus')">
+            <img src="assets/cerberus_1.png" alt="Cerberus" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">CERBERUS</h2>
+              <p class="boss-title">Guardian of the Underworld</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card hecate" onclick="startGame('Hecate')">
+            <img src="assets/hecate_1.png" alt="Hecate" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HECATE</h2>
+              <p class="boss-title">Goddess of Witchcraft</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card megaera" onclick="startGame('Megaera')">
+            <img src="assets/megaera.png" alt="Megaera" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">MEGAERA</h2>
+              <p class="boss-title">The Fury</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category: Monsters -->
+      <div class="boss-category">
+        <h2 class="category-title">🐍 Monsters</h2>
+        <div class="boss-grid">
+          <div class="boss-card hydra" onclick="startGame('Hydra')">
+            <img src="assets/hydra_1.png" alt="Hydra" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HYDRA</h2>
+              <p class="boss-title">The Lernaean Serpent</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card echidna" onclick="startGame('Echidna')">
+            <img src="assets/echidna_1.png" alt="Echidna" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">ECHIDNA</h2>
+              <p class="boss-title">Mother of Monsters</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card python" onclick="startGame('Python')">
+            <img src="assets/python_1.png" alt="Python" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">PYTHON</h2>
+              <p class="boss-title">Serpent of Delphi</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card aquila" onclick="startGame('Aquila')">
+            <img src="assets/Aquila.png" alt="Aquila" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">AQUILA</h2>
+              <p class="boss-title">Storm Eagle</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
+          <div class="boss-card draco" onclick="startGame('Draco')">
+            <img src="assets/draco.png" alt="Draco" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">DRACO</h2>
+              <p class="boss-title">Dragon Guardian</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category: Heroes & Warriors -->
+      <div class="boss-category">
+        <h2 class="category-title">⚔️ Heroes & Warriors</h2>
+        <div class="boss-grid">
+          <div class="boss-card hercules" onclick="startGame('Hercules')">
+            <img src="assets/hercules.png" alt="Hercules" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HERCULES</h2>
+              <p class="boss-title">The Greatest Hero</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card melissa" onclick="startGame('Melissa')">
+            <img src="assets/melissa_1.png" alt="Melissa" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">MELISSA</h2>
+              <p class="boss-title">Lightning Warrior</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card scythia" onclick="startGame('Scythia')">
+            <img src="assets/scythia.png" alt="Scythia" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">SCYTHIA</h2>
+              <p class="boss-title">Amazon Warrior</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category: Titans & Others -->
+      <div class="boss-category">
+        <h2 class="category-title">🌟 Titans & Others</h2>
+        <div class="boss-grid">
+          <div class="boss-card terra-solaris" onclick="startGame('TerraSolaris')">
+            <img src="assets/terra_solaris.png" alt="Terra Solaris" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">TERRA SOLARIS</h2>
+              <p class="boss-title">The Solar Titan</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card metis" onclick="startGame('Metis')">
+            <img src="assets/metis.png" alt="Metis" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">METIS</h2>
+              <p class="boss-title">Titaness of Wisdom</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card kat" onclick="startGame('Kat')">
+            <img src="assets/kat_1.png" alt="Kat" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">KAT</h2>
+              <p class="boss-title">The Chronicler</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+      <div class="game-header">
+        <h2 class="game-title" id="current-boss-name">Fighting: Zeus</h2>
+        <button class="back-btn" onclick="returnToMenu()">← Back to Menu</button>
+      </div>
+      
+      <canvas id="game-canvas" width="1000" height="700"></canvas>
+
+      <div class="controls-info">
+        <h3>⌨️ Controls</h3>
+        <div class="controls-grid">
+          <div class="control-item">
+            <span class="key">W A S D</span>
+            <span class="control-desc">Move your character</span>
+          </div>
+          <div class="control-item">
+            <span class="key">ENTER</span>
+            <span class="control-desc">Start attack turn (when gauge is full)</span>
+          </div>
+          <div class="control-item">
+            <span class="key">← →</span>
+            <span class="control-desc">Select target (during your turn)</span>
+          </div>
+          <div class="control-item">
+            <span class="key">SPACE</span>
+            <span class="control-desc">Attack selected target</span>
+          </div>
+          <div class="control-item">
+            <span class="key">H</span>
+            <span class="control-desc">Heal (uses your turn)</span>
+          </div>
+          <div class="control-item">
+            <span class="key">R</span>
+            <span class="control-desc">Restart after game over</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+  <script>
+    let game = null;
+    const canvas = document.getElementById('game-canvas');
+
+    // Hide loading screen after animation
+    setTimeout(() => {
+      document.getElementById('loading').classList.add('hidden');
+      
+      // Check for boss selection in URL hash (e.g., #boss=Zeus)
+      const hash = window.location.hash;
+      if (hash) {
+        const match = hash.match(/boss=(\w+)/i);
+        if (match) {
+          const bossName = match[1];
+          const validBosses = ['Zeus', 'Aquila', 'Hades', 'Hydra', 'Apollo', 'Neptune', 'Mercury', 'Venus', 'Hebe', 'Cerberus', 'Hecate', 'Megaera', 'Echidna', 'Python', 'Draco', 'Hercules', 'Melissa', 'Scythia', 'TerraSolaris', 'Metis', 'Kat'];
+          const selectedBoss = validBosses.find(b => b.toLowerCase() === bossName.toLowerCase());
+          if (selectedBoss) {
+            setTimeout(() => startGame(selectedBoss), 200);
+          }
+        }
+      }
+    }, 1800);
+
+    function startGame(bossName) {
+      // Update UI
+      document.getElementById('boss-select').classList.add('hidden');
+      document.getElementById('game-container').classList.add('active');
+      document.getElementById('current-boss-name').textContent = `Fighting: ${bossName}`;
+
+      // Resize canvas for container
+      const container = document.getElementById('game-container');
+      const maxWidth = Math.min(1000, window.innerWidth - 40);
+      const aspectRatio = 1000 / 700;
+      canvas.width = maxWidth;
+      canvas.height = maxWidth / aspectRatio;
+
+      // Create and start game
+      if (game) {
+        game.stop();
+      }
+      game = new BossFightGame(canvas, bossName);
+      game.start();
+
+      // Focus for keyboard input
+      canvas.tabIndex = 1;
+      canvas.focus();
+    }
+
+    function returnToMenu() {
+      if (game) {
+        game.stop();
+        game = null;
+      }
+      document.getElementById('boss-select').classList.remove('hidden');
+      document.getElementById('game-container').classList.remove('active');
+    }
+
+    // Global key handlers
+    document.addEventListener('keydown', (e) => {
+      if (game) {
+        game.handleKeyDown(e);
+        
+        // Handle restart
+        if (e.code === 'KeyR' && game.gameOver) {
+          game.restart();
+        }
+        // Handle escape to menu
+        if (e.code === 'Escape') {
+          returnToMenu();
+        }
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (game) {
+        game.handleKeyUp(e);
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (game && document.getElementById('game-container').classList.contains('active')) {
+        const maxWidth = Math.min(1000, window.innerWidth - 40);
+        const aspectRatio = 1000 / 700;
+        canvas.width = maxWidth;
+        canvas.height = maxWidth / aspectRatio;
+        
+        // Update player position
+        game.player = new game.player.constructor(canvas.width, canvas.height);
+      }
+    });
+  </script>
+</body>
+</html>
+
