@@ -67,6 +67,11 @@
             <div class="boss-preview-name">Hades</div>
             <div class="boss-preview-difficulty medium">Medium</div>
           </div>
+          <div class="boss-preview hydra-preview" onclick="launchBossFight('Hydra')">
+            <div class="boss-preview-icon">🐍</div>
+            <div class="boss-preview-name">Hydra</div>
+            <div class="boss-preview-difficulty medium">Medium</div>
+          </div>
         </div>
 
         <div class="game-controls">
@@ -291,10 +296,10 @@ function closeBossEmbed() {
 
 .boss-preview-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   margin-bottom: 30px;
-  max-width: 700px;
+  max-width: 900px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -327,6 +332,11 @@ function closeBossEmbed() {
 .boss-preview.hades-preview:hover {
   border-color: #ff6644;
   box-shadow: 0 10px 30px rgba(255, 102, 68, 0.3);
+}
+
+.boss-preview.hydra-preview:hover {
+  border-color: #66ff66;
+  box-shadow: 0 10px 30px rgba(102, 255, 102, 0.3);
 }
 
 .boss-preview-icon {
@@ -393,6 +403,12 @@ function closeBossEmbed() {
 
 .btn-close-embed:hover {
   background: rgba(150, 50, 50, 0.9);
+}
+
+@media (max-width: 900px) {
+  .boss-preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 600px) {

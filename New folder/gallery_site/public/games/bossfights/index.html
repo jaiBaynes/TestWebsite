@@ -98,6 +98,7 @@
     .boss-card.zeus { --boss-color: #ffdd44; --boss-glow: rgba(255, 221, 68, 0.4); }
     .boss-card.aquila { --boss-color: #88aaff; --boss-glow: rgba(136, 170, 255, 0.4); }
     .boss-card.hades { --boss-color: #ff6644; --boss-glow: rgba(255, 102, 68, 0.4); }
+    .boss-card.hydra { --boss-color: #66ff66; --boss-glow: rgba(102, 255, 102, 0.4); }
 
     .boss-image {
       width: 100%;
@@ -430,6 +431,21 @@
           <span class="boss-difficulty difficulty-medium">🔥 Medium</span>
         </div>
       </div>
+
+      <div class="boss-card hydra" onclick="startGame('Hydra')">
+        <img src="assets/hydra_1.png" alt="Hydra" class="boss-image"
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22280%22%3E%3Crect fill=%22%23142%22 width=%22400%22 height=%22280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%2366ff66%22 font-size=%2248%22 text-anchor=%22middle%22 dy=%22.3em%22%3E🐍%3C/text%3E%3C/svg%3E'">
+        <div class="boss-info">
+          <h2 class="boss-name">HYDRA</h2>
+          <p class="boss-title">The Lernaean Serpent</p>
+          <div class="boss-stats">
+            <span class="stat">HP: <span class="stat-value">200</span> → <span class="stat-value">350</span></span>
+            <span class="stat">Speed: <span class="stat-value">50</span> → <span class="stat-value">35</span></span>
+            <span class="stat">Phases: <span class="stat-value">2</span></span>
+          </div>
+          <span class="boss-difficulty difficulty-medium">🐍 Medium</span>
+        </div>
+      </div>
     </div>
 
     <!-- Game Container -->
@@ -488,7 +504,7 @@
         const match = hash.match(/boss=(\w+)/i);
         if (match) {
           const bossName = match[1];
-          const validBosses = ['Zeus', 'Aquila', 'Hades'];
+          const validBosses = ['Zeus', 'Aquila', 'Hades', 'Hydra'];
           const selectedBoss = validBosses.find(b => b.toLowerCase() === bossName.toLowerCase());
           if (selectedBoss) {
             setTimeout(() => startGame(selectedBoss), 200);

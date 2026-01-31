@@ -11,7 +11,7 @@ const CONFIG = {
   poison: { poison_seconds: 6, poison_dps: 1.0, base_damage: 10 },
 };
 
-const MINION_LIMITS = { Aquila: 1, CerberusHead: 3 };
+const MINION_LIMITS = { Aquila: 1, CerberusHead: 3, HydraHead: 4 };
 
 const BOSS_HP_BARS = {
   Zeus: { frame: 'Zeus HP Bar Frame.png', fill: 'Zeus HP Bar.png' },
@@ -540,6 +540,191 @@ class MinionSpawn extends Attack {
   }
 }
 
+// ============= HYDRA-SPECIFIC ATTACKS =============
+class PoisonCloud extends Attack {
+  constructor() {
+    super('PoisonCloud', 'poison', CONFIG.poison.base_damage);
+    this.chargeTime = 45;
+    this.activeTime = 180;
+    this.speed = 2;
+    this.size = { width: 80, height: 80 };
+    this.tracking = true;
+    this.homing = true;
+    this.maxNumber = 2;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    this.pos = { x: 50 + Math.random() * (w - 100), y: h * 0.2 };
+    this.rect = {
+      x: this.pos.x - this.size.width / 2,
+      y: this.pos.y - this.size.height / 2,
+      width: this.size.width,
+      height: this.size.height
+    };
+  }
+
+  update(game) {
+    if (this.state === 'charging' && this.tracking) {
+      this.pos.x += (game.player.x - this.pos.x) * 0.04;
+      this.rect.x = this.pos.x - this.size.width / 2;
+    } else if (this.state === 'active') {
+      const dx = game.player.x - this.pos.x;
+      const dy = game.player.y - this.pos.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len > 0) {
+        this.pos.x += (dx / len) * this.speed;
+        this.pos.y += (dy / len) * this.speed;
+      }
+      this.rect.x = this.pos.x - this.size.width / 2;
+      this.rect.y = this.pos.y - this.size.height / 2;
+    }
+    super.update(game);
+  }
+
+  draw(ctx) {
+    const alpha = this.state === 'charging' ? 0.4 : 0.7;
+    ctx.fillStyle = `rgba(80, 180, 50, ${alpha})`;
+    ctx.shadowColor = '#44cc22';
+    ctx.shadowBlur = this.state === 'active' ? 25 : 10;
+    
+    // Draw toxic cloud as multiple overlapping circles
+    const cx = this.pos.x;
+    const cy = this.pos.y;
+    ctx.beginPath();
+    ctx.arc(cx - 20, cy + 5, 25, 0, Math.PI * 2);
+    ctx.arc(cx + 20, cy + 5, 25, 0, Math.PI * 2);
+    ctx.arc(cx, cy - 15, 28, 0, Math.PI * 2);
+    ctx.arc(cx - 10, cy + 15, 20, 0, Math.PI * 2);
+    ctx.arc(cx + 10, cy + 15, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Add toxic bubbles effect
+    if (this.state === 'active') {
+      ctx.fillStyle = 'rgba(150, 255, 100, 0.6)';
+      for (let i = 0; i < 5; i++) {
+        const bx = cx + Math.sin(Date.now() / 200 + i) * 20;
+        const by = cy + Math.cos(Date.now() / 300 + i * 2) * 15;
+        ctx.beginPath();
+        ctx.arc(bx, by, 4 + Math.sin(Date.now() / 100 + i) * 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+class PoisonBreath extends Attack {
+  constructor() {
+    super('PoisonBreath', 'poison', CONFIG.poison.base_damage);
+    this.chargeTime = 30;
+    this.activeTime = 60;
+    this.widthFrac = 0.35;
+    this.x = 0;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    const width = Math.floor(w * this.widthFrac);
+    this.x = game.player.x;
+    this.rect = { x: Math.max(0, this.x - width / 2), y: 0, width, height: h };
+  }
+
+  draw(ctx) {
+    if (this.state === 'charging') {
+      // Charge indicator - green glow at top
+      const gradient = ctx.createLinearGradient(this.x, 0, this.x, 80);
+      gradient.addColorStop(0, 'rgba(100, 255, 50, 0.8)');
+      gradient.addColorStop(1, 'rgba(50, 200, 50, 0)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(this.x - 30, 0, 60, 80);
+    } else if (this.state === 'active') {
+      // Full poison breath column
+      const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+      gradient.addColorStop(0, 'rgba(80, 200, 50, 0.85)');
+      gradient.addColorStop(0.5, 'rgba(60, 180, 40, 0.6)');
+      gradient.addColorStop(1, 'rgba(40, 150, 30, 0.3)');
+      ctx.fillStyle = gradient;
+      ctx.shadowColor = '#66ff33';
+      ctx.shadowBlur = 30;
+      ctx.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+      ctx.shadowBlur = 0;
+    }
+  }
+}
+
+class AcidSpit extends Attack {
+  constructor() {
+    super('AcidSpit', 'poison', CONFIG.poison.base_damage + 5);
+    this.chargeTime = 25;
+    this.activeTime = 50;
+    this.speed = 8;
+    this.size = { width: 30, height: 30 };
+    this.maxNumber = 3;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    // Start from top center, aim toward player
+    this.pos = { x: w / 2, y: 100 };
+    const dx = game.player.x - this.pos.x;
+    const dy = game.player.y - this.pos.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    this.velocity = len > 0 ? { x: (dx / len) * this.speed, y: (dy / len) * this.speed } : { x: 0, y: this.speed };
+    this.rect = {
+      x: this.pos.x - this.size.width / 2,
+      y: this.pos.y - this.size.height / 2,
+      width: this.size.width,
+      height: this.size.height
+    };
+  }
+
+  update(game) {
+    if (this.state === 'active') {
+      this.pos.x += this.velocity.x;
+      this.pos.y += this.velocity.y;
+      this.rect.x = this.pos.x - this.size.width / 2;
+      this.rect.y = this.pos.y - this.size.height / 2;
+      
+      // Finish if off screen
+      if (this.pos.y > game.canvas.height + 50 || this.pos.x < -50 || this.pos.x > game.canvas.width + 50) {
+        this.state = 'finished';
+      }
+    }
+    super.update(game);
+  }
+
+  draw(ctx) {
+    if (this.state === 'charging') {
+      ctx.fillStyle = 'rgba(150, 255, 50, 0.7)';
+      ctx.beginPath();
+      ctx.arc(this.pos.x, this.pos.y, 15, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.state === 'active') {
+      // Acid projectile
+      ctx.fillStyle = 'rgba(100, 220, 50, 0.9)';
+      ctx.shadowColor = '#88ff44';
+      ctx.shadowBlur = 15;
+      ctx.beginPath();
+      ctx.arc(this.pos.x, this.pos.y, this.size.width / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      // Dripping effect
+      ctx.fillStyle = 'rgba(80, 200, 40, 0.6)';
+      ctx.beginPath();
+      ctx.arc(this.pos.x - 8, this.pos.y + 12, 6, 0, Math.PI * 2);
+      ctx.arc(this.pos.x + 10, this.pos.y + 8, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
 // ============= MINION CLASS =============
 class Minion {
   constructor(name, hp = 10) {
@@ -555,7 +740,8 @@ class Minion {
   guessImage(name) {
     const mappings = {
       'Aquila': 'Aquila.png',
-      'CerberusHead': 'Cerberus Head.png'
+      'CerberusHead': 'Cerberus Head.png',
+      'HydraHead': 'hydra_3.PNG'
     };
     return mappings[name] || 'Aquila.png';
   }
@@ -709,6 +895,41 @@ function createBoss(name) {
         () => new FireWall('bottom'),
         BidentAttack,
         () => new MinionSpawn('CerberusHead')
+      ]
+    },
+    Hydra: {
+      name: 'Hydra',
+      title: 'The Lernaean Serpent - Human Form',
+      strength: 10, speed: 50, durability: 10, regeneration: 5, supernatural: 12,
+      color: [50, 120, 80],
+      imageFile: 'hydra_1.png',
+      bossImageFile: null,
+      transform: 'Hydra Monster',
+      maxHp: 200,
+      attacks: [
+        FireBlast,
+        PoisonCloud,
+        AcidSpit,
+        PoisonBreath,
+        () => new MinionSpawn('HydraHead')
+      ]
+    },
+    'Hydra Monster': {
+      name: 'Hydra',
+      title: 'The Lernaean Serpent - True Form',
+      strength: 18, speed: 35, durability: 15, regeneration: 15, supernatural: 16,
+      color: [40, 100, 60],
+      imageFile: 'hydra_2.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 350,
+      attacks: [
+        FireBlast,
+        PoisonCloud,
+        () => new FireWall('bottom'),
+        PoisonBreath,
+        AcidSpit,
+        () => new MinionSpawn('HydraHead')
       ]
     }
   };
