@@ -11,7 +11,16 @@ const CONFIG = {
   poison: { poison_seconds: 6, poison_dps: 1.0, base_damage: 10 },
 };
 
-const MINION_LIMITS = { Aquila: 1, CerberusHead: 3, HydraHead: 4, Serpent: 3, FireSpirit: 2, ShadowMinion: 2 };
+const MINION_LIMITS = { 
+  Aquila: 1, 
+  CerberusHead: 3, 
+  HydraHead: 4, 
+  Serpent: 3, 
+  FireSpirit: 2, 
+  ShadowMinion: 2,
+  Phoenix: 1,
+  Scorpio: 2
+};
 
 const BOSS_HP_BARS = {
   Zeus: { frame: 'Zeus HP Bar Frame.png', fill: 'Zeus HP Bar.png' },
@@ -45,7 +54,7 @@ class Player {
     this.y = screenHeight * 0.8;
     this.radius = Math.max(8, Math.floor(screenWidth * 0.012));
     this.speed = Math.max(5, Math.floor(screenWidth * 0.015));
-    this.maxHp = 100;
+    this.maxHp = 500;
     this.hp = this.maxHp;
     this.attackGauge = 0;
     this.statuses = {};
@@ -1261,10 +1270,12 @@ class Minion {
     const mappings = {
       'Aquila': 'Aquila.png',
       'CerberusHead': 'Cerberus Head.png',
-      'HydraHead': 'hydra_3.PNG',
+      'HydraHead': 'hydra_head.png',
       'Serpent': 'python_1.png',
       'FireSpirit': 'Fireblast.png',
-      'ShadowMinion': 'hecate_1.png'
+      'ShadowMinion': 'hecate_1.png',
+      'Phoenix': 'phoenix.png',
+      'Scorpio': 'scorpio.png'
     };
     return mappings[name] || 'Aquila.png';
   }
@@ -1450,8 +1461,17 @@ class Boss {
   }
 
   update(game) {
+    // #region agent log
+    if (!this._attackLogCount) this._attackLogCount = 0;
+    const scheduledAttack = Math.random() < (this.speed / 400);
+    if (scheduledAttack && this._attackLogCount < 5) {
+      this._attackLogCount++;
+      fetch('http://127.0.0.1:7242/ingest/87393eff-2d25-48af-a5f9-c1fcc354abec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'game.js:Boss.update',message:'Attack scheduled',data:{bossSpeed:this.speed,probability:this.speed/400,activeAttacks:this.activeAttacks.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5B-attacks'})}).catch(()=>{});
+    }
+    // #endregion
+
     // Probabilistically schedule attacks
-    if (Math.random() < (this.speed / 400)) {
+    if (scheduledAttack) {
       const attackClass = this.attackClasses[Math.floor(Math.random() * this.attackClasses.length)];
       this.scheduleAttack(attackClass, game);
     }
@@ -1642,7 +1662,7 @@ function createBoss(name) {
         SunFlare,
         ArrowVolley,
         () => new FireWall('bottom'),
-        () => new MinionSpawn('FireSpirit')
+        () => new MinionSpawn('Phoenix')
       ]
     },
     Neptune: {
@@ -1669,10 +1689,10 @@ function createBoss(name) {
       title: 'Messenger of the Gods',
       strength: 8, speed: 80, durability: 6, regeneration: 5, supernatural: 10,
       color: [180, 180, 200],
-      imageFile: 'mercury.png',
+      imageFile: 'mercury_1.png',
       bossImageFile: null,
       useImageAsBossSprite: true,
-      transform: null,
+      transform: 'Mercury Ascended',
       maxHp: 250,
       difficulty: 'easy',
       attacks: [
@@ -1930,6 +1950,7 @@ function createBoss(name) {
       color: [150, 120, 80],
       imageFile: 'scythia.png',
       bossImageFile: null,
+      backgroundFile: 'Artemis Forest Woods Background.png',
       useImageAsBossSprite: true,
       transform: null,
       maxHp: 350,
@@ -1960,6 +1981,245 @@ function createBoss(name) {
         () => new FireWall('bottom'),
         GroundSlam,
         () => new MinionSpawn('FireSpirit')
+      ]
+    },
+    // ===== NEW BOSSES =====
+    Artemis: {
+      name: 'Artemis',
+      title: 'Goddess of the Hunt',
+      strength: 12, speed: 65, durability: 10, regeneration: 8, supernatural: 14,
+      color: [60, 120, 60],
+      imageFile: 'artemis_1.png',
+      bossImageFile: null,
+      backgroundFile: 'Artemis Forest Woods Background.png',
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 400,
+      difficulty: 'medium',
+      attacks: [
+        ArrowVolley,
+        DashAttack,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        RisingTornado,
+        HomingCloud,
+        () => new MinionSpawn('Scorpio')
+      ]
+    },
+    Nyx: {
+      name: 'Nyx',
+      title: 'Primordial Goddess of Night',
+      strength: 14, speed: 40, durability: 14, regeneration: 12, supernatural: 20,
+      color: [30, 20, 60],
+      imageFile: 'nyx.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 550,
+      difficulty: 'hard',
+      attacks: [
+        ShadowBolt,
+        () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
+        PoisonCloud,
+        HomingCloud,
+        LightningStrikeAttack,
+        () => new MinionSpawn('ShadowMinion')
+      ]
+    },
+    ScythianEkidna: {
+      name: 'Scythian Ekidna',
+      title: 'Mother of the Scythians',
+      strength: 14, speed: 50, durability: 14, regeneration: 10, supernatural: 14,
+      color: [100, 80, 60],
+      imageFile: 'scythian_ekidna_1.png',
+      bossImageFile: null,
+      backgroundFile: 'Artemis Forest Woods Background.png',
+      useImageAsBossSprite: true,
+      transform: 'ScythianEkidna Monster',
+      maxHp: 350,
+      difficulty: 'medium',
+      attacks: [
+        ArrowVolley,
+        PoisonBreath,
+        DashAttack,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        GroundSlam
+      ]
+    },
+    'ScythianEkidna Monster': {
+      name: 'Scythian Ekidna',
+      title: 'Serpent Form',
+      strength: 18, speed: 35, durability: 18, regeneration: 14, supernatural: 16,
+      color: [80, 100, 50],
+      imageFile: 'scythian_ekidna_2.png',
+      bossImageFile: null,
+      backgroundFile: 'Artemis Forest Woods Background.png',
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 450,
+      difficulty: 'medium',
+      attacks: [
+        PoisonCloud,
+        PoisonBreath,
+        AcidSpit,
+        GroundSlam,
+        () => new MinionSpawn('Serpent'),
+        () => new MinionSpawn('HydraHead')
+      ]
+    },
+    NemeanLion: {
+      name: 'Nemean Lion',
+      title: 'The Invulnerable Beast',
+      strength: 18, speed: 50, durability: 20, regeneration: 8, supernatural: 6,
+      color: [180, 140, 60],
+      imageFile: 'nemean_lion_1.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: 'NemeanLion Enraged',
+      maxHp: 400,
+      difficulty: 'medium',
+      attacks: [
+        DashAttack,
+        GroundSlam,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        RisingTornado
+      ]
+    },
+    'NemeanLion Enraged': {
+      name: 'Nemean Lion',
+      title: 'Enraged Form',
+      strength: 24, speed: 60, durability: 22, regeneration: 4, supernatural: 8,
+      color: [200, 100, 40],
+      imageFile: 'nemean_lion_2.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 500,
+      difficulty: 'medium',
+      attacks: [
+        DashAttack,
+        DashAttack, // Faster attacks
+        GroundSlam,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        RisingTornado,
+        FireBlast
+      ]
+    },
+    'Mercury Ascended': {
+      name: 'Mercury',
+      title: 'Ascended Form',
+      strength: 12, speed: 95, durability: 8, regeneration: 8, supernatural: 14,
+      color: [200, 200, 220],
+      imageFile: 'mercury_2.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 350,
+      difficulty: 'easy',
+      attacks: [
+        DashAttack,
+        DashAttack, // Double dash attacks
+        RisingTornado,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        ArrowVolley,
+        HomingCloud,
+        LightningStrikeAttack
+      ]
+    },
+    // ===== SINISTER MONSTERS =====
+    CeryneianHind: {
+      name: 'Ceryneian Hind',
+      title: 'The Golden-Horned Deer',
+      strength: 8, speed: 85, durability: 6, regeneration: 10, supernatural: 12,
+      color: [220, 200, 150],
+      imageFile: 'ceryneian_hind.png',
+      bossImageFile: null,
+      backgroundFile: 'Artemis Forest Woods Background.png',
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 300,
+      difficulty: 'easy',
+      attacks: [
+        DashAttack,
+        DashAttack,
+        RisingTornado,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        ArrowVolley
+      ]
+    },
+    ErymanthianBoar: {
+      name: 'Erymanthian Boar',
+      title: 'The Wild Mountain Beast',
+      strength: 20, speed: 40, durability: 18, regeneration: 6, supernatural: 6,
+      color: [120, 80, 60],
+      imageFile: 'erymanthian_boar.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 500,
+      difficulty: 'hard',
+      attacks: [
+        GroundSlam,
+        DashAttack,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        RisingTornado,
+        FireBlast
+      ]
+    },
+    StymphalianBird: {
+      name: 'Stymphalian Bird',
+      title: 'The Bronze-Beaked Terror',
+      strength: 12, speed: 70, durability: 10, regeneration: 8, supernatural: 10,
+      color: [160, 140, 120],
+      imageFile: 'stymphalian_bird.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 350,
+      difficulty: 'medium',
+      attacks: [
+        ArrowVolley,
+        DashAttack,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        HomingCloud,
+        RisingTornado
+      ]
+    },
+    CretanBull: {
+      name: 'Cretan Bull',
+      title: 'The Raging Beast of Crete',
+      strength: 18, speed: 50, durability: 16, regeneration: 8, supernatural: 8,
+      color: [140, 100, 80],
+      imageFile: 'cretan_bull.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 450,
+      difficulty: 'medium',
+      attacks: [
+        DashAttack,
+        GroundSlam,
+        FireBlast,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        RisingTornado
+      ]
+    },
+    MaresOfDiomedes: {
+      name: 'Mare of Diomedes',
+      title: 'The Man-Eating Horse',
+      strength: 16, speed: 65, durability: 12, regeneration: 6, supernatural: 10,
+      color: [100, 80, 100],
+      imageFile: 'mare_of_diomedes.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 400,
+      difficulty: 'medium',
+      attacks: [
+        DashAttack,
+        DashAttack,
+        GroundSlam,
+        PoisonBreath,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right')
       ]
     }
   };
@@ -2612,6 +2872,14 @@ class Game {
     const delta = timestamp - this.lastTime;
     this.lastTime = timestamp;
     this.fps = 1000 / delta;
+
+    // #region agent log
+    if (!this._logCount) this._logCount = 0;
+    if (this._logCount < 10) {
+      this._logCount++;
+      fetch('http://127.0.0.1:7242/ingest/87393eff-2d25-48af-a5f9-c1fcc354abec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'game.js:gameLoop',message:'Game loop tick',data:{delta:delta,fps:this.fps,timestamp:timestamp,tickCount:this._logCount},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5A-fps'})}).catch(()=>{});
+    }
+    // #endregion
 
     this.update();
     this.draw();

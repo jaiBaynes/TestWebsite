@@ -187,7 +187,7 @@ mercury = Image.create!(
   quote: "We're in the money!",
   family: "Venus (sister), Terra (sister), Mars (brother), Jupiter (brother), Neptune (brother), Uranus (sister)",
   biography: "TODO",
-  image_url: "/images/characters/mercury.png",
+  image_url: "/images/characters/mercury_preview.png",
   artist: "tsuki.chiin (*pochll*)",
   myth_inspiration: "Hermes the messenger of the gods in greek mythology.",
   powers: "Super speed, Relativity, Shape shifting, Illusions, Teleportation, Microcosm",
@@ -218,6 +218,26 @@ apollo = Image.create!(
   locked: true
 )
 load_character_images(apollo)
+
+# Character: Artemis
+artemis = Image.create!(
+  gallery: olympia_gallery,
+  name: "Artemis",
+  quote: "The hunt is not about the kill; it is about the chase.",
+  family: "Zeus (father), Apollo (twin brother), Leto (mother), Hercules (half-brother), Hebe (half-sister)",
+  biography: "Artemis is the twin sister of Apollo and the daughter of Zeus and the Titaness Leto. She is the goddess of the hunt, the wilderness, wild animals, and the moon. Unlike her brother who craves attention and glory, Artemis prefers solitude and the company of her huntresses. She leads a band of immortal hunters who have sworn off romance to dedicate themselves to the hunt. She is fiercely protective of women and children, especially those who have been wronged by men. Despite her loyalty to Olympus, she harbors deep resentment towards Zeus for his treatment of women.",
+  image_url: "/images/characters/artemis_1.png",
+  artist: "TODO",
+  myth_inspiration: "Artemis the Greek goddess of the hunt, wilderness, and the moon.",
+  powers: "Enhanced agility and tracking, Animal communication, Lunar manipulation, Shape shifting into animals, Bow mastery",
+  home: "The Wilderness / Olympus",
+  personality: "Independent, fierce, protective, loyal, solitary, just",
+  first_appearance: "Act 2",
+  race: "half-Lycian Goddess (Immortal)",
+  goal: "To protect the innocent and punish those who harm women and children.",
+  locked: true
+)
+load_character_images(artemis)
 
 # Character: Venus
 venus = Image.create!(
@@ -346,14 +366,34 @@ scythia = Image.create!(
 )
 load_character_images(scythia)
 
+# Character: Scythian Ekidna
+scythian_ekidna = Image.create!(
+  gallery: sinisters_gallery,
+  name: "Scythian Ekidna",
+  quote: "I am the mother of nations, and my children shall inherit the earth.",
+  family: "Heracles (former lover), Scythia (daughter), Agathyrsos (son), Gelonos (son)",
+  biography: "Scythian Ekidna is a serpent-woman who dwells in the forests of Scythia. According to legend, she encountered Heracles when he was driving the cattle of Geryon through her territory. She stole his horses and would only return them if he lay with her. From their union came three sons: Agathyrsos, Gelonos, and Scythes (Scythia in this version). She is the mother of the Scythian people and fiercely protective of her domain. Unlike the Greek Echidna, she is not aligned with Typhon but is an independent force of nature.",
+  image_url: "/images/characters/scythian_ekidna_1.png",
+  artist: "TODO",
+  myth_inspiration: "The Scythian serpent-woman from Herodotus' Histories who bore Heracles' children and became the ancestor of the Scythians.",
+  powers: "Shape shifting (human to serpent), Forest manipulation, Poison generation, Enhanced strength",
+  home: "Scythian Forests",
+  personality: "Protective, cunning, maternal, territorial, independent",
+  first_appearance: "Bonus Chapters",
+  race: "Serpent-woman (Immortal)",
+  goal: "To protect her children and the Scythian people.",
+  locked: true
+)
+load_character_images(scythian_ekidna)
+
 #Character: Nemean Lion
 nemean_lion = Image.create!(
   gallery: sinisters_gallery,
-  name: "Leo/ Nemean Lion",
+  name: "Nemean Lion",
   quote: "TODO",
   family: "Typhon (biological father), Echidna (biological mother), Hydra (brother), Draco (nephew)",
   biography: "Hydra's older brother and close ally. He served the Sinisters in their war against Olympus.In his humanoid form, the Nemean lion is a tall, muscular man with black hair and red eyes. He strongly resembles his brother Hydra, but is much bulkier and hairier with a mane-like beard. He was killed by Hercules who used his skin as a pelt/ cape.",
-  image_url: "/images/characters/nemean_lion.png",
+  image_url: "/images/characters/nemean_lion_1.png",
   artist: "the.creature.keeper (Patricio Perez)",
   myth_inspiration: "TODO",
   powers: "Shape shifting, Invulnerability, Flaming Breath",
@@ -571,7 +611,27 @@ terra = Image.create!(
 )
 load_character_images(terra)
 
-# Character 6: Megaera
+# Character: Nyx
+nyx = Image.create!(
+  gallery: underworld_gallery,
+  name: "Nyx",
+  quote: "Even the gods fear the darkness.",
+  family: "Erebus (consort), Megaera (daughter), Tisiphone (daughter), Alecto (daughter), Thanatos (son), Hypnos (son), Charon (son)",
+  biography: "Nyx is the primordial goddess of the night, one of the oldest beings in existence. She predates the Olympians and even the Titans. Her realm is the darkness between the stars, and her power is so great that even Zeus fears to cross her. She was once a lover of Hades before his marriage to Terra Solaris, and they remain close allies. She is the mother of many powerful beings including the Furies, Thanatos (Death), and Hypnos (Sleep). Though she dwells in the deepest darkness, she is not evil - she simply represents the necessary balance to light, the rest that comes after labor, the peace that follows strife.",
+  image_url: "/images/characters/nyx.png",
+  artist: "TODO",
+  myth_inspiration: "Nyx, the primordial Greek goddess of the night who was feared even by Zeus.",
+  powers: "Darkness manipulation, Dream weaving, Fear induction, Shadow travel, Primordial magic, Immortality bestowal",
+  home: "The Void / Elysium",
+  personality: "Ancient, mysterious, wise, maternal, patient, formidable",
+  first_appearance: "Bonus Chapters",
+  race: "Primordial Goddess (Immortal)",
+  goal: "To maintain the cosmic balance and protect her children.",
+  locked: true
+)
+load_character_images(nyx)
+
+# Character: Megaera
 megaera = Image.create!(
   gallery: underworld_gallery,
   name: "Megaera",
@@ -591,7 +651,7 @@ megaera = Image.create!(
 )
 load_character_images(megaera)
 
-# Character 6: Hecate
+# Character: Hecate
 hecate = Image.create!(
   gallery: underworld_gallery,
   name: "Hecate",
