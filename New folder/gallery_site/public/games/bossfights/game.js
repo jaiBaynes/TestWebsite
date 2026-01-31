@@ -1238,6 +1238,7 @@ class Boss {
     this.activeAttacks = [];
     this.image = null;
     this.bossImage = null;
+    this.difficulty = config.difficulty || 'medium';
   }
 
   scheduleAttack(AttackClass, game) {
@@ -1305,6 +1306,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 500,
+      difficulty: 'hard',
       attacks: [
         LightningStrikeAttack,
         () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
@@ -1322,6 +1324,7 @@ function createBoss(name) {
       bossImageFile: 'Aquila.png',
       transform: 'Storm Aquila',
       maxHp: 100,
+      difficulty: 'easy',
       attacks: [
         LightningStrikeAttack,
         () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
@@ -1339,6 +1342,7 @@ function createBoss(name) {
       bossImageFile: 'Aquila Storm.png',
       transform: null,
       maxHp: 150,
+      difficulty: 'easy',
       attacks: [
         LightningStrikeAttack,
         () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
@@ -1356,6 +1360,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 500,
+      difficulty: 'medium',
       attacks: [
         FireBlast,
         () => new FireWall('bottom'),
@@ -1372,6 +1377,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: 'Hydra Monster',
       maxHp: 200,
+      difficulty: 'medium',
       attacks: [
         FireBlast,
         PoisonCloud,
@@ -1389,6 +1395,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 350,
+      difficulty: 'medium',
       attacks: [
         FireBlast,
         PoisonCloud,
@@ -1408,6 +1415,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 400,
+      difficulty: 'medium',
       attacks: [
         SolarBeam,
         FireBlast,
@@ -1426,6 +1434,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 500,
+      difficulty: 'hard',
       attacks: [
         () => new TidalWave(Math.random() < 0.5 ? 'left' : 'right'),
         Whirlpool,
@@ -1443,6 +1452,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 250,
+      difficulty: 'easy',
       attacks: [
         DashAttack,
         RisingTornado,
@@ -1460,6 +1470,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 300,
+      difficulty: 'easy',
       attacks: [
         ShadowBolt,
         () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
@@ -1478,6 +1489,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 600,
+      difficulty: 'hard',
       attacks: [
         FireBlast,
         () => new FireWall('bottom'),
@@ -1496,6 +1508,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 350,
+      difficulty: 'medium',
       attacks: [
         FireBlast,
         DashAttack,
@@ -1514,6 +1527,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 400,
+      difficulty: 'medium',
       attacks: [
         PoisonCloud,
         PoisonBreath,
@@ -1532,6 +1546,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 450,
+      difficulty: 'medium',
       attacks: [
         PoisonCloud,
         PoisonBreath,
@@ -1551,6 +1566,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 600,
+      difficulty: 'hard',
       attacks: [
         GroundSlam,
         LightningStrikeAttack,
@@ -1569,6 +1585,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 400,
+      difficulty: 'medium',
       attacks: [
         LightningStrikeAttack,
         HomingCloud,
@@ -1587,6 +1604,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 300,
+      difficulty: 'easy',
       attacks: [
         LightningStrikeAttack,
         HomingCloud,
@@ -1605,6 +1623,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 500,
+      difficulty: 'hard',
       attacks: [
         PoisonCloud,
         PoisonBreath,
@@ -1624,6 +1643,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 200,
+      difficulty: 'easy',
       attacks: [
         ShadowBolt,
         () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
@@ -1641,6 +1661,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 500,
+      difficulty: 'hard',
       attacks: [
         FireBlast,
         () => new FireWall('bottom'),
@@ -1659,6 +1680,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 350,
+      difficulty: 'medium',
       attacks: [
         ShadowBolt,
         HomingCloud,
@@ -1676,6 +1698,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 350,
+      difficulty: 'medium',
       attacks: [
         ArrowVolley,
         DashAttack,
@@ -1693,6 +1716,7 @@ function createBoss(name) {
       bossImageFile: null,
       transform: null,
       maxHp: 600,
+      difficulty: 'hard',
       attacks: [
         SolarBeam,
         SunFlare,
@@ -1786,6 +1810,7 @@ class Game {
           } else {
             this.victory = true;
             this.gameOver = true;
+            this.recordVictory();
           }
         }
       }
@@ -2097,7 +2122,181 @@ class Game {
     this.victory = false;
     this.loadAssets();
   }
+
+  // ============= PROGRESS TRACKING =============
+  recordVictory() {
+    const bossName = this.bossName;
+    const difficulty = this.boss.difficulty || 'medium';
+    
+    // Save to localStorage immediately
+    this.saveToLocalStorage(bossName, difficulty);
+    
+    // Try to sync with server (if logged in)
+    this.syncWithServer(bossName, difficulty);
+  }
+
+  saveToLocalStorage(bossName, difficulty) {
+    try {
+      const key = 'bossFightProgress';
+      const existing = JSON.parse(localStorage.getItem(key) || '{}');
+      
+      if (!existing.defeats) existing.defeats = {};
+      if (!existing.defeats[bossName]) {
+        existing.defeats[bossName] = {
+          count: 0,
+          difficulty: difficulty,
+          firstDefeated: new Date().toISOString(),
+          synced: false,
+        };
+      }
+      
+      existing.defeats[bossName].count++;
+      existing.defeats[bossName].lastDefeated = new Date().toISOString();
+      existing.defeats[bossName].synced = false;
+      
+      // Update total stats
+      if (!existing.stats) existing.stats = { totalVictories: 0 };
+      existing.stats.totalVictories++;
+      
+      localStorage.setItem(key, JSON.stringify(existing));
+      
+      // Dispatch event for any listeners
+      window.dispatchEvent(new CustomEvent('bossDefeated', {
+        detail: { bossName, difficulty, progress: existing }
+      }));
+      
+      console.log(`✓ Saved victory against ${bossName} to localStorage`);
+    } catch (e) {
+      console.warn('Failed to save to localStorage:', e);
+    }
+  }
+
+  async syncWithServer(bossName, difficulty) {
+    try {
+      const response = await fetch('/api/record_boss_defeat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': this.getCSRFToken(),
+        },
+        body: JSON.stringify({ boss_name: bossName, difficulty: difficulty }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          console.log(`✓ Synced victory to server (+${data.points_awarded} pts)`);
+          
+          // Mark as synced in localStorage
+          this.markSynced(bossName);
+          
+          // Update header display if exists
+          this.updateHeaderPoints(data);
+          
+          // Dispatch sync event
+          window.dispatchEvent(new CustomEvent('pointsEarned', {
+            detail: data
+          }));
+        }
+      }
+    } catch (e) {
+      // Server sync failed, will retry on next login
+      console.log('Server sync pending (not logged in or offline)');
+    }
+  }
+
+  markSynced(bossName) {
+    try {
+      const key = 'bossFightProgress';
+      const existing = JSON.parse(localStorage.getItem(key) || '{}');
+      if (existing.defeats && existing.defeats[bossName]) {
+        existing.defeats[bossName].synced = true;
+        localStorage.setItem(key, JSON.stringify(existing));
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }
+
+  updateHeaderPoints(data) {
+    const pointsDisplay = document.getElementById('points-display');
+    if (pointsDisplay) {
+      pointsDisplay.textContent = data.total_points.toLocaleString();
+      pointsDisplay.classList.add('points-earned');
+      setTimeout(() => pointsDisplay.classList.remove('points-earned'), 500);
+    }
+  }
+
+  getCSRFToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+  }
 }
+
+// ============= STATIC PROGRESS HELPERS =============
+window.BossFightProgress = {
+  getProgress() {
+    try {
+      return JSON.parse(localStorage.getItem('bossFightProgress') || '{}');
+    } catch {
+      return {};
+    }
+  },
+
+  getUnsynced() {
+    const progress = this.getProgress();
+    const unsynced = [];
+    if (progress.defeats) {
+      for (const [bossName, data] of Object.entries(progress.defeats)) {
+        if (!data.synced) {
+          unsynced.push({ boss_name: bossName, difficulty: data.difficulty });
+        }
+      }
+    }
+    return unsynced;
+  },
+
+  async syncAll() {
+    const unsynced = this.getUnsynced();
+    if (unsynced.length === 0) return { success: true, synced: 0 };
+
+    try {
+      const meta = document.querySelector('meta[name="csrf-token"]');
+      const token = meta ? meta.getAttribute('content') : '';
+      
+      const response = await fetch('/api/sync_progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': token,
+        },
+        body: JSON.stringify({ boss_defeats: unsynced }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Mark all as synced
+          const progress = this.getProgress();
+          for (const defeat of unsynced) {
+            if (progress.defeats && progress.defeats[defeat.boss_name]) {
+              progress.defeats[defeat.boss_name].synced = true;
+            }
+          }
+          localStorage.setItem('bossFightProgress', JSON.stringify(progress));
+          return { success: true, synced: unsynced.length, data };
+        }
+      }
+      return { success: false };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  },
+
+  clearProgress() {
+    localStorage.removeItem('bossFightProgress');
+  },
+};
 
 // Export for use
 window.BossFightGame = Game;

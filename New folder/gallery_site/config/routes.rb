@@ -3,6 +3,26 @@ Rails.application.routes.draw do
   
   get "home/index"
   
+  # Authentication
+  get "login", to: "sessions#new", as: :login
+  post "login", to: "sessions#create"
+  delete "logout", to: "sessions#destroy", as: :logout
+  get "signup", to: "registrations#new", as: :signup
+  post "signup", to: "registrations#create"
+  
+  # Profile
+  get "profile", to: "profiles#show", as: :profile
+  get "profile/edit", to: "profiles#edit", as: :edit_profile
+  patch "profile", to: "profiles#update"
+  
+  # API endpoints for progress tracking
+  namespace :api do
+    post "sync_progress", to: "progress#sync"
+    post "record_boss_defeat", to: "progress#record_boss_defeat"
+    post "record_chapter_read", to: "progress#record_chapter_read"
+    get "user_stats", to: "progress#user_stats"
+  end
+  
   # Category pages
   get "characters", to: "galleries#characters", as: :characters
   get "locations", to: "galleries#locations", as: :locations
@@ -26,6 +46,11 @@ Rails.application.routes.draw do
   resources :galleries, only: [:show] do
     resources :images, only: [:show]
   end
+  
+  # Admin panel for testing
+  get "admin", to: "admin#index", as: :admin
+  post "admin/users/:id/set_points", to: "admin#set_points", as: :admin_set_points
+  post "admin/users/:id/reset_progress", to: "admin#reset_progress", as: :admin_reset_progress
   
   # Unlock system for testing
   get "unlocks", to: "unlocks#index", as: :unlocks

@@ -1,0 +1,521 @@
+<div class="profile-background">
+  <div class="profile-overlay"></div>
+  <div class="container profile-container">
+    
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-rank-badge" style="background: <%= @user.rank_color %>20; border-color: <%= @user.rank_color %>;">
+        <span class="rank-icon"><%= @user.rank_icon %></span>
+        <span class="rank-name" style="color: <%= @user.rank_color %>;"><%= @user.rank_name %></span>
+      </div>
+      
+      <h1 class="profile-username"><%= @user.display_name_or_username %></h1>
+      
+      <div class="profile-points">
+        <span class="points-value"><%= number_with_delimiter(@user.points) %></span>
+        <span class="points-label">Points</span>
+      </div>
+      
+      <% if @user.next_rank %>
+        <div class="rank-progress">
+          <div class="progress-info">
+            <span><%= @user.rank_name %></span>
+            <span><%= @user.next_rank[:name] %></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: <%= @user.rank_progress_percent %>%; background: <%= @user.rank_color %>;"></div>
+          </div>
+          <p class="progress-text">
+            <%= number_with_delimiter(@user.points_to_next_rank) %> points to <%= @user.next_rank[:name] %>
+          </p>
+        </div>
+      <% else %>
+        <div class="max-rank-badge">
+          👑 Maximum Rank Achieved!
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-value"><%= @stats[:chapters_read] %></div>
+        <div class="stat-label">Chapters Read</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚔️</div>
+        <div class="stat-value"><%= @stats[:bosses_defeated] %></div>
+        <div class="stat-label">Bosses Defeated</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-value"><%= @stats[:total_boss_victories] %></div>
+        <div class="stat-label">Total Victories</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👁️</div>
+        <div class="stat-value"><%= @stats[:characters_viewed] %></div>
+        <div class="stat-label">Characters Discovered</div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-section">
+      <h2>📜 Recent Activity</h2>
+      
+      <div class="activity-grid">
+        <% if @recent_bosses.any? %>
+          <div class="activity-card">
+            <h3>⚔️ Boss Defeats</h3>
+            <ul class="activity-list">
+              <% @recent_bosses.each do |defeat| %>
+                <li>
+                  <span class="activity-name"><%= defeat.boss_name %></span>
+                  <span class="activity-detail">
+                    defeated <%= defeat.defeat_count %>x
+                    <span class="activity-time"><%= time_ago_in_words(defeat.last_defeated_at) %> ago</span>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <% if @recent_chapters.any? %>
+          <div class="activity-card">
+            <h3>📖 Chapters Read</h3>
+            <ul class="activity-list">
+              <% @recent_chapters.each do |read| %>
+                <li>
+                  <span class="activity-name"><%= read.chapter.title %></span>
+                  <span class="activity-time"><%= time_ago_in_words(read.read_at) %> ago</span>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <% if @recent_views.any? %>
+          <div class="activity-card">
+            <h3>👤 Characters Discovered</h3>
+            <ul class="activity-list">
+              <% @recent_views.each do |view| %>
+                <li>
+                  <span class="activity-name"><%= view.image.name %></span>
+                  <span class="activity-time"><%= time_ago_in_words(view.first_viewed_at) %> ago</span>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @recent_bosses.empty? && @recent_chapters.empty? && @recent_views.empty? %>
+        <div class="no-activity">
+          <p>No activity yet! Start exploring to earn points:</p>
+          <div class="activity-suggestions">
+            <%= link_to "📚 Read Stories", stories_path, class: 'suggestion-link' %>
+            <%= link_to "👤 Meet Characters", characters_path, class: 'suggestion-link' %>
+            <%= link_to "⚔️ Fight Bosses", games_path, class: 'suggestion-link' %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Rank Legend -->
+    <div class="rank-legend">
+      <h2>🏅 Rank Progression</h2>
+      <div class="ranks-list">
+        <% User::RANKS.each do |rank| %>
+          <div class="rank-item <%= 'current' if @user.rank[:name] == rank[:name] %>" 
+               style="--rank-color: <%= rank[:color] %>;">
+            <span class="rank-item-icon"><%= rank[:icon] %></span>
+            <span class="rank-item-name"><%= rank[:name] %></span>
+            <span class="rank-item-threshold"><%= number_with_delimiter(rank[:threshold]) %> pts</span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="profile-actions">
+      <%= link_to edit_profile_path, class: 'btn-profile' do %>
+        ⚙️ Edit Profile
+      <% end %>
+      <%= button_to logout_path, method: :delete, class: 'btn-profile btn-secondary', data: { confirm: 'Are you sure you want to log out?' } do %>
+        🚪 Log Out
+      <% end %>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.profile-background {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 40%, #16213e 100%);
+  padding: 40px 20px;
+  position: relative;
+}
+
+.profile-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(100, 150, 255, 0.08) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.profile-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Profile Header */
+.profile-header {
+  text-align: center;
+  padding: 50px 30px;
+  background: rgba(25, 25, 35, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 20px;
+  margin-bottom: 30px;
+}
+
+.profile-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 25px;
+  border-radius: 30px;
+  border: 2px solid;
+  margin-bottom: 20px;
+}
+
+.rank-icon {
+  font-size: 1.5rem;
+}
+
+.rank-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.profile-username {
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.profile-points {
+  margin-bottom: 25px;
+}
+
+.points-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #d4af37;
+}
+
+.points-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.rank-progress {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  height: 12px;
+  background: rgba(60, 60, 70, 0.8);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.max-rank-badge {
+  display: inline-block;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 180, 0, 0.1));
+  border: 2px solid #ffd700;
+  border-radius: 30px;
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: rgba(25, 25, 35, 0.9);
+  border: 1px solid rgba(100, 100, 120, 0.3);
+  border-radius: 16px;
+  padding: 30px 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: #d4af37;
+  transform: translateY(-3px);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.stat-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #d4af37;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+/* Activity Section */
+.activity-section {
+  background: rgba(25, 25, 35, 0.9);
+  border: 1px solid rgba(100, 100, 120, 0.3);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.activity-section h2 {
+  color: #d4af37;
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+}
+
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.activity-card {
+  background: rgba(40, 40, 50, 0.6);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.activity-card h3 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(100, 100, 120, 0.3);
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(100, 100, 120, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activity-list li:last-child {
+  border-bottom: none;
+}
+
+.activity-name {
+  color: #fff;
+  font-weight: 600;
+}
+
+.activity-detail {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+.activity-time {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+}
+
+.no-activity {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.activity-suggestions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.suggestion-link {
+  padding: 12px 25px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 25px;
+  color: #d4af37;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.suggestion-link:hover {
+  background: rgba(212, 175, 55, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Rank Legend */
+.rank-legend {
+  background: rgba(25, 25, 35, 0.9);
+  border: 1px solid rgba(100, 100, 120, 0.3);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.rank-legend h2 {
+  color: #d4af37;
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+}
+
+.ranks-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(40, 40, 50, 0.6);
+  border-radius: 25px;
+  border: 1px solid rgba(100, 100, 120, 0.3);
+  transition: all 0.3s ease;
+}
+
+.rank-item.current {
+  background: color-mix(in srgb, var(--rank-color) 20%, transparent);
+  border-color: var(--rank-color);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--rank-color) 30%, transparent);
+}
+
+.rank-item-icon {
+  font-size: 1.2rem;
+}
+
+.rank-item-name {
+  color: var(--rank-color);
+  font-weight: 600;
+}
+
+.rank-item-threshold {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+}
+
+/* Profile Actions */
+.profile-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-profile {
+  padding: 14px 30px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #d4af37, #f5d76e);
+  color: #1a1a2e;
+}
+
+.btn-profile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+.btn-profile.btn-secondary {
+  background: rgba(60, 60, 70, 0.8);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(100, 100, 120, 0.3);
+}
+
+.btn-profile.btn-secondary:hover {
+  background: rgba(80, 80, 90, 0.8);
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .profile-username {
+    font-size: 1.8rem;
+  }
+  
+  .points-value {
+    font-size: 2.2rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .profile-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
