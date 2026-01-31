@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boss Fights - Select Your Challenge</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Philosopher:wght@400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Philosopher', sans-serif;
+      background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 40%, #16213e 100%);
+      min-height: 100vh;
+      color: #e8e8e8;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 80, 200, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(200, 150, 50, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(50, 100, 200, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #d4af37 0%, #f5d76e 50%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 60px rgba(212, 175, 55, 0.4);
+      letter-spacing: 4px;
+      margin-bottom: 15px;
+    }
+
+    .header p {
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 2px;
+    }
+
+    /* Boss Selection */
+    #boss-select {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .boss-card {
+      position: relative;
+      background: rgba(20, 20, 30, 0.8);
+      border: 2px solid rgba(100, 100, 120, 0.3);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      backdrop-filter: blur(10px);
+    }
+
+    .boss-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: var(--boss-color, #d4af37);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px var(--boss-glow, rgba(212, 175, 55, 0.3));
+    }
+
+    .boss-card.zeus { --boss-color: #ffdd44; --boss-glow: rgba(255, 221, 68, 0.4); }
+    .boss-card.aquila { --boss-color: #88aaff; --boss-glow: rgba(136, 170, 255, 0.4); }
+    .boss-card.hades { --boss-color: #ff6644; --boss-glow: rgba(255, 102, 68, 0.4); }
+
+    .boss-image {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .boss-card:hover .boss-image {
+      transform: scale(1.1);
+    }
+
+    .boss-info {
+      padding: 25px;
+      background: linear-gradient(to top, rgba(10, 10, 15, 0.95), rgba(20, 20, 30, 0.8));
+    }
+
+    .boss-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--boss-color, #d4af37);
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+
+    .boss-title {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+
+    .boss-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .stat {
+      background: rgba(50, 50, 60, 0.6);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .stat-value {
+      color: var(--boss-color, #d4af37);
+      font-weight: 700;
+    }
+
+    .boss-difficulty {
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .difficulty-easy { background: linear-gradient(135deg, #2d5a2d, #4a8b4a); color: #aaffaa; }
+    .difficulty-medium { background: linear-gradient(135deg, #5a5a2d, #8b8b4a); color: #ffffaa; }
+    .difficulty-hard { background: linear-gradient(135deg, #5a2d2d, #8b4a4a); color: #ffaaaa; }
+
+    .boss-card::after {
+      content: 'SELECT';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(0, 0, 0, 0.9);
+      color: var(--boss-color, #d4af37);
+      padding: 15px 40px;
+      border-radius: 30px;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: 4px;
+      border: 2px solid var(--boss-color, #d4af37);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .boss-card:hover::after {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    /* Game Container */
+    #game-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #game-container.active {
+      display: flex;
+    }
+
+    #boss-select.hidden {
+      display: none;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1000px;
+      margin-bottom: 20px;
+      padding: 15px 25px;
+      background: rgba(20, 20, 30, 0.8);
+      border-radius: 12px;
+      border: 1px solid rgba(100, 100, 120, 0.3);
+    }
+
+    .game-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      color: #d4af37;
+    }
+
+    .back-btn {
+      background: linear-gradient(135deg, #444, #333);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 25px;
+      border-radius: 25px;
+      font-family: 'Philosopher', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: linear-gradient(135deg, #555, #444);
+      transform: translateY(-2px);
+    }
+
+    #game-canvas {
+      border: 3px solid rgba(100, 100, 120, 0.5);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      background: #1a1a2e;
+    }
+
+    .controls-info {
+      margin-top: 25px;
+      padding: 20px 30px;
+      background: rgba(20, 20, 30, 0.8);
+      border-radius: 12px;
+      border: 1px solid rgba(100, 100, 120, 0.3);
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .controls-info h3 {
+      font-family: 'Cinzel', serif;
+      color: #d4af37;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .key {
+      background: linear-gradient(135deg, #333, #222);
+      border: 1px solid #555;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #ffdd88;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .control-desc {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+    }
+
+    /* Loading Screen */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0a0a12;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-text {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      color: #d4af37;
+      margin-bottom: 30px;
+    }
+
+    .loading-bar {
+      width: 300px;
+      height: 6px;
+      background: rgba(100, 100, 120, 0.3);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .loading-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #d4af37, #f5d76e);
+      animation: load 1.5s ease-in-out forwards;
+    }
+
+    @keyframes load {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2.2rem;
+      }
+
+      #boss-select {
+        grid-template-columns: 1fr;
+      }
+
+      #game-canvas {
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      .game-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading" id="loading">
+    <div class="loading-text">Preparing the Arena...</div>
+    <div class="loading-bar">
+      <div class="loading-fill"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>⚔️ BOSS FIGHTS ⚔️</h1>
+      <p>Choose your opponent and test your mettle</p>
+    </div>
+
+    <!-- Boss Selection -->
+    <div id="boss-select">
+      <div class="boss-card zeus" onclick="startGame('Zeus')">
+        <img src="assets/Zeus Boss Image.png" alt="Zeus" class="boss-image" 
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22280%22%3E%3Crect fill=%22%23222%22 width=%22400%22 height=%22280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%23ffdd44%22 font-size=%2248%22 text-anchor=%22middle%22 dy=%22.3em%22%3E⚡%3C/text%3E%3C/svg%3E'">
+        <div class="boss-info">
+          <h2 class="boss-name">ZEUS</h2>
+          <p class="boss-title">Storm God-King of Olympus</p>
+          <div class="boss-stats">
+            <span class="stat">HP: <span class="stat-value">500</span></span>
+            <span class="stat">Speed: <span class="stat-value">45</span></span>
+            <span class="stat">Regen: <span class="stat-value">20</span></span>
+          </div>
+          <span class="boss-difficulty difficulty-hard">⚡ Hard</span>
+        </div>
+      </div>
+
+      <div class="boss-card aquila" onclick="startGame('Aquila')">
+        <img src="assets/Aquila.png" alt="Aquila" class="boss-image"
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22280%22%3E%3Crect fill=%22%23223%22 width=%22400%22 height=%22280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%2388aaff%22 font-size=%2248%22 text-anchor=%22middle%22 dy=%22.3em%22%3E🦅%3C/text%3E%3C/svg%3E'">
+        <div class="boss-info">
+          <h2 class="boss-name">AQUILA</h2>
+          <p class="boss-title">Storm Eagle of Zeus</p>
+          <div class="boss-stats">
+            <span class="stat">HP: <span class="stat-value">100</span> → <span class="stat-value">150</span></span>
+            <span class="stat">Speed: <span class="stat-value">45</span></span>
+            <span class="stat">Phases: <span class="stat-value">2</span></span>
+          </div>
+          <span class="boss-difficulty difficulty-easy">🦅 Easy</span>
+        </div>
+      </div>
+
+      <div class="boss-card hades" onclick="startGame('Hades')">
+        <img src="assets/Hades Boss Image.png" alt="Hades" class="boss-image"
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22280%22%3E%3Crect fill=%22%23211%22 width=%22400%22 height=%22280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%23ff6644%22 font-size=%2248%22 text-anchor=%22middle%22 dy=%22.3em%22%3E🔥%3C/text%3E%3C/svg%3E'">
+        <div class="boss-info">
+          <h2 class="boss-name">HADES</h2>
+          <p class="boss-title">Lord of the Underworld</p>
+          <div class="boss-stats">
+            <span class="stat">HP: <span class="stat-value">500</span></span>
+            <span class="stat">Speed: <span class="stat-value">60</span></span>
+            <span class="stat">Regen: <span class="stat-value">8</span></span>
+          </div>
+          <span class="boss-difficulty difficulty-medium">🔥 Medium</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+      <div class="game-header">
+        <h2 class="game-title" id="current-boss-name">Fighting: Zeus</h2>
+        <button class="back-btn" onclick="returnToMenu()">← Back to Menu</button>
+      </div>
+      
+      <canvas id="game-canvas" width="1000" height="700"></canvas>
+
+      <div class="controls-info">
+        <h3>⌨️ Controls</h3>
+        <div class="controls-grid">
+          <div class="control-item">
+            <span class="key">W A S D</span>
+            <span class="control-desc">Move your character</span>
+          </div>
+          <div class="control-item">
+            <span class="key">ENTER</span>
+            <span class="control-desc">Start attack turn (when gauge is full)</span>
+          </div>
+          <div class="control-item">
+            <span class="key">← →</span>
+            <span class="control-desc">Select target (during your turn)</span>
+          </div>
+          <div class="control-item">
+            <span class="key">SPACE</span>
+            <span class="control-desc">Attack selected target</span>
+          </div>
+          <div class="control-item">
+            <span class="key">H</span>
+            <span class="control-desc">Heal (uses your turn)</span>
+          </div>
+          <div class="control-item">
+            <span class="key">R</span>
+            <span class="control-desc">Restart after game over</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+  <script>
+    let game = null;
+    const canvas = document.getElementById('game-canvas');
+
+    // Hide loading screen after animation
+    setTimeout(() => {
+      document.getElementById('loading').classList.add('hidden');
+      
+      // Check for boss selection in URL hash (e.g., #boss=Zeus)
+      const hash = window.location.hash;
+      if (hash) {
+        const match = hash.match(/boss=(\w+)/i);
+        if (match) {
+          const bossName = match[1];
+          const validBosses = ['Zeus', 'Aquila', 'Hades'];
+          const selectedBoss = validBosses.find(b => b.toLowerCase() === bossName.toLowerCase());
+          if (selectedBoss) {
+            setTimeout(() => startGame(selectedBoss), 200);
+          }
+        }
+      }
+    }, 1800);
+
+    function startGame(bossName) {
+      // Update UI
+      document.getElementById('boss-select').classList.add('hidden');
+      document.getElementById('game-container').classList.add('active');
+      document.getElementById('current-boss-name').textContent = `Fighting: ${bossName}`;
+
+      // Resize canvas for container
+      const container = document.getElementById('game-container');
+      const maxWidth = Math.min(1000, window.innerWidth - 40);
+      const aspectRatio = 1000 / 700;
+      canvas.width = maxWidth;
+      canvas.height = maxWidth / aspectRatio;
+
+      // Create and start game
+      if (game) {
+        game.stop();
+      }
+      game = new BossFightGame(canvas, bossName);
+      game.start();
+
+      // Focus for keyboard input
+      canvas.tabIndex = 1;
+      canvas.focus();
+    }
+
+    function returnToMenu() {
+      if (game) {
+        game.stop();
+        game = null;
+      }
+      document.getElementById('boss-select').classList.remove('hidden');
+      document.getElementById('game-container').classList.remove('active');
+    }
+
+    // Global key handlers
+    document.addEventListener('keydown', (e) => {
+      if (game) {
+        game.handleKeyDown(e);
+        
+        // Handle restart
+        if (e.code === 'KeyR' && game.gameOver) {
+          game.restart();
+        }
+        // Handle escape to menu
+        if (e.code === 'Escape') {
+          returnToMenu();
+        }
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (game) {
+        game.handleKeyUp(e);
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (game && document.getElementById('game-container').classList.contains('active')) {
+        const maxWidth = Math.min(1000, window.innerWidth - 40);
+        const aspectRatio = 1000 / 700;
+        canvas.width = maxWidth;
+        canvas.height = maxWidth / aspectRatio;
+        
+        // Update player position
+        game.player = new game.player.constructor(canvas.width, canvas.height);
+      }
+    });
+  </script>
+</body>
+</html>
+
