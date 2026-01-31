@@ -72,118 +72,141 @@
 
     /* Boss Selection */
     #boss-select {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
       margin-bottom: 40px;
+    }
+
+    .boss-category {
+      background: rgba(20, 20, 30, 0.6);
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid rgba(100, 100, 120, 0.2);
+    }
+
+    .category-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      color: #d4af37;
+      margin-bottom: 25px;
+      text-align: center;
+      letter-spacing: 3px;
+    }
+
+    .boss-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
     }
 
     .boss-card {
       position: relative;
-      background: rgba(20, 20, 30, 0.8);
+      background: rgba(20, 20, 30, 0.9);
       border: 2px solid rgba(100, 100, 120, 0.3);
-      border-radius: 16px;
+      border-radius: 12px;
       overflow: hidden;
       cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
     }
 
     .boss-card:hover {
-      transform: translateY(-10px) scale(1.02);
+      transform: translateY(-5px);
       border-color: var(--boss-color, #d4af37);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px var(--boss-glow, rgba(212, 175, 55, 0.3));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px var(--boss-glow, rgba(212, 175, 55, 0.2));
     }
 
+    /* Boss color themes */
     .boss-card.zeus { --boss-color: #ffdd44; --boss-glow: rgba(255, 221, 68, 0.4); }
     .boss-card.aquila { --boss-color: #88aaff; --boss-glow: rgba(136, 170, 255, 0.4); }
     .boss-card.hades { --boss-color: #ff6644; --boss-glow: rgba(255, 102, 68, 0.4); }
     .boss-card.hydra { --boss-color: #66ff66; --boss-glow: rgba(102, 255, 102, 0.4); }
+    .boss-card.neptune { --boss-color: #4488ff; --boss-glow: rgba(68, 136, 255, 0.4); }
+    .boss-card.apollo { --boss-color: #ffcc44; --boss-glow: rgba(255, 204, 68, 0.4); }
+    .boss-card.mercury { --boss-color: #aabbcc; --boss-glow: rgba(170, 187, 204, 0.4); }
+    .boss-card.venus { --boss-color: #ff99bb; --boss-glow: rgba(255, 153, 187, 0.4); }
+    .boss-card.hebe { --boss-color: #99dd99; --boss-glow: rgba(153, 221, 153, 0.4); }
+    .boss-card.cerberus { --boss-color: #cc4444; --boss-glow: rgba(204, 68, 68, 0.4); }
+    .boss-card.hecate { --boss-color: #9966cc; --boss-glow: rgba(153, 102, 204, 0.4); }
+    .boss-card.megaera { --boss-color: #cc6688; --boss-glow: rgba(204, 102, 136, 0.4); }
+    .boss-card.echidna { --boss-color: #88aa66; --boss-glow: rgba(136, 170, 102, 0.4); }
+    .boss-card.python { --boss-color: #77aa55; --boss-glow: rgba(119, 170, 85, 0.4); }
+    .boss-card.draco { --boss-color: #8866aa; --boss-glow: rgba(136, 102, 170, 0.4); }
+    .boss-card.hercules { --boss-color: #ddaa66; --boss-glow: rgba(221, 170, 102, 0.4); }
+    .boss-card.melissa { --boss-color: #6699cc; --boss-glow: rgba(102, 153, 204, 0.4); }
+    .boss-card.scythia { --boss-color: #bb9966; --boss-glow: rgba(187, 153, 102, 0.4); }
+    .boss-card.terra-solaris { --boss-color: #ffaa44; --boss-glow: rgba(255, 170, 68, 0.4); }
+    .boss-card.metis { --boss-color: #8899bb; --boss-glow: rgba(136, 153, 187, 0.4); }
+    .boss-card.kat { --boss-color: #aa88bb; --boss-glow: rgba(170, 136, 187, 0.4); }
 
     .boss-image {
       width: 100%;
-      height: 280px;
+      height: 140px;
       object-fit: cover;
+      object-position: top;
       display: block;
-      transition: transform 0.5s ease;
+      transition: transform 0.4s ease;
+      background: linear-gradient(135deg, rgba(40, 40, 50, 1), rgba(60, 60, 70, 1));
     }
 
     .boss-card:hover .boss-image {
-      transform: scale(1.1);
+      transform: scale(1.08);
     }
 
     .boss-info {
-      padding: 25px;
-      background: linear-gradient(to top, rgba(10, 10, 15, 0.95), rgba(20, 20, 30, 0.8));
+      padding: 15px;
+      background: linear-gradient(to top, rgba(10, 10, 15, 0.98), rgba(20, 20, 30, 0.9));
+      text-align: center;
     }
 
     .boss-name {
       font-family: 'Cinzel', serif;
-      font-size: 1.8rem;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--boss-color, #d4af37);
-      margin-bottom: 8px;
-      letter-spacing: 2px;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
     }
 
     .boss-title {
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
       font-style: italic;
-      margin-bottom: 15px;
-    }
-
-    .boss-stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 15px;
-    }
-
-    .stat {
-      background: rgba(50, 50, 60, 0.6);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    .stat-value {
-      color: var(--boss-color, #d4af37);
-      font-weight: 700;
+      margin-bottom: 10px;
     }
 
     .boss-difficulty {
       display: inline-block;
-      padding: 8px 20px;
-      border-radius: 25px;
+      padding: 4px 12px;
+      border-radius: 15px;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
-    .difficulty-easy { background: linear-gradient(135deg, #2d5a2d, #4a8b4a); color: #aaffaa; }
-    .difficulty-medium { background: linear-gradient(135deg, #5a5a2d, #8b8b4a); color: #ffffaa; }
-    .difficulty-hard { background: linear-gradient(135deg, #5a2d2d, #8b4a4a); color: #ffaaaa; }
+    .difficulty-easy { background: rgba(80, 200, 80, 0.25); color: #88ff88; border: 1px solid rgba(80, 200, 80, 0.4); }
+    .difficulty-medium { background: rgba(200, 180, 80, 0.25); color: #ffee88; border: 1px solid rgba(200, 180, 80, 0.4); }
+    .difficulty-hard { background: rgba(200, 80, 80, 0.25); color: #ff8888; border: 1px solid rgba(200, 80, 80, 0.4); }
 
     .boss-card::after {
-      content: 'SELECT';
+      content: '▶ FIGHT';
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0);
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.92);
       color: var(--boss-color, #d4af37);
-      padding: 15px 40px;
-      border-radius: 30px;
+      padding: 10px 20px;
+      border-radius: 20px;
       font-family: 'Cinzel', serif;
       font-weight: 700;
-      font-size: 1.3rem;
-      letter-spacing: 4px;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
       border: 2px solid var(--boss-color, #d4af37);
       opacity: 0;
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
+      white-space: nowrap;
     }
 
     .boss-card:hover::after {
@@ -387,63 +410,206 @@
 
     <!-- Boss Selection -->
     <div id="boss-select">
-      <div class="boss-card zeus" onclick="startGame('Zeus')">
-        <img src="assets/Zeus Boss Image.png" alt="Zeus" class="boss-image" 
-             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22280%22%3E%3Crect fill=%22%23222%22 width=%22400%22 height=%22280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%23ffdd44%22 font-size=%2248%22 text-anchor=%22middle%22 dy=%22.3em%22%3E⚡%3C/text%3E%3C/svg%3E'">
-        <div class="boss-info">
-          <h2 class="boss-name">ZEUS</h2>
-          <p class="boss-title">Storm God-King of Olympus</p>
-          <div class="boss-stats">
-            <span class="stat">HP: <span class="stat-value">500</span></span>
-            <span class="stat">Speed: <span class="stat-value">45</span></span>
-            <span class="stat">Regen: <span class="stat-value">20</span></span>
+      <!-- Category: Olympian Gods -->
+      <div class="boss-category">
+        <h2 class="category-title">⚡ Olympian Gods</h2>
+        <div class="boss-grid">
+          <div class="boss-card zeus" onclick="startGame('Zeus')">
+            <img src="assets/Zeus Boss Image.png" alt="Zeus" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">ZEUS</h2>
+              <p class="boss-title">Storm God-King</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
           </div>
-          <span class="boss-difficulty difficulty-hard">⚡ Hard</span>
+          <div class="boss-card hades" onclick="startGame('Hades')">
+            <img src="assets/Hades Boss Image.png" alt="Hades" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HADES</h2>
+              <p class="boss-title">Lord of the Underworld</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card neptune" onclick="startGame('Neptune')">
+            <img src="assets/neptune_1.png" alt="Neptune" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">NEPTUNE</h2>
+              <p class="boss-title">God of the Seas</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card apollo" onclick="startGame('Apollo')">
+            <img src="assets/apollo.png" alt="Apollo" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">APOLLO</h2>
+              <p class="boss-title">God of the Sun</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card mercury" onclick="startGame('Mercury')">
+            <img src="assets/mercury.png" alt="Mercury" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">MERCURY</h2>
+              <p class="boss-title">Messenger God</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
+          <div class="boss-card venus" onclick="startGame('Venus')">
+            <img src="assets/venus.png" alt="Venus" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">VENUS</h2>
+              <p class="boss-title">Goddess of Love</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
+          <div class="boss-card hebe" onclick="startGame('Hebe')">
+            <img src="assets/hebe.png" alt="Hebe" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HEBE</h2>
+              <p class="boss-title">Goddess of Youth</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="boss-card aquila" onclick="startGame('Aquila')">
-        <img src="assets/Aquila.png" alt="Aquila" class="boss-image"
-             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22280%22%3E%3Crect fill=%22%23223%22 width=%22400%22 height=%22280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%2388aaff%22 font-size=%2248%22 text-anchor=%22middle%22 dy=%22.3em%22%3E🦅%3C/text%3E%3C/svg%3E'">
-        <div class="boss-info">
-          <h2 class="boss-name">AQUILA</h2>
-          <p class="boss-title">Storm Eagle of Zeus</p>
-          <div class="boss-stats">
-            <span class="stat">HP: <span class="stat-value">100</span> → <span class="stat-value">150</span></span>
-            <span class="stat">Speed: <span class="stat-value">45</span></span>
-            <span class="stat">Phases: <span class="stat-value">2</span></span>
+      <!-- Category: Underworld -->
+      <div class="boss-category">
+        <h2 class="category-title">🔥 Underworld</h2>
+        <div class="boss-grid">
+          <div class="boss-card cerberus" onclick="startGame('Cerberus')">
+            <img src="assets/cerberus_1.png" alt="Cerberus" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">CERBERUS</h2>
+              <p class="boss-title">Guardian of the Underworld</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
           </div>
-          <span class="boss-difficulty difficulty-easy">🦅 Easy</span>
+          <div class="boss-card hecate" onclick="startGame('Hecate')">
+            <img src="assets/hecate_1.png" alt="Hecate" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HECATE</h2>
+              <p class="boss-title">Goddess of Witchcraft</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card megaera" onclick="startGame('Megaera')">
+            <img src="assets/megaera.png" alt="Megaera" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">MEGAERA</h2>
+              <p class="boss-title">The Fury</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="boss-card hades" onclick="startGame('Hades')">
-        <img src="assets/Hades Boss Image.png" alt="Hades" class="boss-image"
-             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22280%22%3E%3Crect fill=%22%23211%22 width=%22400%22 height=%22280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%23ff6644%22 font-size=%2248%22 text-anchor=%22middle%22 dy=%22.3em%22%3E🔥%3C/text%3E%3C/svg%3E'">
-        <div class="boss-info">
-          <h2 class="boss-name">HADES</h2>
-          <p class="boss-title">Lord of the Underworld</p>
-          <div class="boss-stats">
-            <span class="stat">HP: <span class="stat-value">500</span></span>
-            <span class="stat">Speed: <span class="stat-value">60</span></span>
-            <span class="stat">Regen: <span class="stat-value">8</span></span>
+      <!-- Category: Monsters -->
+      <div class="boss-category">
+        <h2 class="category-title">🐍 Monsters</h2>
+        <div class="boss-grid">
+          <div class="boss-card hydra" onclick="startGame('Hydra')">
+            <img src="assets/hydra_1.png" alt="Hydra" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HYDRA</h2>
+              <p class="boss-title">The Lernaean Serpent</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
           </div>
-          <span class="boss-difficulty difficulty-medium">🔥 Medium</span>
+          <div class="boss-card echidna" onclick="startGame('Echidna')">
+            <img src="assets/echidna_1.png" alt="Echidna" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">ECHIDNA</h2>
+              <p class="boss-title">Mother of Monsters</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card python" onclick="startGame('Python')">
+            <img src="assets/python_1.png" alt="Python" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">PYTHON</h2>
+              <p class="boss-title">Serpent of Delphi</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card aquila" onclick="startGame('Aquila')">
+            <img src="assets/Aquila.png" alt="Aquila" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">AQUILA</h2>
+              <p class="boss-title">Storm Eagle</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
+          <div class="boss-card draco" onclick="startGame('Draco')">
+            <img src="assets/draco.png" alt="Draco" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">DRACO</h2>
+              <p class="boss-title">Dragon Guardian</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="boss-card hydra" onclick="startGame('Hydra')">
-        <img src="assets/hydra_1.png" alt="Hydra" class="boss-image"
-             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22280%22%3E%3Crect fill=%22%23142%22 width=%22400%22 height=%22280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%2366ff66%22 font-size=%2248%22 text-anchor=%22middle%22 dy=%22.3em%22%3E🐍%3C/text%3E%3C/svg%3E'">
-        <div class="boss-info">
-          <h2 class="boss-name">HYDRA</h2>
-          <p class="boss-title">The Lernaean Serpent</p>
-          <div class="boss-stats">
-            <span class="stat">HP: <span class="stat-value">200</span> → <span class="stat-value">350</span></span>
-            <span class="stat">Speed: <span class="stat-value">50</span> → <span class="stat-value">35</span></span>
-            <span class="stat">Phases: <span class="stat-value">2</span></span>
+      <!-- Category: Heroes & Warriors -->
+      <div class="boss-category">
+        <h2 class="category-title">⚔️ Heroes & Warriors</h2>
+        <div class="boss-grid">
+          <div class="boss-card hercules" onclick="startGame('Hercules')">
+            <img src="assets/hercules.png" alt="Hercules" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">HERCULES</h2>
+              <p class="boss-title">The Greatest Hero</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
           </div>
-          <span class="boss-difficulty difficulty-medium">🐍 Medium</span>
+          <div class="boss-card melissa" onclick="startGame('Melissa')">
+            <img src="assets/melissa_1.png" alt="Melissa" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">MELISSA</h2>
+              <p class="boss-title">Lightning Warrior</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card scythia" onclick="startGame('Scythia')">
+            <img src="assets/scythia.png" alt="Scythia" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">SCYTHIA</h2>
+              <p class="boss-title">Amazon Warrior</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category: Titans & Others -->
+      <div class="boss-category">
+        <h2 class="category-title">🌟 Titans & Others</h2>
+        <div class="boss-grid">
+          <div class="boss-card terra-solaris" onclick="startGame('TerraSolaris')">
+            <img src="assets/terra_solaris.png" alt="Terra Solaris" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">TERRA SOLARIS</h2>
+              <p class="boss-title">The Solar Titan</p>
+              <span class="boss-difficulty difficulty-hard">Hard</span>
+            </div>
+          </div>
+          <div class="boss-card metis" onclick="startGame('Metis')">
+            <img src="assets/metis.png" alt="Metis" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">METIS</h2>
+              <p class="boss-title">Titaness of Wisdom</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
+          <div class="boss-card kat" onclick="startGame('Kat')">
+            <img src="assets/kat_1.png" alt="Kat" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">KAT</h2>
+              <p class="boss-title">The Chronicler</p>
+              <span class="boss-difficulty difficulty-easy">Easy</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -504,7 +670,7 @@
         const match = hash.match(/boss=(\w+)/i);
         if (match) {
           const bossName = match[1];
-          const validBosses = ['Zeus', 'Aquila', 'Hades', 'Hydra'];
+          const validBosses = ['Zeus', 'Aquila', 'Hades', 'Hydra', 'Apollo', 'Neptune', 'Mercury', 'Venus', 'Hebe', 'Cerberus', 'Hecate', 'Megaera', 'Echidna', 'Python', 'Draco', 'Hercules', 'Melissa', 'Scythia', 'TerraSolaris', 'Metis', 'Kat'];
           const selectedBoss = validBosses.find(b => b.toLowerCase() === bossName.toLowerCase());
           if (selectedBoss) {
             setTimeout(() => startGame(selectedBoss), 200);

@@ -11,7 +11,7 @@ const CONFIG = {
   poison: { poison_seconds: 6, poison_dps: 1.0, base_damage: 10 },
 };
 
-const MINION_LIMITS = { Aquila: 1, CerberusHead: 3, HydraHead: 4 };
+const MINION_LIMITS = { Aquila: 1, CerberusHead: 3, HydraHead: 4, Serpent: 3, FireSpirit: 2, ShadowMinion: 2 };
 
 const BOSS_HP_BARS = {
   Zeus: { frame: 'Zeus HP Bar Frame.png', fill: 'Zeus HP Bar.png' },
@@ -725,6 +725,469 @@ class AcidSpit extends Attack {
   }
 }
 
+// ============= WATER/NEPTUNE ATTACKS =============
+class TidalWave extends Attack {
+  constructor(side = 'left') {
+    super('TidalWave', 'physical', 20);
+    this.side = side;
+    this.chargeTime = 50;
+    this.activeTime = 80;
+    this.wavePos = 0;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    this.wavePos = this.side === 'left' ? -100 : w + 100;
+    this.rect = { x: 0, y: 0, width: Math.floor(w * 0.2), height: h };
+  }
+
+  update(game) {
+    if (this.state === 'active') {
+      const w = game.canvas.width;
+      const speed = 8;
+      if (this.side === 'left') {
+        this.wavePos += speed;
+        if (this.wavePos > w + 100) this.state = 'finished';
+      } else {
+        this.wavePos -= speed;
+        if (this.wavePos < -100) this.state = 'finished';
+      }
+      this.rect.x = this.wavePos - this.rect.width / 2;
+    }
+    super.update(game);
+  }
+
+  draw(ctx) {
+    const h = ctx.canvas.height;
+    if (this.state === 'charging') {
+      const x = this.side === 'left' ? 20 : ctx.canvas.width - 40;
+      ctx.fillStyle = 'rgba(50, 150, 255, 0.5)';
+      ctx.fillRect(x, 0, 20, h);
+    } else if (this.state === 'active') {
+      const gradient = ctx.createLinearGradient(this.rect.x, 0, this.rect.x + this.rect.width, 0);
+      gradient.addColorStop(0, 'rgba(30, 100, 200, 0.3)');
+      gradient.addColorStop(0.5, 'rgba(50, 150, 255, 0.8)');
+      gradient.addColorStop(1, 'rgba(100, 200, 255, 0.4)');
+      ctx.fillStyle = gradient;
+      ctx.shadowColor = '#4488ff';
+      ctx.shadowBlur = 20;
+      ctx.fillRect(this.rect.x, 0, this.rect.width, h);
+      ctx.shadowBlur = 0;
+    }
+  }
+}
+
+class Whirlpool extends Attack {
+  constructor() {
+    super('Whirlpool', 'physical', 15);
+    this.chargeTime = 40;
+    this.activeTime = 150;
+    this.size = { width: 120, height: 120 };
+    this.maxNumber = 2;
+    this.rotation = 0;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    this.pos = { x: game.player.x, y: h * 0.7 };
+    this.rect = {
+      x: this.pos.x - this.size.width / 2,
+      y: this.pos.y - this.size.height / 2,
+      width: this.size.width,
+      height: this.size.height
+    };
+  }
+
+  update(game) {
+    if (this.state === 'active') {
+      this.rotation += 0.1;
+      // Pull player toward center
+      if (this.checkCollision(game.player)) {
+        const dx = this.pos.x - game.player.x;
+        game.player.move(dx * 0.05, game.canvas.width);
+      }
+    }
+    super.update(game);
+  }
+
+  draw(ctx) {
+    ctx.save();
+    ctx.translate(this.pos.x, this.pos.y);
+    
+    if (this.state === 'charging') {
+      ctx.strokeStyle = 'rgba(50, 150, 255, 0.6)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, 40, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (this.state === 'active') {
+      ctx.rotate(this.rotation);
+      // Draw spiral
+      for (let i = 0; i < 3; i++) {
+        ctx.rotate(Math.PI * 2 / 3);
+        ctx.strokeStyle = `rgba(50, 150, 255, ${0.8 - i * 0.2})`;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        for (let t = 0; t < 3; t += 0.1) {
+          const r = t * 15;
+          const x = r * Math.cos(t * 2);
+          const y = r * Math.sin(t * 2);
+          if (t === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+}
+
+class Trident extends Attack {
+  constructor() {
+    super('Trident', 'physical', 25);
+    this.chargeTime = 35;
+    this.activeTime = 20;
+    this.tracking = true;
+    this.x = 0;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    this.x = this.tracking && Math.random() < 0.8 ? game.player.x : 64 + Math.random() * (w - 128);
+    const width = Math.max(15, Math.floor(w * 0.04));
+    this.rect = { x: Math.max(0, this.x - width / 2), y: 0, width, height: h };
+  }
+
+  draw(ctx) {
+    if (this.state === 'charging') {
+      ctx.fillStyle = 'rgba(50, 150, 200, 0.8)';
+      ctx.fillRect(this.x - 20, 20, 40, 60);
+      // Trident prongs
+      ctx.fillRect(this.x - 15, 10, 8, 25);
+      ctx.fillRect(this.x - 4, 5, 8, 30);
+      ctx.fillRect(this.x + 7, 10, 8, 25);
+    } else if (this.state === 'active') {
+      ctx.fillStyle = 'rgba(80, 180, 220, 0.85)';
+      ctx.shadowColor = '#44aadd';
+      ctx.shadowBlur = 15;
+      ctx.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+      ctx.shadowBlur = 0;
+    }
+  }
+}
+
+// ============= SOLAR/LIGHT ATTACKS =============
+class SolarBeam extends Attack {
+  constructor() {
+    super('SolarBeam', 'fire', CONFIG.fire.base_damage + 10);
+    this.chargeTime = 60;
+    this.activeTime = 40;
+    this.widthFrac = 0.15;
+    this.x = 0;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    const width = Math.floor(w * this.widthFrac);
+    this.x = game.player.x;
+    this.rect = { x: Math.max(0, this.x - width / 2), y: 0, width, height: h };
+  }
+
+  draw(ctx) {
+    if (this.state === 'charging') {
+      const gradient = ctx.createRadialGradient(this.x, 50, 0, this.x, 50, 60);
+      gradient.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
+      gradient.addColorStop(1, 'rgba(255, 200, 50, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(this.x, 50, 60, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.state === 'active') {
+      const gradient = ctx.createLinearGradient(this.rect.x, 0, this.rect.x + this.rect.width, 0);
+      gradient.addColorStop(0, 'rgba(255, 200, 50, 0.3)');
+      gradient.addColorStop(0.5, 'rgba(255, 255, 150, 0.95)');
+      gradient.addColorStop(1, 'rgba(255, 200, 50, 0.3)');
+      ctx.fillStyle = gradient;
+      ctx.shadowColor = '#ffff88';
+      ctx.shadowBlur = 40;
+      ctx.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+      ctx.shadowBlur = 0;
+    }
+  }
+}
+
+class SunFlare extends Attack {
+  constructor() {
+    super('SunFlare', 'fire', CONFIG.fire.base_damage);
+    this.chargeTime = 30;
+    this.activeTime = 100;
+    this.size = { width: 100, height: 100 };
+    this.maxNumber = 3;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    this.pos = { x: Math.random() * w, y: 80 };
+    this.velocity = { x: (Math.random() - 0.5) * 4, y: 3 };
+    this.rect = {
+      x: this.pos.x - this.size.width / 2,
+      y: this.pos.y - this.size.height / 2,
+      width: this.size.width,
+      height: this.size.height
+    };
+  }
+
+  update(game) {
+    if (this.state === 'active') {
+      this.pos.x += this.velocity.x;
+      this.pos.y += this.velocity.y;
+      this.rect.x = this.pos.x - this.size.width / 2;
+      this.rect.y = this.pos.y - this.size.height / 2;
+      if (this.pos.y > game.canvas.height + 50) this.state = 'finished';
+    }
+    super.update(game);
+  }
+
+  draw(ctx) {
+    const alpha = this.state === 'charging' ? 0.5 : 0.9;
+    ctx.fillStyle = `rgba(255, 200, 50, ${alpha})`;
+    ctx.shadowColor = '#ffcc00';
+    ctx.shadowBlur = 30;
+    ctx.beginPath();
+    ctx.arc(this.pos.x, this.pos.y, this.size.width / 2, 0, Math.PI * 2);
+    ctx.fill();
+    // Inner glow
+    ctx.fillStyle = `rgba(255, 255, 200, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(this.pos.x, this.pos.y, this.size.width / 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+// ============= PHYSICAL/MELEE ATTACKS =============
+class GroundSlam extends Attack {
+  constructor() {
+    super('GroundSlam', 'physical', 20);
+    this.chargeTime = 40;
+    this.activeTime = 30;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    this.rect = { x: 0, y: h - 100, width: w, height: 100 };
+  }
+
+  draw(ctx) {
+    if (this.state === 'charging') {
+      ctx.strokeStyle = 'rgba(150, 100, 50, 0.7)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+    } else if (this.state === 'active') {
+      const gradient = ctx.createLinearGradient(0, this.rect.y, 0, this.rect.y + this.rect.height);
+      gradient.addColorStop(0, 'rgba(180, 140, 80, 0.9)');
+      gradient.addColorStop(1, 'rgba(100, 80, 40, 0.6)');
+      ctx.fillStyle = gradient;
+      ctx.shadowColor = '#aa8844';
+      ctx.shadowBlur = 15;
+      ctx.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+      ctx.shadowBlur = 0;
+    }
+  }
+}
+
+class DashAttack extends Attack {
+  constructor() {
+    super('DashAttack', 'physical', 18);
+    this.chargeTime = 25;
+    this.activeTime = 15;
+    this.startSide = 'left';
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    this.startSide = Math.random() < 0.5 ? 'left' : 'right';
+    const attackY = game.player.y;
+    this.rect = { x: 0, y: attackY - 30, width: w, height: 60 };
+  }
+
+  draw(ctx) {
+    if (this.state === 'charging') {
+      const x = this.startSide === 'left' ? 30 : ctx.canvas.width - 50;
+      ctx.fillStyle = 'rgba(200, 150, 100, 0.7)';
+      ctx.beginPath();
+      ctx.arc(x, this.rect.y + 30, 25, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.state === 'active') {
+      const gradient = ctx.createLinearGradient(0, this.rect.y, 0, this.rect.y + this.rect.height);
+      gradient.addColorStop(0, 'rgba(200, 150, 100, 0.3)');
+      gradient.addColorStop(0.5, 'rgba(220, 180, 120, 0.8)');
+      gradient.addColorStop(1, 'rgba(200, 150, 100, 0.3)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+    }
+  }
+}
+
+class ArrowVolley extends Attack {
+  constructor() {
+    super('ArrowVolley', 'physical', 12);
+    this.chargeTime = 30;
+    this.activeTime = 60;
+    this.arrows = [];
+    this.maxNumber = 1;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    // Create multiple arrows
+    this.arrows = [];
+    for (let i = 0; i < 5; i++) {
+      this.arrows.push({
+        x: Math.random() * w,
+        y: -20 - i * 30,
+        speed: 6 + Math.random() * 3
+      });
+    }
+    this.rect = { x: 0, y: 0, width: w, height: game.canvas.height };
+  }
+
+  update(game) {
+    if (this.state === 'active') {
+      for (const arrow of this.arrows) {
+        arrow.y += arrow.speed;
+      }
+      // Check individual arrow collisions
+      for (const arrow of this.arrows) {
+        if (Math.abs(arrow.x - game.player.x) < 15 && 
+            Math.abs(arrow.y - game.player.y) < 20 &&
+            arrow.y > 0) {
+          this.applyToPlayer(game.player, game);
+          arrow.y = game.canvas.height + 100; // Move off screen
+        }
+      }
+    }
+    super.update(game);
+  }
+
+  checkCollision(player) {
+    return false; // Handle collision in update
+  }
+
+  draw(ctx) {
+    if (this.state === 'charging') {
+      ctx.fillStyle = 'rgba(180, 150, 100, 0.6)';
+      for (const arrow of this.arrows) {
+        ctx.fillRect(arrow.x - 3, 20, 6, 30);
+      }
+    } else if (this.state === 'active') {
+      ctx.fillStyle = 'rgba(150, 120, 80, 0.9)';
+      for (const arrow of this.arrows) {
+        if (arrow.y < ctx.canvas.height) {
+          ctx.beginPath();
+          ctx.moveTo(arrow.x, arrow.y);
+          ctx.lineTo(arrow.x - 5, arrow.y - 20);
+          ctx.lineTo(arrow.x + 5, arrow.y - 20);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillRect(arrow.x - 2, arrow.y - 20, 4, 25);
+        }
+      }
+    }
+  }
+}
+
+// ============= SHADOW/DARK ATTACKS =============
+class ShadowBolt extends Attack {
+  constructor() {
+    super('ShadowBolt', 'physical', 16);
+    this.chargeTime = 30;
+    this.activeTime = 50;
+    this.speed = 7;
+    this.size = { width: 25, height: 25 };
+    this.maxNumber = 4;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    this.pos = { x: Math.random() * w, y: 80 };
+    const dx = game.player.x - this.pos.x;
+    const dy = game.player.y - this.pos.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    this.velocity = len > 0 ? { x: (dx / len) * this.speed, y: (dy / len) * this.speed } : { x: 0, y: this.speed };
+    this.rect = {
+      x: this.pos.x - this.size.width / 2,
+      y: this.pos.y - this.size.height / 2,
+      width: this.size.width,
+      height: this.size.height
+    };
+  }
+
+  update(game) {
+    if (this.state === 'active') {
+      this.pos.x += this.velocity.x;
+      this.pos.y += this.velocity.y;
+      this.rect.x = this.pos.x - this.size.width / 2;
+      this.rect.y = this.pos.y - this.size.height / 2;
+      if (this.pos.y > game.canvas.height + 50 || this.pos.x < -50 || this.pos.x > game.canvas.width + 50) {
+        this.state = 'finished';
+      }
+    }
+    super.update(game);
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = this.state === 'charging' ? 'rgba(80, 50, 100, 0.7)' : 'rgba(60, 30, 80, 0.9)';
+    ctx.shadowColor = '#6633aa';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(this.pos.x, this.pos.y, this.size.width / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+class DarkVeil extends Attack {
+  constructor(side = 'left') {
+    super('DarkVeil', 'physical', 10);
+    this.side = side;
+    this.chargeTime = 45;
+    this.activeTime = 100;
+    this.widthFrac = 0.3;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    const width = Math.floor(w * this.widthFrac);
+    this.rect = this.side === 'left'
+      ? { x: 0, y: 0, width, height: h }
+      : { x: w - width, y: 0, width, height: h };
+  }
+
+  draw(ctx) {
+    const alpha = this.state === 'charging' ? 0.3 : 0.6;
+    ctx.fillStyle = `rgba(40, 20, 60, ${alpha})`;
+    ctx.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+  }
+}
+
 // ============= MINION CLASS =============
 class Minion {
   constructor(name, hp = 10) {
@@ -741,7 +1204,10 @@ class Minion {
     const mappings = {
       'Aquila': 'Aquila.png',
       'CerberusHead': 'Cerberus Head.png',
-      'HydraHead': 'hydra_3.PNG'
+      'HydraHead': 'hydra_3.PNG',
+      'Serpent': 'python_1.png',
+      'FireSpirit': 'Fireblast.png',
+      'ShadowMinion': 'hecate_1.png'
     };
     return mappings[name] || 'Aquila.png';
   }
@@ -930,6 +1396,310 @@ function createBoss(name) {
         PoisonBreath,
         AcidSpit,
         () => new MinionSpawn('HydraHead')
+      ]
+    },
+    // ===== OLYMPIAN GODS =====
+    Apollo: {
+      name: 'Apollo',
+      title: 'God of the Sun and Music',
+      strength: 12, speed: 55, durability: 10, regeneration: 10, supernatural: 15,
+      color: [255, 200, 50],
+      imageFile: 'apollo.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 400,
+      attacks: [
+        SolarBeam,
+        FireBlast,
+        SunFlare,
+        ArrowVolley,
+        () => new FireWall('bottom'),
+        () => new MinionSpawn('FireSpirit')
+      ]
+    },
+    Neptune: {
+      name: 'Neptune',
+      title: 'God of the Seas',
+      strength: 14, speed: 45, durability: 14, regeneration: 12, supernatural: 16,
+      color: [50, 100, 180],
+      imageFile: 'neptune_1.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 500,
+      attacks: [
+        () => new TidalWave(Math.random() < 0.5 ? 'left' : 'right'),
+        Whirlpool,
+        Trident,
+        GroundSlam,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right')
+      ]
+    },
+    Mercury: {
+      name: 'Mercury',
+      title: 'Messenger of the Gods',
+      strength: 8, speed: 80, durability: 6, regeneration: 5, supernatural: 10,
+      color: [180, 180, 200],
+      imageFile: 'mercury.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 250,
+      attacks: [
+        DashAttack,
+        RisingTornado,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        ArrowVolley,
+        HomingCloud
+      ]
+    },
+    Venus: {
+      name: 'Venus',
+      title: 'Goddess of Love and Beauty',
+      strength: 6, speed: 40, durability: 8, regeneration: 15, supernatural: 14,
+      color: [255, 150, 180],
+      imageFile: 'venus.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 300,
+      attacks: [
+        ShadowBolt,
+        () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
+        HomingCloud,
+        DashAttack,
+        GroundSlam
+      ]
+    },
+    // ===== UNDERWORLD CHARACTERS (FIRE) =====
+    Cerberus: {
+      name: 'Cerberus',
+      title: 'Guardian of the Underworld',
+      strength: 16, speed: 50, durability: 18, regeneration: 8, supernatural: 12,
+      color: [80, 40, 40],
+      imageFile: 'cerberus_1.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 600,
+      attacks: [
+        FireBlast,
+        () => new FireWall('bottom'),
+        () => new FireWall(Math.random() < 0.5 ? 'left' : 'right'),
+        BidentAttack,
+        GroundSlam,
+        () => new MinionSpawn('CerberusHead')
+      ]
+    },
+    Megaera: {
+      name: 'Megaera',
+      title: 'The Fury of Jealousy',
+      strength: 12, speed: 65, durability: 10, regeneration: 6, supernatural: 14,
+      color: [150, 50, 80],
+      imageFile: 'megaera.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 350,
+      attacks: [
+        FireBlast,
+        DashAttack,
+        () => new FireWall('bottom'),
+        ShadowBolt,
+        () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
+        ArrowVolley
+      ]
+    },
+    Hecate: {
+      name: 'Hecate',
+      title: 'Goddess of Magic and Witchcraft',
+      strength: 10, speed: 45, durability: 10, regeneration: 10, supernatural: 20,
+      color: [80, 50, 120],
+      imageFile: 'hecate_1.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 400,
+      attacks: [
+        PoisonCloud,
+        PoisonBreath,
+        FireBlast,
+        ShadowBolt,
+        () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
+        () => new MinionSpawn('ShadowMinion')
+      ]
+    },
+    Python: {
+      name: 'Python',
+      title: 'Serpent of Delphi',
+      strength: 14, speed: 40, durability: 16, regeneration: 12, supernatural: 14,
+      color: [60, 80, 50],
+      imageFile: 'python_1.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 450,
+      attacks: [
+        PoisonCloud,
+        PoisonBreath,
+        AcidSpit,
+        FireBlast,
+        GroundSlam,
+        () => new MinionSpawn('Serpent')
+      ]
+    },
+    // ===== HEROES WITH LIGHTNING =====
+    Hercules: {
+      name: 'Hercules',
+      title: 'The Greatest Hero',
+      strength: 20, speed: 35, durability: 20, regeneration: 5, supernatural: 8,
+      color: [180, 140, 80],
+      imageFile: 'hercules.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 600,
+      attacks: [
+        GroundSlam,
+        LightningStrikeAttack,
+        DashAttack,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        ArrowVolley,
+        RisingTornado
+      ]
+    },
+    Melissa: {
+      name: 'Melissa',
+      title: 'The Lightning Warrior',
+      strength: 14, speed: 55, durability: 12, regeneration: 8, supernatural: 14,
+      color: [100, 150, 200],
+      imageFile: 'melissa_1.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 400,
+      attacks: [
+        LightningStrikeAttack,
+        HomingCloud,
+        RisingTornado,
+        DashAttack,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        GroundSlam
+      ]
+    },
+    Hebe: {
+      name: 'Hebe',
+      title: 'Goddess of Youth',
+      strength: 8, speed: 50, durability: 8, regeneration: 20, supernatural: 12,
+      color: [150, 200, 150],
+      imageFile: 'hebe.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 300,
+      attacks: [
+        LightningStrikeAttack,
+        HomingCloud,
+        ShadowBolt,
+        DashAttack,
+        ArrowVolley
+      ]
+    },
+    // ===== MONSTERS WITH POISON =====
+    Echidna: {
+      name: 'Echidna',
+      title: 'Mother of Monsters',
+      strength: 16, speed: 35, durability: 16, regeneration: 14, supernatural: 16,
+      color: [80, 100, 60],
+      imageFile: 'echidna_1.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 500,
+      attacks: [
+        PoisonCloud,
+        PoisonBreath,
+        AcidSpit,
+        GroundSlam,
+        () => new MinionSpawn('Serpent'),
+        () => new MinionSpawn('HydraHead')
+      ]
+    },
+    // ===== OTHER CHARACTERS =====
+    Kat: {
+      name: 'Kat',
+      title: 'The Mysterious Chronicler',
+      strength: 6, speed: 60, durability: 6, regeneration: 8, supernatural: 18,
+      color: [100, 80, 120],
+      imageFile: 'kat_1.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 200,
+      attacks: [
+        ShadowBolt,
+        () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
+        DashAttack,
+        HomingCloud,
+        ArrowVolley
+      ]
+    },
+    Draco: {
+      name: 'Draco',
+      title: 'The Dragon Guardian',
+      strength: 15, speed: 40, durability: 18, regeneration: 10, supernatural: 14,
+      color: [80, 60, 100],
+      imageFile: 'draco.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 500,
+      attacks: [
+        FireBlast,
+        () => new FireWall('bottom'),
+        RisingTornado,
+        GroundSlam,
+        DashAttack,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right')
+      ]
+    },
+    Metis: {
+      name: 'Metis',
+      title: 'Titaness of Wisdom',
+      strength: 8, speed: 45, durability: 10, regeneration: 12, supernatural: 20,
+      color: [120, 140, 180],
+      imageFile: 'metis.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 350,
+      attacks: [
+        ShadowBolt,
+        HomingCloud,
+        () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
+        LightningStrikeAttack,
+        DashAttack
+      ]
+    },
+    Scythia: {
+      name: 'Scythia',
+      title: 'The Amazon Warrior',
+      strength: 14, speed: 55, durability: 12, regeneration: 6, supernatural: 8,
+      color: [150, 120, 80],
+      imageFile: 'scythia.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 350,
+      attacks: [
+        ArrowVolley,
+        DashAttack,
+        GroundSlam,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        RisingTornado
+      ]
+    },
+    TerraSolaris: {
+      name: 'Terra Solaris',
+      title: 'The Solar Titan',
+      strength: 18, speed: 30, durability: 20, regeneration: 15, supernatural: 18,
+      color: [255, 180, 80],
+      imageFile: 'terra_solaris.png',
+      bossImageFile: null,
+      transform: null,
+      maxHp: 600,
+      attacks: [
+        SolarBeam,
+        SunFlare,
+        FireBlast,
+        () => new FireWall('bottom'),
+        GroundSlam,
+        () => new MinionSpawn('FireSpirit')
       ]
     }
   };

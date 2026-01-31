@@ -51,28 +51,56 @@
           <p>Battle legendary Greek gods and mythical creatures! Choose your opponent and test your skills.</p>
         </div>
         
-        <div class="boss-preview-grid">
-          <div class="boss-preview zeus-preview" onclick="launchBossFight('Zeus')">
-            <div class="boss-preview-icon">⚡</div>
-            <div class="boss-preview-name">Zeus</div>
-            <div class="boss-preview-difficulty hard">Hard</div>
+        <div class="boss-roster">
+          <div class="boss-roster-row">
+            <span class="roster-label">⚡ Gods:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('Zeus')">Zeus</span>
+              <span class="roster-boss" onclick="launchBossFight('Hades')">Hades</span>
+              <span class="roster-boss" onclick="launchBossFight('Neptune')">Neptune</span>
+              <span class="roster-boss" onclick="launchBossFight('Apollo')">Apollo</span>
+              <span class="roster-boss" onclick="launchBossFight('Mercury')">Mercury</span>
+              <span class="roster-boss" onclick="launchBossFight('Venus')">Venus</span>
+              <span class="roster-boss" onclick="launchBossFight('Hebe')">Hebe</span>
+            </div>
           </div>
-          <div class="boss-preview aquila-preview" onclick="launchBossFight('Aquila')">
-            <div class="boss-preview-icon">🦅</div>
-            <div class="boss-preview-name">Aquila</div>
-            <div class="boss-preview-difficulty easy">Easy</div>
+          <div class="boss-roster-row">
+            <span class="roster-label">🔥 Underworld:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('Cerberus')">Cerberus</span>
+              <span class="roster-boss" onclick="launchBossFight('Hecate')">Hecate</span>
+              <span class="roster-boss" onclick="launchBossFight('Megaera')">Megaera</span>
+            </div>
           </div>
-          <div class="boss-preview hades-preview" onclick="launchBossFight('Hades')">
-            <div class="boss-preview-icon">🔥</div>
-            <div class="boss-preview-name">Hades</div>
-            <div class="boss-preview-difficulty medium">Medium</div>
+          <div class="boss-roster-row">
+            <span class="roster-label">🐍 Monsters:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('Hydra')">Hydra</span>
+              <span class="roster-boss" onclick="launchBossFight('Echidna')">Echidna</span>
+              <span class="roster-boss" onclick="launchBossFight('Python')">Python</span>
+              <span class="roster-boss" onclick="launchBossFight('Aquila')">Aquila</span>
+              <span class="roster-boss" onclick="launchBossFight('Draco')">Draco</span>
+            </div>
           </div>
-          <div class="boss-preview hydra-preview" onclick="launchBossFight('Hydra')">
-            <div class="boss-preview-icon">🐍</div>
-            <div class="boss-preview-name">Hydra</div>
-            <div class="boss-preview-difficulty medium">Medium</div>
+          <div class="boss-roster-row">
+            <span class="roster-label">⚔️ Heroes:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('Hercules')">Hercules</span>
+              <span class="roster-boss" onclick="launchBossFight('Melissa')">Melissa</span>
+              <span class="roster-boss" onclick="launchBossFight('Scythia')">Scythia</span>
+            </div>
+          </div>
+          <div class="boss-roster-row">
+            <span class="roster-label">🌟 Titans:</span>
+            <div class="roster-bosses">
+              <span class="roster-boss" onclick="launchBossFight('TerraSolaris')">Terra Solaris</span>
+              <span class="roster-boss" onclick="launchBossFight('Metis')">Metis</span>
+              <span class="roster-boss" onclick="launchBossFight('Kat')">Kat</span>
+            </div>
           </div>
         </div>
+        
+        <p class="boss-count-note">20 bosses available! Click any name to fight directly.</p>
 
         <div class="game-controls">
           <a href="/games/bossfights/index.html" class="btn-generate" target="_blank">
@@ -294,85 +322,60 @@ function closeBossEmbed() {
   border-color: rgba(212, 175, 55, 0.3);
 }
 
-.boss-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+.boss-roster {
+  margin-bottom: 25px;
 }
 
-.boss-preview {
-  background: rgba(30, 30, 40, 0.8);
-  border: 2px solid rgba(100, 100, 120, 0.3);
-  border-radius: 12px;
-  padding: 25px 15px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.boss-roster-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(100, 100, 120, 0.2);
 }
 
-.boss-preview:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+.boss-roster-row:last-child {
+  border-bottom: none;
 }
 
-.boss-preview.zeus-preview:hover {
-  border-color: #ffdd44;
-  box-shadow: 0 10px 30px rgba(255, 221, 68, 0.3);
-}
-
-.boss-preview.aquila-preview:hover {
-  border-color: #88aaff;
-  box-shadow: 0 10px 30px rgba(136, 170, 255, 0.3);
-}
-
-.boss-preview.hades-preview:hover {
-  border-color: #ff6644;
-  box-shadow: 0 10px 30px rgba(255, 102, 68, 0.3);
-}
-
-.boss-preview.hydra-preview:hover {
-  border-color: #66ff66;
-  box-shadow: 0 10px 30px rgba(102, 255, 102, 0.3);
-}
-
-.boss-preview-icon {
-  font-size: 3rem;
-  margin-bottom: 10px;
-}
-
-.boss-preview-name {
-  font-size: 1.2rem;
+.roster-label {
   font-weight: 700;
   color: #d4af37;
-  margin-bottom: 8px;
+  min-width: 120px;
+  font-size: 0.95rem;
 }
 
-.boss-preview-difficulty {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
+.roster-bosses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.boss-preview-difficulty.easy {
-  background: rgba(80, 200, 120, 0.2);
-  color: #50c878;
+.roster-boss {
+  background: rgba(50, 50, 60, 0.7);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(100, 100, 120, 0.3);
 }
 
-.boss-preview-difficulty.medium {
-  background: rgba(255, 200, 50, 0.2);
-  color: #ffc832;
+.roster-boss:hover {
+  background: rgba(212, 175, 55, 0.3);
+  border-color: #d4af37;
+  color: #fff;
+  transform: translateY(-2px);
 }
 
-.boss-preview-difficulty.hard {
-  background: rgba(255, 80, 80, 0.2);
-  color: #ff5050;
+.boss-count-note {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 20px;
 }
 
 .btn-secondary-style {
@@ -405,15 +408,10 @@ function closeBossEmbed() {
   background: rgba(150, 50, 50, 0.9);
 }
 
-@media (max-width: 900px) {
-  .boss-preview-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 @media (max-width: 600px) {
-  .boss-preview-grid {
-    grid-template-columns: 1fr;
+  .roster-label {
+    min-width: 100%;
+    margin-bottom: 5px;
   }
   
   .btn-secondary-style {
