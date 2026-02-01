@@ -42,6 +42,12 @@ Rails.application.routes.draw do
   get "games", to: "games#index", as: :games
   post "games/random_characters", to: "games#random_characters", as: :games_random_characters
   
+  # Books
+  get "books", to: "books#index", as: :books
+  
+  # About
+  get "about", to: "home#about", as: :about
+  
   # Keep galleries for show action and nested images
   resources :galleries, only: [:show] do
     resources :images, only: [:show]

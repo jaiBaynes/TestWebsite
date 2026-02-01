@@ -1,0 +1,380 @@
+<div class="about-page">
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <div class="hero-content">
+      <div class="author-image-container">
+        <div class="author-image-placeholder">
+          <span>✍️</span>
+        </div>
+      </div>
+      <h1>Jaiden Baynes</h1>
+      <p class="author-tagline">Award-Winning Author | Storyteller | Researcher</p>
+    </div>
+  </section>
+
+  <!-- Bio Section -->
+  <section class="bio-section">
+    <div class="bio-container">
+      <div class="bio-content">
+        <h2>About Me</h2>
+        <p>
+          I'm an award-winning author from Ontario, Canada, known for thought-provoking writing 
+          that challenges the status quo. My work reflects a commitment to anti-hierarchy and 
+          pro-equality values, grounded in the belief that absolute power corrupts absolutely, 
+          that might does not make right, and that order without justice is meaningless.
+        </p>
+        <p>
+          I combine my knowledge of history with a vivid imagination to create compelling stories 
+          that entertain and enlighten readers of all ages and backgrounds. Whether writing epic 
+          fantasy that reimagines Greek mythology or researching the historical treatment of Africa, 
+          I strive to create work that matters.
+        </p>
+        
+        <div class="achievements">
+          <div class="achievement">
+            <span class="achievement-icon">🏆</span>
+            <div class="achievement-info">
+              <h4>Literary Titan Gold Award</h4>
+              <p>Enemies of Africa</p>
+            </div>
+          </div>
+          <div class="achievement">
+            <span class="achievement-icon">📚</span>
+            <div class="achievement-info">
+              <h4>Published Author</h4>
+              <p>Multiple genres</p>
+            </div>
+          </div>
+          <div class="achievement">
+            <span class="achievement-icon">🌍</span>
+            <div class="achievement-info">
+              <h4>Global Perspectives</h4>
+              <p>Fiction & Non-Fiction</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="writing-philosophy">
+        <h3>Writing Philosophy</h3>
+        <blockquote>
+          "Stories have the power to change how we see the world. Whether through the lens of 
+          ancient mythology or the stark reality of history, I believe in writing that challenges, 
+          enlightens, and ultimately empowers readers to think critically about the systems that 
+          shape our lives."
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- Works Overview -->
+  <section class="works-section">
+    <div class="works-container">
+      <h2>My Work</h2>
+      <div class="works-grid">
+        <div class="work-category">
+          <div class="category-icon fiction">📖</div>
+          <h3>Fiction</h3>
+          <p>Epic fantasy and mythology reimagined for modern readers. Explore worlds where gods walk among mortals and heroes rise against impossible odds.</p>
+          <ul>
+            <li><strong>Gods & Monsters: Solaris</strong> - Greek mythology reimagined</li>
+          </ul>
+        </div>
+        
+        <div class="work-category">
+          <div class="category-icon non-fiction">📚</div>
+          <h3>Non-Fiction</h3>
+          <p>Research-driven explorations of history, culture, and society. Uncovering truths that challenge conventional narratives.</p>
+          <ul>
+            <li><strong>Enemies of Africa</strong> - Award-winning historical analysis</li>
+            <li><strong>Evolution of Monsters</strong> - Coming 2026</li>
+          </ul>
+        </div>
+        
+        <div class="work-category">
+          <div class="category-icon interactive">🎮</div>
+          <h3>Interactive</h3>
+          <p>Bringing stories to life through interactive experiences. Explore the worlds of my books through games and galleries.</p>
+          <ul>
+            <li><strong>Boss Fights</strong> - Battle mythological beings</li>
+            <li><strong>Character Archive</strong> - Deep-dive into lore</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Connect Section -->
+  <section class="connect-section">
+    <div class="connect-container">
+      <h2>Let's Connect</h2>
+      <p>Interested in my work? Have questions? I'd love to hear from you.</p>
+      <div class="connect-buttons">
+        <%= link_to '📚 Browse My Books', books_path, class: 'btn btn-primary btn-large' %>
+        <%= link_to '🌍 Explore Gods & Monsters', characters_path, class: 'btn btn-secondary btn-large' %>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .about-page {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hero */
+  .about-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 100px 20px;
+    text-align: center;
+  }
+
+  .author-image-container {
+    margin-bottom: 30px;
+  }
+
+  .author-image-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 4em;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+  }
+
+  .about-hero h1 {
+    font-size: 3.5em;
+    color: white;
+    margin-bottom: 15px;
+  }
+
+  .author-tagline {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.3em;
+  }
+
+  /* Bio Section */
+  .bio-section {
+    padding: 80px 20px;
+    background: #fff;
+  }
+
+  .bio-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .bio-content h2 {
+    font-size: 2em;
+    color: #1a1a2e;
+    margin-bottom: 25px;
+  }
+
+  .bio-content p {
+    color: #555;
+    font-size: 1.1em;
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+
+  .achievements {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-top: 40px;
+  }
+
+  .achievement {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+  }
+
+  .achievement-icon {
+    font-size: 2.5em;
+  }
+
+  .achievement-info h4 {
+    color: #1a1a2e;
+    margin: 0 0 5px;
+  }
+
+  .achievement-info p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9em;
+  }
+
+  .writing-philosophy {
+    margin-top: 50px;
+    padding: 40px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    border-left: 4px solid #667eea;
+  }
+
+  .writing-philosophy h3 {
+    color: #667eea;
+    margin-bottom: 20px;
+  }
+
+  .writing-philosophy blockquote {
+    color: #555;
+    font-style: italic;
+    font-size: 1.15em;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* Works Section */
+  .works-section {
+    padding: 80px 20px;
+    background: #f8f9fa;
+  }
+
+  .works-container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .works-container h2 {
+    text-align: center;
+    font-size: 2em;
+    color: #1a1a2e;
+    margin-bottom: 50px;
+  }
+
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+
+  .work-category {
+    background: white;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  .category-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+  }
+
+  .category-icon.fiction {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .category-icon.non-fiction {
+    background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+  }
+
+  .category-icon.interactive {
+    background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+  }
+
+  .work-category h3 {
+    color: #1a1a2e;
+    margin-bottom: 15px;
+  }
+
+  .work-category p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .work-category ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .work-category li {
+    padding: 8px 0;
+    color: #555;
+    border-top: 1px solid #eee;
+  }
+
+  /* Connect Section */
+  .connect-section {
+    padding: 100px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    text-align: center;
+  }
+
+  .connect-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .connect-container h2 {
+    font-size: 2.5em;
+    color: white;
+    margin-bottom: 15px;
+  }
+
+  .connect-container p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2em;
+    margin-bottom: 30px;
+  }
+
+  .connect-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .connect-section .btn-primary {
+    background: white;
+    color: #667eea;
+  }
+
+  .connect-section .btn-primary:hover {
+    background: #f0f0f0;
+  }
+
+  .connect-section .btn-secondary {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+  }
+
+  .connect-section .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .achievements {
+      grid-template-columns: 1fr;
+    }
+
+    .works-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .about-hero h1 {
+      font-size: 2.5em;
+    }
+  }
+</style>
+

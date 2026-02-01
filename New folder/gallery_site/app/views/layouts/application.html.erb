@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Gallery Site - Image Gallery Application</title>
+    <title>Jaiden Baynes | Author</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Jaiden Baynes - Award-winning author of Gods & Monsters: Solaris and Enemies of Africa. Explore mythology, history, and compelling stories.">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -36,17 +37,17 @@
     <header>
       <div class="navbar">
         <div class="navbar-brand">
-          <h1><%= link_to "🏛️ Mythology Archive", root_path %></h1>
+          <h1><%= link_to "✍️ Jaiden Baynes", root_path %></h1>
         </div>
         <nav class="navbar-nav">
           <%= link_to "Home", root_path %> |
+          <%= link_to "📚 Books", books_path %> |
+          <%= link_to "About", about_path %> |
+          <span class="nav-divider">|</span>
+          <span class="nav-section">Gods & Monsters:</span>
           <%= link_to "Characters", characters_path %> |
-          <%= link_to "Locations", locations_path %> |
-          <%= link_to "Items", items_path %> |
-          <%= link_to "📖 Stories", stories_path %> |
-          <%= link_to "🎮 Games", games_path %> |
-          <%= link_to "🔓 Unlock System", unlocks_path, style: "color: #ffcc00;" %> |
-          <%= link_to "🛠️ Admin", admin_path, style: "color: #ff6666;" %>
+          <%= link_to "Stories", stories_path %> |
+          <%= link_to "🎮 Games", games_path %>
         </nav>
         <div class="navbar-user">
           <% if logged_in? %>

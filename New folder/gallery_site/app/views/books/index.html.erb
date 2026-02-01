@@ -1,0 +1,479 @@
+<div class="books-page">
+  <!-- Hero Section -->
+  <section class="books-hero">
+    <div class="hero-content">
+      <h1>📚 My Books</h1>
+      <p>Explore my published works spanning fiction and non-fiction</p>
+    </div>
+  </section>
+
+  <!-- Books Grid -->
+  <section class="books-section">
+    <div class="books-container">
+      <% @books.each do |book| %>
+        <div class="book-card <%= book[:status] %>">
+          <% if book[:status] == 'coming_soon' %>
+            <div class="coming-soon-badge">Coming Soon</div>
+          <% end %>
+          <% if book[:award] %>
+            <div class="award-badge">🏆 <%= book[:award] %></div>
+          <% end %>
+          
+          <div class="book-cover">
+            <% if book[:cover_image] %>
+              <img src="<%= book[:cover_image] %>" alt="<%= book[:title] %>" class="cover-img">
+            <% else %>
+              <div class="cover-placeholder <%= book[:category].downcase.gsub(' ', '-') %>">
+                <span class="placeholder-icon">
+                  <% if book[:category] == 'Fiction' %>📖<% else %>📚<% end %>
+                </span>
+                <span class="placeholder-title"><%= book[:title] %></span>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="book-info">
+            <span class="book-category <%= book[:category].downcase.gsub(' ', '-') %>"><%= book[:category] %></span>
+            <h2 class="book-title"><%= book[:title] %></h2>
+            <% if book[:subtitle] %>
+              <p class="book-subtitle"><%= book[:subtitle] %></p>
+            <% end %>
+            <p class="book-description"><%= book[:description] %></p>
+            
+            <div class="book-features">
+              <% book[:features].each do |feature| %>
+                <span class="feature-tag"><%= feature %></span>
+              <% end %>
+            </div>
+            
+            <div class="book-meta">
+              <span class="release-date">📅 <%= book[:release_date] %></span>
+            </div>
+            
+            <div class="book-actions">
+              <% if book[:status] == 'available' && book[:amazon_url] %>
+                <a href="<%= book[:amazon_url] %>" target="_blank" rel="noopener noreferrer" class="btn btn-amazon">
+                  📖 Buy on Amazon →
+                </a>
+              <% elsif book[:status] == 'coming_soon' %>
+                <button class="btn btn-coming-soon" disabled>
+                  🔔 Coming Soon
+                </button>
+              <% end %>
+              
+              <% if book[:id] == 'gods-monsters-solaris' %>
+                <%= link_to '🌍 Explore the World', characters_path, class: 'btn btn-secondary' %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Evolution of Monsters Preview -->
+  <section class="preview-section">
+    <div class="preview-container">
+      <div class="preview-content">
+        <span class="preview-badge">🔬 Research Project</span>
+        <h2>Evolution of Monsters</h2>
+        <p class="preview-subtitle">Coming 2026</p>
+        <p class="preview-description">
+          A comprehensive exploration of how humanity has depicted monsters throughout history. 
+          From the earliest cave paintings to modern horror films, this book traces the evolution 
+          of our collective fears and the creatures we created to embody them.
+        </p>
+        <div class="preview-topics">
+          <h4>Topics Covered:</h4>
+          <ul>
+            <li>🏛️ Ancient Mythology - Greek, Egyptian, Mesopotamian monsters</li>
+            <li>📜 Medieval Bestiaries - Dragons, unicorns, and hybrid creatures</li>
+            <li>🗺️ Global Perspectives - Monsters across cultures</li>
+            <li>🧪 Scientific Influence - How science shaped monster design</li>
+            <li>🎬 Modern Media - Evolution in film, games, and literature</li>
+            <li>🧠 Psychology of Fear - Why we create monsters</li>
+          </ul>
+        </div>
+        <p class="preview-note">
+          <em>Research notes and preview chapters will be available soon. 
+          Sign up to be notified when the book launches!</em>
+        </p>
+      </div>
+      <div class="preview-visual">
+        <div class="monster-collage">
+          <span class="monster-icon m1">🐉</span>
+          <span class="monster-icon m2">👹</span>
+          <span class="monster-icon m3">🧟</span>
+          <span class="monster-icon m4">🦇</span>
+          <span class="monster-icon m5">🐙</span>
+          <span class="monster-icon m6">🐺</span>
+          <span class="monster-icon m7">👻</span>
+          <span class="monster-icon m8">🕷️</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .books-page {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hero */
+  .books-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 80px 20px;
+    text-align: center;
+  }
+
+  .books-hero h1 {
+    font-size: 3em;
+    color: white;
+    margin-bottom: 15px;
+  }
+
+  .books-hero p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.2em;
+  }
+
+  /* Books Section */
+  .books-section {
+    padding: 60px 20px;
+    background: #f8f9fa;
+  }
+
+  .books-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* Book Card */
+  .book-card {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .book-card.coming_soon {
+    opacity: 0.9;
+    border: 2px dashed #667eea;
+  }
+
+  .coming-soon-badge {
+    position: absolute;
+    top: 20px;
+    right: -35px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 50px;
+    font-size: 0.85em;
+    font-weight: bold;
+    transform: rotate(45deg);
+    z-index: 10;
+  }
+
+  .award-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+    color: #333;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+  }
+
+  .book-cover {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .cover-img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .cover-placeholder {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    color: white;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .cover-placeholder.fiction {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .cover-placeholder.non-fiction {
+    background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+  }
+
+  .placeholder-icon {
+    font-size: 4em;
+  }
+
+  .placeholder-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    line-height: 1.3;
+  }
+
+  .book-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .book-category {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    width: fit-content;
+  }
+
+  .book-category.fiction {
+    background: rgba(102, 126, 234, 0.15);
+    color: #667eea;
+  }
+
+  .book-category.non-fiction {
+    background: rgba(45, 52, 54, 0.15);
+    color: #2d3436;
+  }
+
+  .book-title {
+    font-size: 2em;
+    color: #1a1a2e;
+    margin-bottom: 5px;
+  }
+
+  .book-subtitle {
+    color: #666;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+  }
+
+  .book-description {
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .book-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .feature-tag {
+    padding: 5px 12px;
+    background: #f0f0f0;
+    border-radius: 20px;
+    font-size: 0.85em;
+    color: #555;
+  }
+
+  .book-meta {
+    margin-bottom: 25px;
+    color: #666;
+  }
+
+  .book-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .btn-amazon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #ff9900 0%, #ff6600 100%);
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-amazon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 153, 0, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-coming-soon {
+    padding: 12px 25px;
+    background: #e0e0e0;
+    color: #666;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+  }
+
+  /* Preview Section */
+  .preview-section {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+  }
+
+  .preview-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .preview-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(102, 126, 234, 0.2);
+    border: 1px solid rgba(102, 126, 234, 0.5);
+    border-radius: 50px;
+    color: #667eea;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+  }
+
+  .preview-content h2 {
+    font-size: 2.5em;
+    color: white;
+    margin-bottom: 10px;
+  }
+
+  .preview-subtitle {
+    color: #ffd700;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+  }
+
+  .preview-description {
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+    margin-bottom: 30px;
+  }
+
+  .preview-topics h4 {
+    color: white;
+    margin-bottom: 15px;
+  }
+
+  .preview-topics ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .preview-topics li {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .preview-note {
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 25px;
+    font-size: 0.95em;
+  }
+
+  .monster-collage {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  .monster-icon {
+    font-size: 3em;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .m1 { animation-delay: 0s; }
+  .m2 { animation-delay: 0.3s; }
+  .m3 { animation-delay: 0.6s; }
+  .m4 { animation-delay: 0.9s; }
+  .m5 { animation-delay: 1.2s; }
+  .m6 { animation-delay: 1.5s; }
+  .m7 { animation-delay: 1.8s; }
+  .m8 { animation-delay: 2.1s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .book-card {
+      grid-template-columns: 1fr;
+    }
+
+    .book-cover {
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    .preview-container {
+      grid-template-columns: 1fr;
+    }
+
+    .monster-collage {
+      display: none;
+    }
+  }
+</style>
+

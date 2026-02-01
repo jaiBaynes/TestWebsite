@@ -1,29 +1,684 @@
-<div class="home-container">
-  <div class="hero">
-    <h1>Welcome to Gallery Site</h1>
-    <p>Explore our collection of characters, locations, and items from our world</p>
-  </div>
+<div class="homepage">
+  <!-- Epic Hero Section -->
+  <section class="hero-section">
+    <div class="hero-background"></div>
+    <div class="hero-content">
+      <div class="hero-badge">✍️ Award-Winning Author</div>
+      <h1 class="hero-title">Jaiden Baynes</h1>
+      <p class="hero-subtitle">
+        Author of compelling fiction and thought-provoking non-fiction. 
+        From epic mythology to historical analysis, my work challenges perspectives and ignites imagination.
+      </p>
+      <div class="hero-cta">
+        <%= link_to '📚 Browse My Books', books_path, class: 'btn btn-primary btn-large' %>
+        <%= link_to '👤 About Me', about_path, class: 'btn btn-secondary btn-large' %>
+      </div>
+    </div>
+  </section>
 
-  <div class="category-cards">
-    <div class="category-card">
-      <div class="category-icon">👥</div>
-      <h2>Characters</h2>
-      <p>Meet the characters from our world. Learn about their stories, personalities, and adventures.</p>
-      <%= link_to 'View Characters', characters_path, class: 'btn btn-primary' %>
+  <!-- Featured Books Section -->
+  <section class="featured-books-section">
+    <div class="section-header">
+      <h2>📖 Featured Books</h2>
+      <p>Explore my published works</p>
     </div>
     
-    <div class="category-card">
-      <div class="category-icon">🗺️</div>
-      <h2>Locations</h2>
-      <p>Discover the places and worlds where our stories unfold. Explore maps and environments.</p>
-      <%= link_to 'View Locations', locations_path, class: 'btn btn-primary' %>
+    <div class="featured-books-grid">
+      <!-- Gods & Monsters -->
+      <div class="featured-book fiction">
+        <div class="book-badge">Fiction</div>
+        <div class="book-cover">
+          <img src="/images/characters/zeus_4.png" alt="Gods & Monsters: Solaris">
+        </div>
+        <div class="book-details">
+          <h3>Gods & Monsters: Solaris</h3>
+          <p>An epic reimagining of Greek mythology where gods, heroes, and monsters clash in a battle that will determine the fate of the cosmos.</p>
+          <div class="book-links">
+            <a href="https://www.amazon.ca/Gods-Monsters-Solaris-Jaiden-Baynes-ebook/dp/B0CW1J4DZ9" 
+               target="_blank" rel="noopener noreferrer" class="btn btn-amazon">
+              Buy on Amazon →
+            </a>
+            <%= link_to 'Explore the World', characters_path, class: 'btn btn-outline' %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enemies of Africa -->
+      <div class="featured-book non-fiction">
+        <div class="book-badge award">🏆 Award Winner</div>
+        <div class="book-cover placeholder">
+          <div class="cover-content">
+            <span class="icon">📚</span>
+            <span class="title">Enemies of Africa</span>
+          </div>
+        </div>
+        <div class="book-details">
+          <h3>Enemies of Africa</h3>
+          <p class="award-text">Winner of The Literary Titan Gold Book Award!</p>
+          <p>A gripping exposé shining new light on Africa's users and abusers, from the past to the present.</p>
+          <div class="book-links">
+            <a href="https://www.amazon.com/dp/B0C976G24L" 
+               target="_blank" rel="noopener noreferrer" class="btn btn-amazon">
+              Buy on Amazon →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evolution of Monsters -->
+      <div class="featured-book coming-soon">
+        <div class="book-badge soon">Coming 2026</div>
+        <div class="book-cover placeholder">
+          <div class="cover-content">
+            <span class="icon">🐉</span>
+            <span class="title">Evolution of Monsters</span>
+          </div>
+        </div>
+        <div class="book-details">
+          <h3>Evolution of Monsters</h3>
+          <p>An exploration of how monsters have been depicted throughout human history—from ancient mythology to modern media.</p>
+          <div class="book-links">
+            <button class="btn btn-disabled" disabled>Coming Soon</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%= link_to 'View All Books →', books_path, class: 'btn btn-primary view-all-btn' %>
+  </section>
+
+  <!-- Gods & Monsters Section -->
+  <section class="gm-section">
+    <div class="section-header light">
+      <h2>🏛️ Gods & Monsters Universe</h2>
+      <p>Dive deep into the world of the Solaris saga</p>
     </div>
     
-    <div class="category-card">
-      <div class="category-icon">⚔️</div>
-      <h2>Items</h2>
-      <p>Browse through legendary weapons, artifacts, and treasures from our universe.</p>
-      <%= link_to 'View Items', items_path, class: 'btn btn-primary' %>
+    <div class="gm-features">
+      <div class="gm-feature">
+        <div class="feature-icon">👥</div>
+        <h3>40+ Characters</h3>
+        <p>Meet the gods of Olympus, heroes of legend, and the monsters who challenge them.</p>
+        <%= link_to 'Explore Characters', characters_path, class: 'feature-link' %>
+      </div>
+      
+      <div class="gm-feature">
+        <div class="feature-icon">📖</div>
+        <h3>Story Chapters</h3>
+        <p>Read the tales of gods, mortals, and the battles that shake the cosmos.</p>
+        <%= link_to 'Read Stories', stories_path, class: 'feature-link' %>
+      </div>
+      
+      <div class="gm-feature">
+        <div class="feature-icon">🎮</div>
+        <h3>Boss Battles</h3>
+        <p>Test your skills against 29 mythological bosses in epic boss fight games.</p>
+        <%= link_to 'Play Now', games_path, class: 'feature-link' %>
+      </div>
+      
+      <div class="gm-feature">
+        <div class="feature-icon">🗺️</div>
+        <h3>World Lore</h3>
+        <p>Discover locations, items, and the deep lore of the mythology.</p>
+        <%= link_to 'Explore Lore', locations_path, class: 'feature-link' %>
+      </div>
     </div>
-  </div>
+
+    <!-- Featured Characters -->
+    <div class="featured-characters">
+      <h3>Featured Characters</h3>
+      <div class="character-showcase">
+        <div class="char-card">
+          <img src="/images/characters/zeus_preview.png" alt="Zeus" referrerpolicy="no-referrer">
+          <div class="char-overlay">
+            <span class="char-name">Zeus</span>
+          </div>
+        </div>
+        <div class="char-card">
+          <img src="/images/characters/hades_preview.png" alt="Hades" referrerpolicy="no-referrer">
+          <div class="char-overlay">
+            <span class="char-name">Hades</span>
+          </div>
+        </div>
+        <div class="char-card">
+          <img src="/images/characters/hydra.png" alt="Hydra" referrerpolicy="no-referrer">
+          <div class="char-overlay">
+            <span class="char-name">Hydra</span>
+          </div>
+        </div>
+        <div class="char-card">
+          <img src="/images/characters/hercules.png" alt="Hercules" referrerpolicy="no-referrer">
+          <div class="char-overlay">
+            <span class="char-name">Hercules</span>
+          </div>
+        </div>
+        <div class="char-card">
+          <img src="/images/characters/kat_preview.png" alt="Kat" referrerpolicy="no-referrer">
+          <div class="char-overlay">
+            <span class="char-name">Kat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Teaser -->
+  <section class="about-teaser">
+    <div class="teaser-content">
+      <h2>About the Author</h2>
+      <p>
+        I'm an award-winning author from Ontario, Canada. My writing reflects a commitment to 
+        challenging the status quo—whether through epic fantasy that reimagines ancient mythology 
+        or non-fiction that uncovers hidden histories.
+      </p>
+      <%= link_to 'Learn More About Me →', about_path, class: 'btn btn-primary' %>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2>Start Exploring</h2>
+      <p>Create an account to track your reading progress, earn points, and unlock exclusive content.</p>
+      <div class="cta-buttons">
+        <% if logged_in? %>
+          <%= link_to '👤 View Profile', profile_path, class: 'btn btn-primary btn-large' %>
+          <%= link_to '📚 My Books', books_path, class: 'btn btn-secondary btn-large' %>
+        <% else %>
+          <%= link_to '🚀 Sign Up Free', signup_path, class: 'btn btn-primary btn-large' %>
+          <%= link_to 'Log In', login_path, class: 'btn btn-secondary btn-large' %>
+        <% end %>
+      </div>
+    </div>
+  </section>
 </div>
+
+<style>
+  /* Homepage Styles */
+  .homepage {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    position: relative;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  }
+
+  .hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 40px 20px;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 10px 25px;
+    background: rgba(255, 215, 0, 0.15);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    border-radius: 50px;
+    color: #ffd700;
+    font-size: 1em;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+  }
+
+  .hero-title {
+    font-size: 4.5em;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 4px 30px rgba(102, 126, 234, 0.4);
+    margin-bottom: 25px;
+    letter-spacing: -1px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Section Headers */
+  .section-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  .section-header h2 {
+    font-size: 2.2em;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+
+  .section-header p {
+    color: #666;
+    font-size: 1.1em;
+  }
+
+  .section-header.light h2 {
+    color: white;
+  }
+
+  .section-header.light p {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Featured Books Section */
+  .featured-books-section {
+    padding: 80px 20px;
+    background: #f8f9fa;
+    text-align: center;
+  }
+
+  .featured-books-grid {
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+
+  .featured-book {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.3s ease;
+  }
+
+  .featured-book:hover {
+    transform: translateY(-8px);
+  }
+
+  .featured-book.fiction { border-top: 4px solid #667eea; }
+  .featured-book.non-fiction { border-top: 4px solid #2d3436; }
+  .featured-book.coming-soon { border-top: 4px solid #ffd700; opacity: 0.9; }
+
+  .book-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 5px 15px;
+    background: rgba(102, 126, 234, 0.9);
+    color: white;
+    font-size: 0.8em;
+    font-weight: bold;
+    border-radius: 20px;
+    z-index: 5;
+  }
+
+  .book-badge.award {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+    color: #333;
+  }
+
+  .book-badge.soon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .book-cover {
+    height: 250px;
+    overflow: hidden;
+  }
+
+  .book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .book-cover.placeholder {
+    background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cover-content {
+    text-align: center;
+    color: white;
+  }
+
+  .cover-content .icon {
+    display: block;
+    font-size: 3em;
+    margin-bottom: 15px;
+  }
+
+  .cover-content .title {
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+
+  .book-details {
+    padding: 25px;
+    text-align: left;
+  }
+
+  .book-details h3 {
+    font-size: 1.4em;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+
+  .book-details p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+
+  .award-text {
+    color: #ffd700 !important;
+    font-weight: bold;
+    font-size: 0.9em;
+  }
+
+  .book-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-amazon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #ff9900 0%, #ff6600 100%);
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .btn-amazon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 153, 0, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-outline {
+    padding: 10px 20px;
+    background: transparent;
+    border: 2px solid #667eea;
+    color: #667eea;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .btn-outline:hover {
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-disabled {
+    padding: 12px 20px;
+    background: #e0e0e0;
+    color: #999;
+    border: none;
+    border-radius: 8px;
+    cursor: not-allowed;
+    width: 100%;
+  }
+
+  .view-all-btn {
+    margin-top: 20px;
+  }
+
+  /* Gods & Monsters Section */
+  .gm-section {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+  }
+
+  .gm-features {
+    max-width: 1100px;
+    margin: 0 auto 60px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+  }
+
+  .gm-feature {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .gm-feature:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+  }
+
+  .feature-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+  }
+
+  .gm-feature h3 {
+    color: white;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+
+  .gm-feature p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95em;
+    line-height: 1.5;
+    margin-bottom: 15px;
+  }
+
+  .feature-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .feature-link:hover {
+    color: #ffd700;
+  }
+
+  /* Featured Characters */
+  .featured-characters {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .featured-characters h3 {
+    color: white;
+    font-size: 1.5em;
+    margin-bottom: 25px;
+  }
+
+  .character-showcase {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .char-card {
+    width: 150px;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+  }
+
+  .char-card:hover {
+    transform: scale(1.05);
+  }
+
+  .char-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .char-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  }
+
+  .char-name {
+    color: white;
+    font-weight: bold;
+    font-size: 0.9em;
+  }
+
+  /* About Teaser */
+  .about-teaser {
+    padding: 80px 20px;
+    background: #f8f9fa;
+  }
+
+  .teaser-content {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .teaser-content h2 {
+    font-size: 2em;
+    color: #1a1a2e;
+    margin-bottom: 20px;
+  }
+
+  .teaser-content p {
+    color: #555;
+    font-size: 1.1em;
+    line-height: 1.7;
+    margin-bottom: 25px;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    padding: 100px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    text-align: center;
+  }
+
+  .cta-content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .cta-content h2 {
+    font-size: 2.5em;
+    color: white;
+    margin-bottom: 15px;
+  }
+
+  .cta-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2em;
+    margin-bottom: 30px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cta-section .btn-primary {
+    background: white;
+    color: #667eea;
+  }
+
+  .cta-section .btn-primary:hover {
+    background: #f0f0f0;
+    color: #5558d3;
+  }
+
+  .cta-section .btn-secondary {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+  }
+
+  .cta-section .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Responsive */
+  @media (max-width: 1000px) {
+    .featured-books-grid {
+      grid-template-columns: 1fr;
+      max-width: 500px;
+    }
+
+    .gm-features {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .hero-title {
+      font-size: 2.8em;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1em;
+    }
+
+    .gm-features {
+      grid-template-columns: 1fr;
+    }
+
+    .char-card {
+      width: 100px;
+      height: 120px;
+    }
+  }
+</style>
