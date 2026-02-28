@@ -138,6 +138,7 @@
     .boss-card.terra-solaris { --boss-color: #ffaa44; --boss-glow: rgba(255, 170, 68, 0.4); }
     .boss-card.metis { --boss-color: #8899bb; --boss-glow: rgba(136, 153, 187, 0.4); }
     .boss-card.kat { --boss-color: #aa88bb; --boss-glow: rgba(170, 136, 187, 0.4); }
+    .boss-card.gatola { --boss-color: #ff8833; --boss-glow: rgba(255, 136, 51, 0.4); }
 
     .boss-image {
       width: 100%;
@@ -636,6 +637,14 @@
               <span class="boss-difficulty difficulty-medium">Medium</span>
             </div>
           </div>
+          <div class="boss-card gatola" onclick="startGame('Gatola')">
+            <img src="assets/gatola_1.png" alt="Gatola" class="boss-image" onerror="this.style.display='none'">
+            <div class="boss-info">
+              <h2 class="boss-name">GATOLA</h2>
+              <p class="boss-title">The Blazing Lion</p>
+              <span class="boss-difficulty difficulty-medium">Medium</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -703,24 +712,55 @@
             <span class="control-desc">Move your character</span>
           </div>
           <div class="control-item">
+            <span class="key">Z</span>
+            <span class="control-desc">Shoot blasts at boss (hold for rapid fire)</span>
+          </div>
+          <div class="control-item">
+            <span class="key">SHIFT</span>
+            <span class="control-desc">Dash in movement direction (costs 15% gauge)</span>
+          </div>
+          <div class="control-item">
+            <span class="key">Q</span>
+            <span class="control-desc">Deflect projectiles (costs 10% gauge)</span>
+          </div>
+          <div class="control-item">
             <span class="key">ENTER</span>
-            <span class="control-desc">Start attack turn (when gauge is full)</span>
+            <span class="control-desc">Start special attack turn (when gauge is full)</span>
           </div>
           <div class="control-item">
             <span class="key">← →</span>
             <span class="control-desc">Select target (during your turn)</span>
           </div>
           <div class="control-item">
-            <span class="key">SPACE</span>
+            <span class="key">SPACE / X</span>
             <span class="control-desc">Attack selected target</span>
           </div>
           <div class="control-item">
+            <span class="key">C</span>
+            <span class="control-desc">Charge attack (up to 6.25x damage)</span>
+          </div>
+          <div class="control-item">
             <span class="key">H</span>
-            <span class="control-desc">Heal (uses your turn)</span>
+            <span class="control-desc">Heal to full HP (uses your turn)</span>
           </div>
           <div class="control-item">
             <span class="key">R</span>
             <span class="control-desc">Restart after game over</span>
+          </div>
+        </div>
+        <h3 style="margin-top: 20px;">💡 Tips</h3>
+        <div class="controls-grid">
+          <div class="control-item">
+            <span class="control-desc">• Shooting slows your gauge charge but deals constant damage</span>
+          </div>
+          <div class="control-item">
+            <span class="control-desc">• Deflect works on projectiles like clouds, fireballs, and bolts</span>
+          </div>
+          <div class="control-item">
+            <span class="control-desc">• Watch the Attack Legend for info on boss attacks</span>
+          </div>
+          <div class="control-item">
+            <span class="control-desc">• Some bosses float and teleport - keep moving!</span>
           </div>
         </div>
       </div>
@@ -742,7 +782,7 @@
         const match = hash.match(/boss=(\w+)/i);
         if (match) {
           const bossName = match[1];
-          const validBosses = ['Zeus', 'Aquila', 'Hades', 'Hydra', 'Apollo', 'Neptune', 'Mercury', 'Venus', 'Hebe', 'Cerberus', 'Hecate', 'Megaera', 'Echidna', 'Python', 'Draco', 'Hercules', 'Melissa', 'Scythia', 'TerraSolaris', 'Metis', 'Kat', 'Artemis', 'Nyx', 'ScythianEkidna', 'NemeanLion', 'CeryneianHind', 'ErymanthianBoar', 'StymphalianBird', 'CretanBull', 'MaresOfDiomedes'];
+          const validBosses = ['Zeus', 'Aquila', 'Hades', 'Hydra', 'Apollo', 'Neptune', 'Mercury', 'Venus', 'Hebe', 'Cerberus', 'Hecate', 'Megaera', 'Echidna', 'Python', 'Draco', 'Hercules', 'Melissa', 'Scythia', 'TerraSolaris', 'Metis', 'Kat', 'Artemis', 'Nyx', 'ScythianEkidna', 'NemeanLion', 'CeryneianHind', 'ErymanthianBoar', 'StymphalianBird', 'CretanBull', 'MaresOfDiomedes', 'Gatola'];
           const selectedBoss = validBosses.find(b => b.toLowerCase() === bossName.toLowerCase());
           if (selectedBoss) {
             setTimeout(() => startGame(selectedBoss), 200);

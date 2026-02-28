@@ -9,6 +9,34 @@ const CONFIG = {
   wind: { push_strength: 20, base_damage: 12 },
   fire: { burn_seconds: 3, burn_dps: 2.0, base_damage: 18 },
   poison: { poison_seconds: 6, poison_dps: 1.0, base_damage: 10 },
+  playerBlast: { damage: 3, speed: 12, cooldown: 8, gaugeSlowdown: 0.5 },
+  dash: { cost: 15, distance: 150, cooldown: 20 },
+  deflect: { cost: 10, duration: 15, cooldown: 30 },
+};
+
+// Attack descriptions for the legend
+const ATTACK_DESCRIPTIONS = {
+  LightningStrike: { name: 'Lightning Strike', desc: 'A vertical bolt of lightning. Stuns on hit.', icon: '⚡' },
+  SideWall: { name: 'Wind Wall', desc: 'Pushes you away from the side of the screen.', icon: '💨' },
+  HomingCloud: { name: 'Storm Cloud', desc: 'A cloud that follows you and deals electric damage.', icon: '☁️' },
+  RisingTornado: { name: 'Rising Tornado', desc: 'A tornado that rises from the ground.', icon: '🌪️' },
+  FireBlast: { name: 'Fire Blast', desc: 'Flames that erupt from the ground. Causes burn.', icon: '🔥' },
+  FireWall: { name: 'Fire Wall', desc: 'A wall of flames. Causes burn damage over time.', icon: '🔥' },
+  BidentAttack: { name: 'Bident Strike', desc: 'A vertical strike from Hades\' bident.', icon: '🔱' },
+  PoisonCloud: { name: 'Poison Cloud', desc: 'A toxic cloud that follows you. Causes poison.', icon: '☠️' },
+  PoisonBreath: { name: 'Poison Breath', desc: 'A wide column of toxic breath.', icon: '💀' },
+  AcidSpit: { name: 'Acid Spit', desc: 'Projectile that causes poison. Deflectable.', icon: '💧' },
+  TidalWave: { name: 'Tidal Wave', desc: 'A wave that sweeps across the screen.', icon: '🌊' },
+  Whirlpool: { name: 'Whirlpool', desc: 'Pulls you toward its center.', icon: '🌀' },
+  Trident: { name: 'Trident Strike', desc: 'A vertical strike from Neptune\'s trident.', icon: '🔱' },
+  SolarBeam: { name: 'Solar Beam', desc: 'A concentrated beam of sunlight. Causes burn.', icon: '☀️' },
+  SunFlare: { name: 'Sun Flare', desc: 'Falling orbs of solar energy. Deflectable.', icon: '✨' },
+  GroundSlam: { name: 'Ground Slam', desc: 'Shockwave along the ground.', icon: '💥' },
+  DashAttack: { name: 'Dash Attack', desc: 'A fast horizontal sweep attack.', icon: '➡️' },
+  ArrowVolley: { name: 'Arrow Volley', desc: 'Multiple arrows rain from above.', icon: '🏹' },
+  ShadowBolt: { name: 'Shadow Bolt', desc: 'Dark projectile aimed at you. Deflectable.', icon: '🌑' },
+  DarkVeil: { name: 'Dark Veil', desc: 'A zone of darkness on one side.', icon: '🌙' },
+  TeleportAttack: { name: 'Teleport', desc: 'Boss vanishes and reappears elsewhere.', icon: '✨' },
 };
 
 const MINION_LIMITS = { 
@@ -47,6 +75,43 @@ function rectCircleCollide(rect, cx, cy, radius) {
   return (dx * dx + dy * dy) < (radius * radius);
 }
 
+// ============= PLAYER BLAST CLASS =============
+class PlayerBlast {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = 6;
+    this.speed = CONFIG.playerBlast.speed;
+    this.damage = CONFIG.playerBlast.damage;
+    this.active = true;
+  }
+
+  update() {
+    this.y -= this.speed;
+    if (this.y < -20) {
+      this.active = false;
+    }
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = '#00ffff';
+    ctx.shadowColor = '#00ffff';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  checkBossHit(bossHitbox) {
+    if (!bossHitbox) return false;
+    return this.x >= bossHitbox.x && 
+           this.x <= bossHitbox.x + bossHitbox.width &&
+           this.y >= bossHitbox.y && 
+           this.y <= bossHitbox.y + bossHitbox.height;
+  }
+}
+
 // ============= PLAYER CLASS =============
 class Player {
   constructor(screenWidth, screenHeight) {
@@ -59,8 +124,22 @@ class Player {
     this.attackGauge = 0;
     this.statuses = {};
     this.playerTurn = false;
-    this.chargeLevel = 0; // 0 = no charge, 1 = 2.5x, 2 = 6.25x
+    this.chargeLevel = 0;
     this.maxCharges = 2;
+    
+    // New abilities
+    this.blasts = [];
+    this.shootCooldown = 0;
+    this.isShooting = false;
+    
+    this.dashCooldown = 0;
+    this.isDashing = false;
+    this.dashTimer = 0;
+    this.dashDirection = { x: 0, y: 0 };
+    
+    this.deflectCooldown = 0;
+    this.isDeflecting = false;
+    this.deflectTimer = 0;
   }
 
   getChargeMult() {
@@ -80,15 +159,86 @@ class Player {
   }
 
   move(dx, screenWidth) {
-    if (this.isStunned() || this.playerTurn) return;
+    if (this.isStunned() || this.playerTurn || this.isDashing) return;
     this.x += dx;
     this.x = Math.max(this.radius, Math.min(screenWidth - this.radius, this.x));
   }
 
   moveVertical(dy, screenHeight) {
-    if (this.isStunned() || this.playerTurn) return;
+    if (this.isStunned() || this.playerTurn || this.isDashing) return;
     this.y += dy;
     this.y = Math.max(this.radius, Math.min(screenHeight - this.radius, this.y));
+  }
+
+  shoot() {
+    if (this.shootCooldown <= 0 && !this.playerTurn && !this.isStunned()) {
+      this.blasts.push(new PlayerBlast(this.x, this.y - this.radius));
+      this.shootCooldown = CONFIG.playerBlast.cooldown;
+      this.isShooting = true;
+    }
+  }
+
+  dash(dirX, dirY, screenWidth, screenHeight) {
+    if (this.dashCooldown <= 0 && this.attackGauge >= CONFIG.dash.cost && 
+        !this.playerTurn && !this.isStunned() && !this.isDashing) {
+      const len = Math.sqrt(dirX * dirX + dirY * dirY);
+      if (len > 0) {
+        this.dashDirection = { x: dirX / len, y: dirY / len };
+        this.isDashing = true;
+        this.dashTimer = 10;
+        this.attackGauge -= CONFIG.dash.cost;
+        this.dashCooldown = CONFIG.dash.cooldown;
+      }
+    }
+  }
+
+  deflect() {
+    if (this.deflectCooldown <= 0 && this.attackGauge >= CONFIG.deflect.cost && 
+        !this.playerTurn && !this.isStunned()) {
+      this.isDeflecting = true;
+      this.deflectTimer = CONFIG.deflect.duration;
+      this.attackGauge -= CONFIG.deflect.cost;
+      this.deflectCooldown = CONFIG.deflect.cooldown;
+    }
+  }
+
+  updateAbilities(screenWidth, screenHeight) {
+    // Cooldowns
+    if (this.shootCooldown > 0) this.shootCooldown--;
+    if (this.dashCooldown > 0) this.dashCooldown--;
+    if (this.deflectCooldown > 0) this.deflectCooldown--;
+    
+    // Shooting state
+    if (this.shootCooldown <= 0) {
+      this.isShooting = false;
+    }
+    
+    // Update blasts
+    this.blasts = this.blasts.filter(b => {
+      b.update();
+      return b.active;
+    });
+    
+    // Dash movement
+    if (this.isDashing) {
+      this.dashTimer--;
+      const dashSpeed = CONFIG.dash.distance / 10;
+      this.x += this.dashDirection.x * dashSpeed;
+      this.y += this.dashDirection.y * dashSpeed;
+      this.x = Math.max(this.radius, Math.min(screenWidth - this.radius, this.x));
+      this.y = Math.max(this.radius, Math.min(screenHeight - this.radius, this.y));
+      if (this.dashTimer <= 0) {
+        this.isDashing = false;
+      }
+    }
+    
+    // Deflect timer
+    if (this.isDeflecting) {
+      this.deflectTimer--;
+      if (this.deflectTimer <= 0) {
+        this.isDeflecting = false;
+      }
+    }
   }
 
   addStatus(name, durationFrames, dps = 0, meta = {}) {
@@ -120,11 +270,43 @@ class Player {
     ctx.lineTo(ctx.canvas.width, this.y);
     ctx.stroke();
 
+    // Draw blasts
+    for (const blast of this.blasts) {
+      blast.draw(ctx);
+    }
+
+    // Draw deflect shield
+    if (this.isDeflecting) {
+      ctx.strokeStyle = 'rgba(255, 200, 50, 0.8)';
+      ctx.lineWidth = 4;
+      ctx.shadowColor = '#ffcc00';
+      ctx.shadowBlur = 20;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius + 15, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    // Draw dash trail
+    if (this.isDashing) {
+      ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+      for (let i = 1; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.arc(
+          this.x - this.dashDirection.x * i * 15,
+          this.y - this.dashDirection.y * i * 15,
+          this.radius * (1 - i * 0.2),
+          0, Math.PI * 2
+        );
+        ctx.fill();
+      }
+    }
+
     // Draw player circle with glow
-    ctx.shadowColor = '#00ffff';
-    ctx.shadowBlur = 15;
+    ctx.shadowColor = this.isDashing ? '#ffffff' : '#00ffff';
+    ctx.shadowBlur = this.isDashing ? 25 : 15;
     ctx.fillStyle = '#1a1a2e';
-    ctx.strokeStyle = '#00ffff';
+    ctx.strokeStyle = this.isDeflecting ? '#ffcc00' : (this.isDashing ? '#ffffff' : '#00ffff');
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -152,6 +334,8 @@ class Attack {
     this.speed = 0;
     this.chargeImage = null;
     this.attackImage = null;
+    this.deflectable = false; // Can be deflected by player
+    this.deflected = false; // Has been deflected
   }
 
   spawn(game) {
@@ -330,6 +514,7 @@ class HomingCloud extends Attack {
     this.tracking = true;
     this.homing = true;
     this.maxNumber = 2;
+    this.deflectable = true;
   }
 
   spawn(game) {
@@ -597,6 +782,7 @@ class PoisonCloud extends Attack {
     this.tracking = true;
     this.homing = true;
     this.maxNumber = 2;
+    this.deflectable = true;
   }
 
   spawn(game) {
@@ -711,6 +897,7 @@ class AcidSpit extends Attack {
     this.speed = 8;
     this.size = { width: 30, height: 30 };
     this.maxNumber = 3;
+    this.deflectable = true;
   }
 
   spawn(game) {
@@ -977,6 +1164,7 @@ class SunFlare extends Attack {
     this.activeTime = 100;
     this.size = { width: 100, height: 100 };
     this.maxNumber = 3;
+    this.deflectable = true;
   }
 
   spawn(game) {
@@ -1166,6 +1354,7 @@ class ShadowBolt extends Attack {
     this.speed = 7;
     this.size = { width: 25, height: 25 };
     this.maxNumber = 4;
+    this.deflectable = true;
   }
 
   spawn(game) {
@@ -1231,6 +1420,55 @@ class DarkVeil extends Attack {
     const alpha = this.state === 'charging' ? 0.3 : 0.6;
     ctx.fillStyle = `rgba(40, 20, 60, ${alpha})`;
     ctx.fillRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+  }
+}
+
+// ============= TELEPORT ATTACK =============
+class TeleportAttack extends Attack {
+  constructor() {
+    super('TeleportAttack', 'physical', 0);
+    this.chargeTime = 40;
+    this.activeTime = 60;
+    this.newPosition = { x: 0, y: 0 };
+    this.maxNumber = 1;
+  }
+
+  spawn(game) {
+    super.spawn(game);
+    const w = game.canvas.width;
+    // Boss teleports to a random x position
+    this.newPosition = {
+      x: 0.2 + Math.random() * 0.6, // 20%-80% of screen width
+      y: 0.1 + Math.random() * 0.3   // 10%-40% of screen height
+    };
+  }
+
+  update(game) {
+    if (this.state === 'charging') {
+      // Boss fades out
+      game.boss.teleportAlpha = 1 - (this.timer / this.chargeTime);
+    } else if (this.state === 'active') {
+      // Boss reappears at new position
+      if (this.timer === this.activeTime) {
+        game.boss.teleportOffset = this.newPosition;
+      }
+      game.boss.teleportAlpha = this.timer / this.activeTime;
+    }
+    super.update(game);
+    
+    if (this.state === 'finished') {
+      game.boss.teleportAlpha = 1;
+    }
+  }
+
+  draw(ctx) {
+    // Visual effect during teleport
+    if (this.state === 'charging') {
+      ctx.fillStyle = `rgba(100, 50, 150, ${0.3 + (1 - this.timer / this.chargeTime) * 0.5})`;
+      ctx.beginPath();
+      ctx.arc(ctx.canvas.width / 2, ctx.canvas.height * 0.3, 100, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 }
 
@@ -1434,8 +1672,8 @@ class Boss {
     this.color = config.color;
     this.imageFile = config.imageFile;
     this.bossImageFile = config.bossImageFile;
-    this.backgroundFile = config.backgroundFile || null; // Separate background
-    this.useImageAsBossSprite = config.useImageAsBossSprite || false; // If true, imageFile is character sprite on storm bg
+    this.backgroundFile = config.backgroundFile || null;
+    this.useImageAsBossSprite = config.useImageAsBossSprite || false;
     this.transform = config.transform;
     this.maxHp = config.maxHp;
     this.hp = this.maxHp;
@@ -1445,6 +1683,27 @@ class Boss {
     this.bossImage = null;
     this.backgroundImage = null;
     this.difficulty = config.difficulty || 'medium';
+    
+    // Movement pattern
+    this.movementPattern = config.movementPattern || 'none'; // 'none', 'sin', 'parabolic'
+    this.movementTimer = 0;
+    this.basePosition = { x: 0.5, y: 0.35 }; // Base position as fraction of screen
+    this.currentOffset = { x: 0, y: 0 };
+    
+    // Teleport
+    this.canTeleport = config.canTeleport || false;
+    this.teleportAlpha = 1;
+    this.teleportOffset = null;
+    
+    // Hitbox (calculated in draw, top half of boss sprite)
+    this.hitbox = null;
+    
+    // Attack legend tracking
+    this.usedAttacks = new Set();
+  }
+
+  getHitbox() {
+    return this.hitbox;
   }
 
   scheduleAttack(AttackClass, game) {
@@ -1457,20 +1716,36 @@ class Boss {
     
     attack.spawn(game);
     this.activeAttacks.push(attack);
+    
+    // Track attack for legend
+    this.usedAttacks.add(attack.name);
+    
     return attack;
   }
 
   update(game) {
-    // #region agent log
-    if (!this._attackLogCount) this._attackLogCount = 0;
-    const scheduledAttack = Math.random() < (this.speed / 400);
-    if (scheduledAttack && this._attackLogCount < 5) {
-      this._attackLogCount++;
-      fetch('http://127.0.0.1:7242/ingest/87393eff-2d25-48af-a5f9-c1fcc354abec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'game.js:Boss.update',message:'Attack scheduled',data:{bossSpeed:this.speed,probability:this.speed/400,activeAttacks:this.activeAttacks.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5B-attacks'})}).catch(()=>{});
+    // Update movement pattern
+    this.movementTimer++;
+    if (this.movementPattern === 'sin') {
+      // Sinusoidal left-right movement
+      this.currentOffset.x = Math.sin(this.movementTimer * 0.02) * 0.15;
+      this.currentOffset.y = Math.sin(this.movementTimer * 0.03) * 0.05;
+    } else if (this.movementPattern === 'parabolic') {
+      // Parabolic up-down bouncing
+      const t = (this.movementTimer % 120) / 120;
+      this.currentOffset.y = -0.1 * Math.sin(t * Math.PI);
+      this.currentOffset.x = Math.sin(this.movementTimer * 0.015) * 0.1;
     }
-    // #endregion
+    
+    // Apply teleport offset if set
+    if (this.teleportOffset) {
+      this.basePosition.x = this.teleportOffset.x;
+      this.basePosition.y = this.teleportOffset.y;
+      this.teleportOffset = null;
+    }
 
     // Probabilistically schedule attacks
+    const scheduledAttack = Math.random() < (this.speed / 400);
     if (scheduledAttack) {
       const attackClass = this.attackClasses[Math.floor(Math.random() * this.attackClasses.length)];
       this.scheduleAttack(attackClass, game);
@@ -1491,18 +1766,15 @@ class Boss {
     if (this.backgroundImage) {
       ctx.drawImage(this.backgroundImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
     } else if (this.image && !this.useImageAsBossSprite) {
-      // Image is the full background (Zeus, Hades style)
       ctx.drawImage(this.image, 0, 0, ctx.canvas.width, ctx.canvas.height);
     } else {
-      // Fallback solid color
       ctx.fillStyle = `rgb(${this.color[0]}, ${this.color[1]}, ${this.color[2]})`;
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
-    // Draw boss character image in center with proper aspect ratio
+    // Draw boss character image with movement offset
     const spriteImg = this.bossImage || (this.image && this.useImageAsBossSprite ? this.image : null);
     if (spriteImg) {
-      // Calculate dimensions that fit within the available space while maintaining aspect ratio
       const maxW = ctx.canvas.width * 0.5;
       const maxH = ctx.canvas.height * 0.6;
       const imgRatio = spriteImg.naturalWidth / spriteImg.naturalHeight;
@@ -1510,18 +1782,44 @@ class Boss {
       
       let bw, bh;
       if (imgRatio > maxRatio) {
-        // Image is wider than space - fit by width
         bw = maxW;
         bh = maxW / imgRatio;
       } else {
-        // Image is taller than space - fit by height
         bh = maxH;
         bw = maxH * imgRatio;
       }
       
-      const bx = (ctx.canvas.width - bw) / 2;
-      const by = ctx.canvas.height * 0.1 + (maxH - bh) / 2; // Center vertically in the available space
+      // Apply movement offset
+      const offsetX = this.currentOffset.x * ctx.canvas.width;
+      const offsetY = this.currentOffset.y * ctx.canvas.height;
+      const baseBx = this.basePosition.x * ctx.canvas.width - bw / 2;
+      const baseby = this.basePosition.y * ctx.canvas.height - bh / 2;
+      const bx = baseBx + offsetX;
+      const by = baseby + offsetY;
+      
+      // Apply teleport alpha
+      ctx.globalAlpha = this.teleportAlpha;
       ctx.drawImage(spriteImg, bx, by, bw, bh);
+      ctx.globalAlpha = 1;
+      
+      // Calculate hitbox (top half of the sprite)
+      this.hitbox = {
+        x: bx,
+        y: by,
+        width: bw,
+        height: bh * 0.5 // Top half only
+      };
+    } else {
+      // For bosses without sprites (like Zeus/Hades with full background images)
+      // Create a hitbox in the upper center area
+      const hitboxW = ctx.canvas.width * 0.3;
+      const hitboxH = ctx.canvas.height * 0.25;
+      this.hitbox = {
+        x: (ctx.canvas.width - hitboxW) / 2 + this.currentOffset.x * ctx.canvas.width,
+        y: ctx.canvas.height * 0.1 + this.currentOffset.y * ctx.canvas.height,
+        width: hitboxW,
+        height: hitboxH
+      };
     }
   }
 
@@ -1616,6 +1914,7 @@ function createBoss(name) {
       transform: 'Hydra Monster',
       maxHp: 200,
       difficulty: 'medium',
+      movementPattern: 'sin',
       attacks: [
         FireBlast,
         PoisonCloud,
@@ -1635,6 +1934,7 @@ function createBoss(name) {
       transform: null,
       maxHp: 350,
       difficulty: 'medium',
+      movementPattern: 'parabolic',
       attacks: [
         FireBlast,
         PoisonCloud,
@@ -1656,6 +1956,7 @@ function createBoss(name) {
       transform: null,
       maxHp: 400,
       difficulty: 'medium',
+      movementPattern: 'parabolic',
       attacks: [
         SolarBeam,
         FireBlast,
@@ -1695,12 +1996,15 @@ function createBoss(name) {
       transform: 'Mercury Ascended',
       maxHp: 250,
       difficulty: 'easy',
+      movementPattern: 'sin',
+      canTeleport: true,
       attacks: [
         DashAttack,
         RisingTornado,
         () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
         ArrowVolley,
-        HomingCloud
+        HomingCloud,
+        TeleportAttack
       ]
     },
     Venus: {
@@ -1774,13 +2078,16 @@ function createBoss(name) {
       transform: null,
       maxHp: 400,
       difficulty: 'medium',
+      movementPattern: 'sin',
+      canTeleport: true,
       attacks: [
         PoisonCloud,
         PoisonBreath,
         FireBlast,
         ShadowBolt,
         () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
-        () => new MinionSpawn('ShadowMinion')
+        () => new MinionSpawn('ShadowMinion'),
+        TeleportAttack
       ]
     },
     Python: {
@@ -2016,13 +2323,16 @@ function createBoss(name) {
       transform: null,
       maxHp: 550,
       difficulty: 'hard',
+      movementPattern: 'sin',
+      canTeleport: true,
       attacks: [
         ShadowBolt,
         () => new DarkVeil(Math.random() < 0.5 ? 'left' : 'right'),
         PoisonCloud,
         HomingCloud,
         LightningStrikeAttack,
-        () => new MinionSpawn('ShadowMinion')
+        () => new MinionSpawn('ShadowMinion'),
+        TeleportAttack
       ]
     },
     ScythianEkidna: {
@@ -2138,6 +2448,7 @@ function createBoss(name) {
       transform: null,
       maxHp: 300,
       difficulty: 'easy',
+      movementPattern: 'parabolic',
       attacks: [
         DashAttack,
         DashAttack,
@@ -2221,6 +2532,53 @@ function createBoss(name) {
         PoisonBreath,
         () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right')
       ]
+    },
+    // ===== GATOLA - FIRE LION =====
+    Gatola: {
+      name: 'Gatola',
+      title: 'The Blazing Lion',
+      strength: 14, speed: 55, durability: 12, regeneration: 8, supernatural: 14,
+      color: [255, 120, 40],
+      imageFile: 'gatola_1.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: 'Gatola Enraged',
+      maxHp: 300,
+      difficulty: 'medium',
+      movementPattern: 'sin',
+      canTeleport: true,
+      attacks: [
+        FireBlast,
+        () => new FireWall('bottom'),
+        DashAttack,
+        SunFlare,
+        () => new SideWallAttack(Math.random() < 0.5 ? 'left' : 'right'),
+        TeleportAttack
+      ]
+    },
+    'Gatola Enraged': {
+      name: 'Gatola',
+      title: 'Enraged Form - The Inferno Lion',
+      strength: 20, speed: 70, durability: 14, regeneration: 6, supernatural: 18,
+      color: [255, 80, 20],
+      imageFile: 'gatola_2.png',
+      bossImageFile: null,
+      useImageAsBossSprite: true,
+      transform: null,
+      maxHp: 450,
+      difficulty: 'medium',
+      movementPattern: 'parabolic',
+      canTeleport: true,
+      attacks: [
+        FireBlast,
+        FireBlast,
+        () => new FireWall('bottom'),
+        () => new FireWall(Math.random() < 0.5 ? 'left' : 'right'),
+        DashAttack,
+        SunFlare,
+        SolarBeam,
+        TeleportAttack
+      ]
     }
   };
 
@@ -2269,6 +2627,11 @@ class Game {
       up: { x: margin + btnSize, y: h - btnSize * 3 - margin, w: btnSize, h: btnSize, label: '▲', key: 'ArrowUp' },
       down: { x: margin + btnSize, y: h - btnSize - margin, w: btnSize, h: btnSize, label: '▼', key: 'ArrowDown' },
       
+      // New ability buttons (left side, above movement)
+      shoot: { x: margin + btnSize * 3 + margin, y: h - btnSize * 2 - margin, w: btnSize, h: btnSize, label: 'Z', action: 'shoot' },
+      dash: { x: margin + btnSize * 3 + margin, y: h - btnSize * 3 - margin, w: btnSize, h: btnSize, label: 'DASH', action: 'dash' },
+      deflect: { x: margin + btnSize * 3 + margin, y: h - btnSize - margin, w: btnSize, h: btnSize, label: 'Q', action: 'deflect' },
+      
       // Action buttons (right side)
       enter: { x: w - btnSize * 2 - margin, y: h - btnSize * 4 - margin, w: btnSize * 2, h: btnSize, label: 'ENTER', action: 'enter' },
       targetLeft: { x: w - btnSize * 2 - margin * 2, y: h - btnSize * 3 - margin, w: btnSize, h: btnSize, label: '◁', action: 'targetLeft', turnOnly: true },
@@ -2276,6 +2639,9 @@ class Game {
       attack: { x: w - btnSize - margin, y: h - btnSize * 2 - margin, w: btnSize, h: btnSize, label: 'X', action: 'attack' },
       charge: { x: w - btnSize * 2 - margin * 2, y: h - btnSize * 2 - margin, w: btnSize, h: btnSize, label: 'C', action: 'charge' },
       heal: { x: w - btnSize - margin, y: h - btnSize - margin, w: btnSize, h: btnSize, label: 'H', action: 'heal' },
+      
+      // Debug button (top right)
+      transform: { x: w - btnSize * 2 - margin, y: margin, w: btnSize * 2, h: btnSize * 0.7, label: 'TRANSFORM', action: 'forceTransform', debug: true },
     };
     
     // Touch/click handlers
@@ -2399,6 +2765,28 @@ class Game {
           this.player.playerTurn = false;
         }
         break;
+      case 'shoot':
+        this.player.shoot();
+        break;
+      case 'dash':
+        // Dash in the current movement direction
+        let dirX = 0, dirY = 0;
+        if (this.keys['KeyA'] || this.keys['ArrowLeft']) dirX -= 1;
+        if (this.keys['KeyD'] || this.keys['ArrowRight']) dirX += 1;
+        if (this.keys['KeyW'] || this.keys['ArrowUp']) dirY -= 1;
+        if (this.keys['KeyS'] || this.keys['ArrowDown']) dirY += 1;
+        if (dirX === 0 && dirY === 0) dirX = 1; // Default right
+        this.player.dash(dirX, dirY, this.canvas.width, this.canvas.height);
+        break;
+      case 'deflect':
+        this.player.deflect();
+        break;
+      case 'forceTransform':
+        // Debug: Force boss transformation
+        if (this.boss.transform) {
+          this.transformBoss();
+        }
+        break;
     }
   }
 
@@ -2409,9 +2797,17 @@ class Game {
       // Skip turn-only buttons when not in player turn
       if (btn.turnOnly && !this.playerTurn) continue;
       
+      // Skip debug transform button if boss can't transform
+      if (btn.debug && name === 'transform' && !this.boss.transform) continue;
+      
       // Determine button visibility/state
       let isEnabled = true;
       let bgColor = 'rgba(60, 60, 80, 0.7)';
+      
+      // Debug buttons get special styling
+      if (btn.debug) {
+        bgColor = 'rgba(150, 80, 50, 0.8)';
+      }
       
       if (name === 'enter' && (this.player.attackGauge < 100 || this.playerTurn)) {
         isEnabled = false;
@@ -2431,7 +2827,7 @@ class Game {
       ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
       
       // Border
-      ctx.strokeStyle = isEnabled ? 'rgba(255, 255, 255, 0.5)' : 'rgba(100, 100, 100, 0.3)';
+      ctx.strokeStyle = btn.debug ? 'rgba(255, 150, 50, 0.8)' : (isEnabled ? 'rgba(255, 255, 255, 0.5)' : 'rgba(100, 100, 100, 0.3)');
       ctx.lineWidth = 2;
       ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
       
@@ -2442,8 +2838,8 @@ class Game {
       }
       
       // Label
-      ctx.fillStyle = isEnabled ? '#fff' : 'rgba(255, 255, 255, 0.4)';
-      ctx.font = 'bold 14px sans-serif';
+      ctx.fillStyle = btn.debug ? '#ffaa44' : (isEnabled ? '#fff' : 'rgba(255, 255, 255, 0.4)');
+      ctx.font = btn.debug ? 'bold 11px sans-serif' : 'bold 14px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2);
@@ -2512,7 +2908,7 @@ class Game {
         // Charge attack (only if gauge is full and not at max charges)
         if (this.player.attackGauge >= 100 && this.player.chargeLevel < this.player.maxCharges) {
           this.player.addCharge();
-          this.player.attackGauge = 0; // Reset gauge after charging
+          this.player.attackGauge = 0;
           this.playerTurn = false;
           this.player.playerTurn = false;
         }
@@ -2523,7 +2919,7 @@ class Game {
         this.player.resetCharge();
         this.playerTurn = false;
         this.player.playerTurn = false;
-      } else if (e.code === 'KeyX') {
+      } else if (e.code === 'KeyX' || e.code === 'Space') {
         // Attack (resets charge after dealing damage)
         this.playerAttack();
         this.player.resetCharge();
@@ -2538,6 +2934,29 @@ class Game {
             this.gameOver = true;
             this.recordVictory();
           }
+        }
+      }
+    } else {
+      // Not in player turn - handle combat abilities
+      if (e.code === 'KeyZ') {
+        // Shoot
+        this.player.shoot();
+      } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        // Dash in current direction
+        let dirX = 0, dirY = 0;
+        if (this.keys['KeyA'] || this.keys['ArrowLeft']) dirX -= 1;
+        if (this.keys['KeyD'] || this.keys['ArrowRight']) dirX += 1;
+        if (this.keys['KeyW'] || this.keys['ArrowUp']) dirY -= 1;
+        if (this.keys['KeyS'] || this.keys['ArrowDown']) dirY += 1;
+        if (dirX === 0 && dirY === 0) dirX = 1; // Default right
+        this.player.dash(dirX, dirY, this.canvas.width, this.canvas.height);
+      } else if (e.code === 'KeyQ') {
+        // Deflect
+        this.player.deflect();
+      } else if (e.code === 'KeyT') {
+        // Debug: Force transform
+        if (this.boss.transform) {
+          this.transformBoss();
         }
       }
     }
@@ -2573,6 +2992,12 @@ class Game {
     if (this.gameOver) return;
 
     this.player.updateStatuses();
+    this.player.updateAbilities(this.canvas.width, this.canvas.height);
+
+    // Continuous shooting while Z is held
+    if (this.keys['KeyZ'] && !this.playerTurn) {
+      this.player.shoot();
+    }
 
     // Handle movement
     if (!this.playerTurn) {
@@ -2599,6 +3024,26 @@ class Game {
         }
       }
 
+      // Check player blast collisions with boss hitbox
+      const bossHitbox = this.boss.getHitbox();
+      for (const blast of this.player.blasts) {
+        if (blast.active && blast.checkBossHit(bossHitbox)) {
+          this.boss.takeDamage(blast.damage);
+          blast.active = false;
+          
+          // Check if boss defeated
+          if (this.boss.hp <= 0) {
+            if (this.boss.transform) {
+              this.transformBoss();
+            } else {
+              this.victory = true;
+              this.gameOver = true;
+              this.recordVictory();
+            }
+          }
+        }
+      }
+
       // Apply continuous effects (like wind pushing)
       for (const atk of this.boss.activeAttacks) {
         if (atk.continuous && atk.applyContinuousEffect) {
@@ -2606,17 +3051,38 @@ class Game {
         }
       }
 
-      // Check collisions (one-time damage effects)
+      // Check collisions and handle deflection
       for (const atk of this.boss.activeAttacks) {
-        if (atk.state === 'active' && !atk.continuous && atk.checkCollision(this.player)) {
-          atk.applyToPlayer(this.player, this);
-          atk.state = 'finished';
+        if (atk.state === 'active' && !atk.continuous) {
+          // Check if player is deflecting and attack is deflectable
+          if (this.player.isDeflecting && atk.deflectable && !atk.deflected) {
+            if (atk.checkCollision(this.player)) {
+              // Deflect the attack - reverse its direction or destroy it
+              atk.deflected = true;
+              if (atk.velocity) {
+                atk.velocity.x *= -1;
+                atk.velocity.y *= -1;
+              }
+              if (atk.speed) {
+                atk.speed *= -1;
+              }
+              // Deal damage to boss from deflected attack
+              this.boss.takeDamage(atk.damage * 0.5);
+              atk.state = 'finished';
+            }
+          } else if (atk.checkCollision(this.player)) {
+            atk.applyToPlayer(this.player, this);
+            atk.state = 'finished';
+          }
         }
       }
 
-      // Build attack gauge
+      // Build attack gauge (slower while shooting)
       if (this.player.hp > 0) {
-        this.player.attackGauge = Math.min(100, this.player.attackGauge + 0.35);
+        const gaugeRate = this.player.isShooting 
+          ? 0.35 * CONFIG.playerBlast.gaugeSlowdown 
+          : 0.35;
+        this.player.attackGauge = Math.min(100, this.player.attackGauge + gaugeRate);
       }
     }
 
@@ -2713,10 +3179,114 @@ class Game {
     // Draw touch controls
     this.drawTouchControls();
 
+    // Draw attack legend
+    this.drawAttackLegend();
+
+    // Draw ability cooldowns
+    this.drawAbilityCooldowns();
+
     // Draw game over screen
     if (this.gameOver) {
       this.drawGameOver();
     }
+  }
+
+  drawAttackLegend() {
+    const usedAttacks = Array.from(this.boss.usedAttacks);
+    if (usedAttacks.length === 0) return;
+
+    const ctx = this.ctx;
+    const legendX = 10;
+    const legendY = 130;
+    const itemHeight = 22;
+    const maxVisible = 8;
+    
+    // Background
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(legendX, legendY, 200, Math.min(usedAttacks.length, maxVisible) * itemHeight + 30);
+    
+    // Title
+    ctx.fillStyle = '#d4af37';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('ATTACK LEGEND', legendX + 10, legendY + 18);
+    
+    // List attacks
+    ctx.font = '11px sans-serif';
+    for (let i = 0; i < Math.min(usedAttacks.length, maxVisible); i++) {
+      const atkName = usedAttacks[i];
+      const desc = ATTACK_DESCRIPTIONS[atkName];
+      if (desc) {
+        const y = legendY + 35 + i * itemHeight;
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`${desc.icon} ${desc.name}`, legendX + 10, y);
+      }
+    }
+    
+    if (usedAttacks.length > maxVisible) {
+      ctx.fillStyle = '#888';
+      ctx.fillText(`+${usedAttacks.length - maxVisible} more...`, legendX + 10, legendY + 35 + maxVisible * itemHeight);
+    }
+  }
+
+  drawAbilityCooldowns() {
+    const ctx = this.ctx;
+    const player = this.player;
+    const w = this.canvas.width;
+    
+    // Draw cooldown/ability indicators near the bottom right
+    const startX = w - 180;
+    const startY = this.canvas.height - 180;
+    const iconSize = 35;
+    const gap = 5;
+    
+    // Shoot indicator (Z)
+    this.drawAbilityIcon(ctx, startX, startY, iconSize, 'Z', '#00ffff', 
+      player.shootCooldown <= 0, player.shootCooldown / CONFIG.playerBlast.cooldown);
+    
+    // Dash indicator (SHIFT)
+    this.drawAbilityIcon(ctx, startX + iconSize + gap, startY, iconSize, '⇧', '#ffffff',
+      player.dashCooldown <= 0 && player.attackGauge >= CONFIG.dash.cost, 
+      player.dashCooldown / CONFIG.dash.cooldown,
+      player.attackGauge < CONFIG.dash.cost ? '#666' : null);
+    
+    // Deflect indicator (Q)
+    this.drawAbilityIcon(ctx, startX + (iconSize + gap) * 2, startY, iconSize, 'Q', '#ffcc00',
+      player.deflectCooldown <= 0 && player.attackGauge >= CONFIG.deflect.cost,
+      player.deflectCooldown / CONFIG.deflect.cooldown,
+      player.attackGauge < CONFIG.deflect.cost ? '#666' : null);
+    
+    // Show cost labels
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${CONFIG.dash.cost}%`, startX + iconSize + gap + iconSize / 2, startY + iconSize + 12);
+    ctx.fillText(`${CONFIG.deflect.cost}%`, startX + (iconSize + gap) * 2 + iconSize / 2, startY + iconSize + 12);
+  }
+
+  drawAbilityIcon(ctx, x, y, size, label, color, ready, cooldownFrac, disabledColor = null) {
+    // Background
+    ctx.fillStyle = disabledColor || (ready ? 'rgba(40, 40, 50, 0.8)' : 'rgba(30, 30, 40, 0.6)');
+    ctx.fillRect(x, y, size, size);
+    
+    // Cooldown overlay
+    if (!ready && cooldownFrac > 0) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(x, y, size, size * cooldownFrac);
+    }
+    
+    // Border
+    ctx.strokeStyle = ready ? color : 'rgba(100, 100, 100, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, size, size);
+    
+    // Label
+    ctx.fillStyle = ready ? color : 'rgba(150, 150, 150, 0.7)';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x + size / 2, y + size / 2);
+    ctx.textBaseline = 'alphabetic';
   }
 
   drawStatusIcons() {
